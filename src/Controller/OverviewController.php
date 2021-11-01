@@ -98,6 +98,71 @@ class OverviewController extends AbstractController
     ]);
     
   }
+
+
+  /**
+   * Function to display and handle add forms
+   * 
+   * @author Daniel Boling
+   * 
+   * @Route("/new", name="new_item");
+   */
+  public function new_item(Request $request): Response
+  {
+    $em = $this->getDoctrine()->getManager();
+    // Required line for modifying database entries
+
+    $date = new \DateTime();
+    $date = $date->format('l, j F, Y');
+
+    $item = new Item();
+
+    $form = $this->createFormBuilder($item)
+      ->add('name', TextType::class)
+      ->add('loc', ChoiceType::class, [
+        'choices' => [
+          $em->getRepository(Location::class)
+            ->findAll()
+        ],
+        'label' => 'Location',
+        'choice_label' => 'name',
+      ])
+      ->add('quantity', IntegerType::class)
+      ->add('unit', ChoiceType::class, [
+        'choices' => [
+          'Box(es)' => 'Box(es)',
+          'Jars' => 'Jars',
+          'Cans' => 'Cans',
+          'Pounds - lbs' => 'lbs',
+          'Ounces - oz' => 'oz',
+          'Package' => 'pkg',
+          'Gallon' => 'gallon',
+        ],
+      ])
+      ->add('submit', SubmitType::class, ['label' => 'Add New Item'])
+      ->getForm()
+      ;
+    
+    $form->handleRequest($request);
+    if($form->isSubmitted() && $form->isValid())
+    {
+      $item = $form->get('name', 'quantity', 'unit')->getData();
+      $loc = $form->get('loc')->getData();
+      $em->addLoc($loc);
+      $em->persist($item);
+      $em->persist($loc);
+      $em->flush();
+
+      return $this->redirectToRoute('showAll');
+    }
+
+    return $this->render('new_item.html.twig', [
+      'form' => $form->createView(),
+      'date' => $date,
+    ]);
+    
+  }
+
 }
 
 // EOF
