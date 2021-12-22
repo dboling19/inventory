@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\ItemRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -22,27 +20,18 @@ class Item
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private $Name;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $quantity;
+    private $Quantity;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\ManyToOne(targetEntity=Location::class, inversedBy="items")
      */
-    private $unit;
+    private $Location;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=Location::class, inversedBy="items")
-     */
-    private $loc;
-
-    public function __construct()
-    {
-        $this->loc = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -51,61 +40,38 @@ class Item
 
     public function getName(): ?string
     {
-        return $this->name;
+        return $this->Name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $Name): self
     {
-        $this->name = $name;
+        $this->Name = $Name;
 
         return $this;
     }
 
     public function getQuantity(): ?int
     {
-        return $this->quantity;
+        return $this->Quantity;
     }
 
-    public function setQuantity(int $quantity): self
+    public function setQuantity(int $Quantity): self
     {
-        $this->quantity = $quantity;
+        $this->Quantity = $Quantity;
 
         return $this;
     }
 
-    public function getUnit(): ?string
+    public function getLocation(): ?Location
     {
-        return $this->unit;
+        return $this->Location;
     }
 
-    public function setUnit(?string $unit): self
+    public function setLocation(?Location $Location): self
     {
-        $this->unit = $unit;
+        $this->Location = $Location;
 
         return $this;
     }
 
-    /**
-     * @return Collection|Location[]
-     */
-    public function getLoc(): Collection
-    {
-        return $this->loc;
-    }
-
-    public function addLoc(Location $loc): self
-    {
-        if (!$this->loc->contains($loc)) {
-            $this->loc[] = $loc;
-        }
-
-        return $this;
-    }
-
-    public function removeLoc(Location $loc): self
-    {
-        $this->loc->removeElement($loc);
-
-        return $this;
-    }
 }

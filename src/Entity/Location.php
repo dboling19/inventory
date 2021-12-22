@@ -20,14 +20,14 @@ class Location
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $name;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=Item::class, mappedBy="loc")
+     * @ORM\OneToMany(targetEntity=Item::class, mappedBy="Location")
      */
     private $items;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $Name;
 
     public function __construct()
     {
@@ -37,18 +37,6 @@ class Location
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
     }
 
     /**
@@ -63,7 +51,7 @@ class Location
     {
         if (!$this->items->contains($item)) {
             $this->items[] = $item;
-            $item->addLoc($this);
+            $item->setLocation($this);
         }
 
         return $this;
@@ -72,8 +60,23 @@ class Location
     public function removeItem(Item $item): self
     {
         if ($this->items->removeElement($item)) {
-            $item->removeLoc($this);
+            // set the owning side to null (unless already changed)
+            if ($item->getLocation() === $this) {
+                $item->setLocation(null);
+            }
         }
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->Name;
+    }
+
+    public function setName(string $Name): self
+    {
+        $this->Name = $Name;
 
         return $this;
     }

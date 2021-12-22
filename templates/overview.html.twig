@@ -21,13 +21,15 @@
         <tr>
           <th>Item</th>
           <th>Quantity</th>
+          <th>Location</th>
           <th>Unit</th>
           <th></th>
         </tr>
         {% for row in item %} {# simple loop to output rows #}
           <tr>
             <td>{{ row.name }}</td>
-            <td>{{ row.quantity }} </td>
+            <td>{{ row.quantity }}</td>
+            <td>{{ row.loc }}</td>
             <td>{{ row.unit }}</td>
             <td><a href="{{ path('modify_item', {'id': row.id }) }}">Modify</a></td>
           </tr>

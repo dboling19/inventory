@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\Item;
 use App\Entity\Location;
+use App\Entity\Item_Location;
 
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -31,8 +32,9 @@ class OverviewController extends AbstractController
 
     $item = $this->getDoctrine()
       ->getRepository(Item::class)
-      ->findAll()
+      ->find_items()
     ;
+
 
     return $this->render('overview.html.twig', [
       'date' => $date,
@@ -57,7 +59,7 @@ class OverviewController extends AbstractController
 
     $item = $this->getDoctrine()
         ->getRepository(Item::class)
-        ->findById($id)
+        ->find($id)
     ;
     
     $item_loc = $this->getDoctrine()
@@ -66,9 +68,7 @@ class OverviewController extends AbstractController
     ;
 
     $form = $this->createFormBuilder($item)
-      ->add('name', TextType::class, [
-          'data' => $item['Name'],
-      ])
+      ->add('name', TextType::class)
       ->add('loc', ChoiceType::class, [
         'choices' => [
           $em->getRepository(Location::class)
