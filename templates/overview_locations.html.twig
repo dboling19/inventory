@@ -9,12 +9,13 @@
 
   <body>
     <div class="w3-bar">
-      <a class="w3-button" href="https://localhost:8000/overview/items">Overview</a>
+      <a class="w3-button" href="https://localhost:8000/items">Items</a>
       <a class="w3-button" href="https://localhost:8000/new/item">New Item</a>
-      <a class="w3-button" href="https://localhost:800/new/location">New Location</a>
+      <a class="w3-button" href="https://localhost:8000/locations">Locations</a>
+      <a class="w3-button" href="https://localhost:8000/new/location">New Location</a>
     </div>
     <div class="w3-panel">
-      <h3>Inventory</h3>
+      <h3>Locations</h3>
       <p>{{ date }}</p>
     </div>
     <div class="w3-panel .dbtheme-purple">
@@ -26,7 +27,7 @@
         {% for row in result %} {# simple loop to output rows #}
           <tr>
             <td>{{ row.name }}</td>
-            <td><a href="{{ path('modify_loc', {'id': row.id }) }}">Modify</a></td>
+            <td><a href="{{ path('modify_location', {'id': row.id }) }}">Modify</a></td>
           </tr>
         {% endfor %}
       </table>

@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\Item;
 use App\Entity\Location;
 use App\Entity\Item_Location;
+use Doctrine\Common\Collections\ArrayCollection;
 
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -23,9 +24,9 @@ class OverviewController extends AbstractController
    * 
    * @author Daniel Boling
    * 
-   * @Route("/overview/items", name="show_items")
+   * @Route("/items", name="show_items")
    */
-  public function showAll(): Response
+  public function show_items(): Response
   {
     $date = new \DateTime();
     $date = $date->format('D, j F, Y');
@@ -88,7 +89,7 @@ class OverviewController extends AbstractController
       $em->persist($item);
       $em->flush();
 
-      return $this->redirectToRoute('show_all');
+      return $this->redirectToRoute('show_items');
     }
 
     return $this->render('modify_item.html.twig', [
@@ -127,7 +128,7 @@ class OverviewController extends AbstractController
         'choice_label' => 'name',
       ])
       ->add('quantity', IntegerType::class)
-      ->add('submit', SubmitType::class, ['label' => 'Add New Item'])
+      ->add('submit', SubmitType::class, ['label' => 'Add Item'])
       ->getForm()
       ;
     
@@ -138,7 +139,7 @@ class OverviewController extends AbstractController
       $em->persist($item);
       $em->flush();
 
-      return $this->redirectToRoute('show_all');
+      return $this->redirectToRoute('show_items');
     }
 
     return $this->render('new_item.html.twig', [
@@ -168,6 +169,7 @@ class OverviewController extends AbstractController
 
     $form = $this->createFormBuilder($loc)
       ->add('name', TextType::class)
+      ->add('submit', SubmitType::class,['label' => 'Add Location'])
       ->getForm()
     ;
 
@@ -194,7 +196,7 @@ class OverviewController extends AbstractController
    * 
    * @author Daniel Boling
    * 
-   * @Route("/overview/locations", name="show_locations")
+   * @Route("/locations", name="show_locations")
    */
   public function show_locations(): Response
   {
@@ -228,43 +230,47 @@ class OverviewController extends AbstractController
     $date = new \DateTime();
     $date = $date->format('l, j F, Y');
 
-    $item = $this->getDoctrine()
-        ->getRepository(Item::class)
+    $loc = $this->getDoctrine()
+        ->getRepository(Location::class)
         ->find($id)
     ;
-    
-    $item_loc = $this->getDoctrine()
-        ->getRepository(Item::class)
-        ->findById($id)
-    ;
 
-    $form = $this->createFormBuilder($item)
+    $items = $loc->getItems();
+
+    $options_array = array('label' => 'Delete Location', 'disabled' => true);
+    if(count($items) == 0)
+    {
+      $options_array['disabled'] = false;
+    } else {
+      $options_array['disabled'] = true;
+    }
+
+    $form = $this->createFormBuilder($loc)
       ->add('name', TextType::class)
-      ->add('location', ChoiceType::class, [
-        'choices' => [
-          $em->getRepository(Location::class)
-            ->findAll()
-        ],
-        'choice_label' => 'name',
-        'label' => 'Location',
-      ])
-      ->add('quantity', IntegerType::class)
-      ->add('submit', SubmitType::class, ['label' => 'Store Item'])
+      ->add('submit', SubmitType::class, ['label' => 'Modify Location'])
+      ->add('delete', SubmitType::class, $options_array)
       ->getForm()
-      ;
+    ;
     
     $form->handleRequest($request);
     if($form->isSubmitted() && $form->isValid())
     {
-      $item = $form->getData();
-      $em->persist($item);
-      $em->flush();
+      if($form->get('submit')->isClicked()){
+        $loc = $form->getData();
+        $em->persist($loc);
+        $em->flush();
+      } elseif($form->get('delete')->isClicked()) {
+        $loc = $form->getData();
+        $em->remove($loc);
+        $em->flush();
+      }
 
-      return $this->redirectToRoute('show_all');
+      return $this->redirectToRoute('show_locations');
     }
 
-    return $this->render('modify_item.html.twig', [
+    return $this->render('modify_location.html.twig', [
       'form' => $form->createView(),
+      'items' => $items,
       'date' => $date,
     ]);
     

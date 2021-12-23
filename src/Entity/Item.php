@@ -29,6 +29,7 @@ class Item
 
     /**
      * @ORM\ManyToOne(targetEntity=Location::class, inversedBy="items")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $Location;
 

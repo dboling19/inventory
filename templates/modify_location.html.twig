@@ -2,7 +2,7 @@
   <head>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
-    <title>Inventory - Add New Location</title>
+    <title>Inventory - Modify</title>
   </head>
 
   <body>
@@ -14,12 +14,29 @@
     </div>
     <div class="w3-panel">
       <div class="w3-panel">
-        <h3>Add New Location</h3>
+        <h3>Modify Location</h3>
         <p>{{ date }}</p>
       </div>
     </div>
     <div class="w3-panel">
       <b>{{ form(form) }}</b>
+    </div>
+
+    <div class="w3-panel .dbtheme-purple">
+      <table class="w3-table-all">
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th></th>
+        </tr>
+        {% for row in items %} {# simple loop to output rows #}
+          <tr>
+            <td>{{ row.name }}</td>
+            <td>{{ row.quantity }}</td>
+            <td><a href="{{ path('modify_item', {'id': row.id }) }}">Modify</a></td>
+          </tr>
+        {% endfor %}
+      </table>
     </div>
   </body>
 

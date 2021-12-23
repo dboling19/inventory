@@ -28,9 +28,5 @@ class ItemFixtures extends Fixture
 
         $manager->flush();
     }
-
-    public function getOrder()
-    {
-        return 2;
-    }
+    
 }

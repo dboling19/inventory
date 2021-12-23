@@ -20,14 +20,14 @@ class Location
     private $id;
 
     /**
-     * @ORM\OneToMany(targetEntity=Item::class, mappedBy="Location")
-     */
-    private $items;
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     private $Name;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Item::class, mappedBy="Location")
+     */
+    private $items;
 
     public function __construct()
     {
@@ -37,6 +37,18 @@ class Location
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->Name;
+    }
+
+    public function setName(string $Name): self
+    {
+        $this->Name = $Name;
+
+        return $this;
     }
 
     /**
@@ -65,18 +77,6 @@ class Location
                 $item->setLocation(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->Name;
-    }
-
-    public function setName(string $Name): self
-    {
-        $this->Name = $Name;
 
         return $this;
     }
