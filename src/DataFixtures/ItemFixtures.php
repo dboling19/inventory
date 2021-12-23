@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use App\Entity\Item;
+use App\Entity\Location;
 
 class ItemFixtures extends Fixture
 {
@@ -22,7 +23,8 @@ class ItemFixtures extends Fixture
         $item = new Item();
         $item->setName('Ketchup');
         $item->setQuantity(2);
-        $item->setLocation();
+        $item->setLocation($loc);
+        $manager->persist($item);
 
         $manager->flush();
     }

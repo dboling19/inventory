@@ -1,0 +1,36 @@
+<html>
+
+  <head>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="stylesheet.css">
+
+    <title>Inventory - Location Overview</title>
+  </head>
+
+  <body>
+    <div class="w3-bar">
+      <a class="w3-button" href="https://localhost:8000/overview/items">Overview</a>
+      <a class="w3-button" href="https://localhost:8000/new/item">New Item</a>
+      <a class="w3-button" href="https://localhost:800/new/location">New Location</a>
+    </div>
+    <div class="w3-panel">
+      <h3>Inventory</h3>
+      <p>{{ date }}</p>
+    </div>
+    <div class="w3-panel .dbtheme-purple">
+      <table class="w3-table-all">
+        <tr>
+          <th>Name</th>
+          <th></th>
+        </tr>
+        {% for row in result %} {# simple loop to output rows #}
+          <tr>
+            <td>{{ row.name }}</td>
+            <td><a href="{{ path('modify_loc', {'id': row.id }) }}">Modify</a></td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </body>
+
+</html>

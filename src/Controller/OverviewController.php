@@ -23,31 +23,30 @@ class OverviewController extends AbstractController
    * 
    * @author Daniel Boling
    * 
-   * @Route("/overview", name="show_all")
+   * @Route("/overview/items", name="show_items")
    */
   public function showAll(): Response
   {
     $date = new \DateTime();
     $date = $date->format('D, j F, Y');
 
-    $item = $this->getDoctrine()
+    $result = $this->getDoctrine()
       ->getRepository(Item::class)
-      ->find_items()
+      ->findAll()
     ;
 
-
-    return $this->render('overview.html.twig', [
+    return $this->render('overview_items.html.twig', [
       'date' => $date,
-      'item' => $item,
+      'result' => $result,
     ]);
   }
 
   /**
-   * Function to display and handle add forms
+   * Function to display and handle item modification forms
    * 
    * @author Daniel Boling
    * 
-   * @Route("/modify/{id}", name="modify_item");
+   * @Route("/modify/item/{id}", name="modify_item");
    */
   public function modify_item(Request $request, $id): Response
   {
@@ -69,7 +68,7 @@ class OverviewController extends AbstractController
 
     $form = $this->createFormBuilder($item)
       ->add('name', TextType::class)
-      ->add('loc', ChoiceType::class, [
+      ->add('location', ChoiceType::class, [
         'choices' => [
           $em->getRepository(Location::class)
             ->findAll()
@@ -89,7 +88,7 @@ class OverviewController extends AbstractController
       $em->persist($item);
       $em->flush();
 
-      return $this->redirectToRoute('showAll');
+      return $this->redirectToRoute('show_all');
     }
 
     return $this->render('modify_item.html.twig', [
@@ -105,7 +104,7 @@ class OverviewController extends AbstractController
    * 
    * @author Daniel Boling
    * 
-   * @Route("/new", name="new_item");
+   * @Route("/new/item", name="new_item");
    */
   public function new_item(Request $request): Response
   {
@@ -119,7 +118,7 @@ class OverviewController extends AbstractController
 
     $form = $this->createFormBuilder($item)
       ->add('name', TextType::class)
-      ->add('loc', ChoiceType::class, [
+      ->add('location', ChoiceType::class, [
         'choices' => [
           $em->getRepository(Location::class)
             ->findAll()
@@ -128,17 +127,6 @@ class OverviewController extends AbstractController
         'choice_label' => 'name',
       ])
       ->add('quantity', IntegerType::class)
-      ->add('unit', ChoiceType::class, [
-        'choices' => [
-          'Box(es)' => 'Box(es)',
-          'Jars' => 'Jars',
-          'Cans' => 'Cans',
-          'Pounds - lbs' => 'lbs',
-          'Ounces - oz' => 'oz',
-          'Package' => 'pkg',
-          'Gallon' => 'gallon',
-        ],
-      ])
       ->add('submit', SubmitType::class, ['label' => 'Add New Item'])
       ->getForm()
       ;
@@ -146,17 +134,136 @@ class OverviewController extends AbstractController
     $form->handleRequest($request);
     if($form->isSubmitted() && $form->isValid())
     {
-      $item = $form->get('name', 'quantity', 'unit')->getData();
-      $loc = $form->get('loc')->getData();
-      $em->addLoc($loc);
+      $item = $form->getData();
       $em->persist($item);
-      $em->persist($loc);
       $em->flush();
 
-      return $this->redirectToRoute('showAll');
+      return $this->redirectToRoute('show_all');
     }
 
     return $this->render('new_item.html.twig', [
+      'form' => $form->createView(),
+      'date' => $date,
+    ]);
+    
+  }
+
+
+  /**
+   * Function to control the addition of new locations
+   * 
+   * @author Daniel Boling
+   * 
+   * @Route("/new/location", name="new_location")
+   */
+  public function add_location(Request $request): Response
+  {
+    $em = $this->getDoctrine()->getManager();
+    // Required line for modifying database entries
+
+    $date = new \DateTime();
+    $date = $date->format('l, j F, Y');
+
+    $loc = new Location();
+
+    $form = $this->createFormBuilder($loc)
+      ->add('name', TextType::class)
+      ->getForm()
+    ;
+
+    $form->handleRequest($request);
+    if($form->isSubmitted() && $form->isValid())
+    {
+      $loc = $form->getData();
+      $em->persist($loc);
+      $em->flush();
+
+      return $this->redirectToRoute('show_locations');
+    }
+
+    return $this->render('new_location.html.twig', [
+      'form' => $form->createView(),
+      'date' => $date,
+    ]);
+
+  }
+
+  
+  /**
+   * Function to display all items in the system
+   * 
+   * @author Daniel Boling
+   * 
+   * @Route("/overview/locations", name="show_locations")
+   */
+  public function show_locations(): Response
+  {
+    $date = new \DateTime();
+    $date = $date->format('D, j F, Y');
+
+    $result = $this->getDoctrine()
+      ->getRepository(Location::class)
+      ->findAll()
+    ;
+
+    return $this->render('overview_locations.html.twig', [
+      'date' => $date,
+      'result' => $result,
+    ]);
+  }
+
+
+  /**
+   * Function to display and handle add forms
+   * 
+   * @author Daniel Boling
+   * 
+   * @Route("/modify/location/{id}", name="modify_location");
+   */
+  public function modify_location(Request $request, $id): Response
+  {
+    $em = $this->getDoctrine()->getManager();
+    // Required line for modifying database entries
+
+    $date = new \DateTime();
+    $date = $date->format('l, j F, Y');
+
+    $item = $this->getDoctrine()
+        ->getRepository(Item::class)
+        ->find($id)
+    ;
+    
+    $item_loc = $this->getDoctrine()
+        ->getRepository(Item::class)
+        ->findById($id)
+    ;
+
+    $form = $this->createFormBuilder($item)
+      ->add('name', TextType::class)
+      ->add('location', ChoiceType::class, [
+        'choices' => [
+          $em->getRepository(Location::class)
+            ->findAll()
+        ],
+        'choice_label' => 'name',
+        'label' => 'Location',
+      ])
+      ->add('quantity', IntegerType::class)
+      ->add('submit', SubmitType::class, ['label' => 'Store Item'])
+      ->getForm()
+      ;
+    
+    $form->handleRequest($request);
+    if($form->isSubmitted() && $form->isValid())
+    {
+      $item = $form->getData();
+      $em->persist($item);
+      $em->flush();
+
+      return $this->redirectToRoute('show_all');
+    }
+
+    return $this->render('modify_item.html.twig', [
       'form' => $form->createView(),
       'date' => $date,
     ]);
