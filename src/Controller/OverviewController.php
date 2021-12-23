@@ -101,7 +101,7 @@ class OverviewController extends AbstractController
 
 
   /**
-   * Function to display and handle add forms
+   * Function to display and handle new item forms
    * 
    * @author Daniel Boling
    * 
@@ -192,7 +192,7 @@ class OverviewController extends AbstractController
 
   
   /**
-   * Function to display all items in the system
+   * Function to display all locations in the system
    * 
    * @author Daniel Boling
    * 
@@ -216,7 +216,7 @@ class OverviewController extends AbstractController
 
 
   /**
-   * Function to display and handle add forms
+   * Function to handle location modification
    * 
    * @author Daniel Boling
    * 
