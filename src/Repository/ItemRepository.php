@@ -19,6 +19,20 @@ class ItemRepository extends ServiceEntityRepository
         parent::__construct($registry, Item::class);
     }
 
+    /**
+     * @author Daniel Boling
+     * @return Item[] Returns an array of Item objects
+     */
+    public function findItem($name)
+    {
+        return $this->createQueryBuilder('i')
+            ->andWhere('i.Name like :val')
+            ->setParameter('val', '%'.$name.'%')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     // /**
     //  * @return Item[] Returns an array of Item objects
     //  */

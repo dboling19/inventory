@@ -12,6 +12,7 @@ use App\Entity\Item_Location;
 use Doctrine\Common\Collections\ArrayCollection;
 
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\SearchType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -26,8 +27,10 @@ class OverviewController extends AbstractController
    * 
    * @Route("/items", name="show_items")
    */
-  public function show_items(): Response
+  public function show_items(Request $request): Response
   {
+    $em = $this->getDoctrine()->getManager();
+
     $date = new \DateTime();
     $date = $date->format('D, j F, Y');
 
@@ -36,7 +39,24 @@ class OverviewController extends AbstractController
       ->findAll()
     ;
 
+    $search = array('name' => '');
+
+    $form = $this->createFormBuilder($search)
+      ->add('name', SearchType::class)
+      ->add('search', SubmitType::class)
+      ->getForm()
+    ;
+
+    $form->handleRequest($request);
+    if($form->isSubmitted() && $form->isValid())
+    {
+      $search = $form->getData();
+      $result = $this->getDoctrine()->getRepository(Item::class);
+      $result = $result->findItem($search['name']);
+    }
+
     return $this->render('overview_items.html.twig', [
+      'form' => $form->createView(),
       'date' => $date,
       'result' => $result,
     ]);
@@ -245,22 +265,37 @@ class OverviewController extends AbstractController
       $options_array['disabled'] = true;
     }
 
-    $form = $this->createFormBuilder($loc)
+    $modify_form = $this->createFormBuilder($loc)
       ->add('name', TextType::class)
       ->add('submit', SubmitType::class, ['label' => 'Modify Location'])
       ->add('delete', SubmitType::class, $options_array)
       ->getForm()
     ;
-    
-    $form->handleRequest($request);
-    if($form->isSubmitted() && $form->isValid())
+
+    $search = array('name' => '');
+    $search_form = $this->createFormBuilder($search)
+      ->add('name', SearchType::class)
+      ->add('search', SubmitType::class)
+      ->getForm()
+    ;
+
+    $search_form->handleRequest($request);
+    if($search_form->isSubmitted() && $search_form->isValid())
     {
-      if($form->get('submit')->isClicked()){
-        $loc = $form->getData();
+      $search = $search_form->getData();
+      $items = $this->getDoctrine()->getRepository(Item::class);
+      $items = $items->findItem($search['name']);
+    }
+      
+    $modify_form->handleRequest($request);
+    if($modify_form->isSubmitted() && $modify_form->isValid())
+    {
+      if($modify_form->get('submit')->isClicked()){
+        $loc = $modify_form->getData();
         $em->persist($loc);
         $em->flush();
-      } elseif($form->get('delete')->isClicked()) {
-        $loc = $form->getData();
+      } elseif($modify_form->get('delete')->isClicked()) {
+        $loc = $modify_form->getData();
         $em->remove($loc);
         $em->flush();
       }
@@ -269,7 +304,8 @@ class OverviewController extends AbstractController
     }
 
     return $this->render('modify_location.html.twig', [
-      'form' => $form->createView(),
+      'search_form' => $search_form->createView(),
+      'modify_form' => $modify_form->createView(),
       'items' => $items,
       'date' => $date,
     ]);
