@@ -244,9 +244,7 @@ class OverviewController extends AbstractController
    */
   public function modify_location(Request $request, $id): Response
   {
-    $em = $this->getDoctrine()->getManager();
-    // Required line for modifying database entries
-
+    $em = $this->getDoctrine()->getManager['name'];
     $date = new \DateTime();
     $date = $date->format('l, j F, Y');
 
