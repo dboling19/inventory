@@ -9,11 +9,12 @@
 
   <body>
     <div class="w3-bar">
-      <a class="w3-button" href="https://localhost:8000/items">Items</a>
-      <a class="w3-button" href="https://localhost:8000/new/item">New Item</a>
-      <a class="w3-button" href="https://localhost:8000/locations">Locations</a>
-      <a class="w3-button" href="https://localhost:8000/new/location">New Location</a>
+      <a class="w3-button" href="https://{{ hostname }}:8000/items">Items</a>
+      <a class="w3-button" href="https://{{ hostname }}:8000/new/item">New Item</a>
+      <a class="w3-button" href="https://{{ hostname }}:8000/locations">Locations</a>
+      <a class="w3-button" href="https://{{ hostname }}:8000/new/location">New Location</a>
     </div>
+    {{ hostname }}
     <div class="w3-panel">
       <h3>Inventory</h3>
       <p>{{ date }}</p>
