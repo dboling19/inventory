@@ -23,7 +23,7 @@ class OverviewController extends AbstractController
 
   public function __construct()
   {
-    $this->hostname = 'arch-workstation';
+    $this->hostname = 'dboling-archworkstation';
   }
 
   /**
@@ -37,7 +37,6 @@ class OverviewController extends AbstractController
   {
     $em = $this->getDoctrine()->getManager();
 
-    var_dump($this->hostname);
     $date = new \DateTime();
     $date = $date->format('D, j F, Y');
 
