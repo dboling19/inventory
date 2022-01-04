@@ -31,7 +31,7 @@ class OverviewController extends AbstractController
    * 
    * @author Daniel Boling
    * 
-   * @Route("/", name="show_items")
+   * @Route("/items", name="show_items")
    */
   public function show_items(Request $request): Response
   {
