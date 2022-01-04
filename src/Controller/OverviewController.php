@@ -20,17 +20,24 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 class OverviewController extends AbstractController
 {
+
+  public function __construct()
+  {
+    $this->hostname = 'arch-workstation';
+  }
+
   /**
    * Function to display all items in the system
    * 
    * @author Daniel Boling
    * 
-   * @Route("/items", name="show_items")
+   * @Route("/", name="show_items")
    */
   public function show_items(Request $request): Response
   {
     $em = $this->getDoctrine()->getManager();
 
+    var_dump($this->hostname);
     $date = new \DateTime();
     $date = $date->format('D, j F, Y');
 
@@ -59,6 +66,7 @@ class OverviewController extends AbstractController
       'form' => $form->createView(),
       'date' => $date,
       'result' => $result,
+      'hostname' => $this->hostname,
     ]);
   }
 
@@ -115,6 +123,7 @@ class OverviewController extends AbstractController
     return $this->render('modify_item.html.twig', [
       'form' => $form->createView(),
       'date' => $date,
+      'hostname' => $this->hostname,
     ]);
     
   }
@@ -165,6 +174,7 @@ class OverviewController extends AbstractController
     return $this->render('new_item.html.twig', [
       'form' => $form->createView(),
       'date' => $date,
+      'hostname' => $this->hostname,
     ]);
     
   }
@@ -206,6 +216,7 @@ class OverviewController extends AbstractController
     return $this->render('new_location.html.twig', [
       'form' => $form->createView(),
       'date' => $date,
+      'hostname' => $this->hostname,
     ]);
 
   }
@@ -231,6 +242,7 @@ class OverviewController extends AbstractController
     return $this->render('overview_locations.html.twig', [
       'date' => $date,
       'result' => $result,
+      'hostname' => $this->hostname,
     ]);
   }
 
@@ -306,6 +318,7 @@ class OverviewController extends AbstractController
       'modify_form' => $modify_form->createView(),
       'items' => $items,
       'date' => $date,
+      'hostname' => $this->hostname,
     ]);
     
   }
