@@ -6,10 +6,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Item;
 use App\Entity\Location;
 use App\Entity\Item_Location;
 use Doctrine\Common\Collections\ArrayCollection;
+use Knp\Component\Pager\PaginatorInterface;
 
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\SearchType;
@@ -21,7 +23,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 class OverviewController extends AbstractController
 {
 
-  public function __construct()
+  public function __construct(EntityManagerInterface $em, )
   {
     $this->hostname = 'dboling-archworkstation';
   }
