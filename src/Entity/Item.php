@@ -20,18 +20,18 @@ class Item
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $Name;
+    private $name;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $Quantity;
+    private $quantity;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Location::class, inversedBy="items")
+     * @ORM\ManyToOne(targetEntity=location::class, inversedBy="items")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $Location;
+    private $location;
 
 
     public function getId(): ?int
@@ -41,36 +41,36 @@ class Item
 
     public function getName(): ?string
     {
-        return $this->Name;
+        return $this->name;
     }
 
-    public function setName(string $Name): self
+    public function setName(string $name): self
     {
-        $this->Name = $Name;
+        $this->name = $name;
 
         return $this;
     }
 
     public function getQuantity(): ?int
     {
-        return $this->Quantity;
+        return $this->quantity;
     }
 
-    public function setQuantity(int $Quantity): self
+    public function setQuantity(int $quantity): self
     {
-        $this->Quantity = $Quantity;
+        $this->quantity = $quantity;
 
         return $this;
     }
 
-    public function getLocation(): ?Location
+    public function getLocation(): ?location
     {
-        return $this->Location;
+        return $this->location;
     }
 
-    public function setLocation(?Location $Location): self
+    public function setLocation(?location $location): self
     {
-        $this->Location = $Location;
+        $this->location = $location;
 
         return $this;
     }
