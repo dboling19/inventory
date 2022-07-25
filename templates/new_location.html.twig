@@ -6,12 +6,7 @@
   </head>
 
   <body>
-    <div class="w3-bar">
-      <a class="w3-button" href="https://{{ hostname }}:8000/">Items</a>
-      <a class="w3-button" href="https://{{ hostname }}:8000/new/item">New Item</a>
-      <a class="w3-button" href="https://{{ hostname }}:8000/locations">Locations</a>
-      <a class="w3-button" href="https://{{ hostname }}:8000/new/location">New Location</a>
-    </div>
+    {{ include('navbar.html.twig') }}
     <div class="w3-panel">
       <div class="w3-panel">
         <h3>Add New Location</h3>

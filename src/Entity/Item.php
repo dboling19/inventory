@@ -28,10 +28,10 @@ class Item
     private $quantity;
 
     /**
-     * @ORM\ManyToOne(targetEntity=location::class, inversedBy="items")
+     * @ORM\ManyToOne(targetEntity=Location::class, inversedBy="items")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $location;
+    private $Location;
 
 
     public function getId(): ?int
@@ -63,14 +63,14 @@ class Item
         return $this;
     }
 
-    public function getLocation(): ?location
+    public function getLocation(): ?Location
     {
-        return $this->location;
+        return $this->Location;
     }
 
-    public function setLocation(?location $location): self
+    public function setLocation(?Location $Location): self
     {
-        $this->location = $location;
+        $this->Location = $Location;
 
         return $this;
     }

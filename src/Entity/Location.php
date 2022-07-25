@@ -22,7 +22,7 @@ class Location
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $Name;
+    private $name;
 
     /**
      * @ORM\OneToMany(targetEntity=Item::class, mappedBy="Location")

@@ -9,7 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Item;
 use App\Entity\Location;
-use App\Entity\Item_Location;
+use App\Repository\ItemRepository;
+use App\Repository\LocationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Knp\Component\Pager\PaginatorInterface;
 
@@ -23,9 +24,12 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 class OverviewController extends AbstractController
 {
 
-  public function __construct(EntityManagerInterface $em, )
+  public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo)
   {
-    $this->hostname = 'dboling-archworkstation';
+    $this->em = $em;
+    $this->item_repo = $item_repo;
+    $this->loc_repo = $loc_repo;
+    $this->date = (new \DateTime('now'))->format('D, j F, Y');
   }
 
   /**
@@ -37,15 +41,8 @@ class OverviewController extends AbstractController
    */
   public function show_items(Request $request): Response
   {
-    $em = $this->getDoctrine()->getManager();
 
-    $date = new \DateTime();
-    $date = $date->format('D, j F, Y');
-
-    $result = $this->getDoctrine()
-      ->getRepository(Item::class)
-      ->findAll()
-    ;
+    $result = $this->item_repo->findAll();
 
     $search = array('name' => '');
 
@@ -59,16 +56,15 @@ class OverviewController extends AbstractController
     if($form->isSubmitted() && $form->isValid())
     {
       $search = $form->getData();
-      $result = $this->getDoctrine()->getRepository(Item::class);
-      $result = $result->findItem($search['name']);
+      $result = $this->item_repo->findItem($search['name']);
     }
 
     return $this->render('overview_items.html.twig', [
       'form' => $form->createView(),
-      'date' => $date,
+      'date' => $this->date,
       'result' => $result,
-      'hostname' => $this->hostname,
     ]);
+
   }
 
   /**
@@ -80,28 +76,14 @@ class OverviewController extends AbstractController
    */
   public function modify_item(Request $request, $id): Response
   {
-    $em = $this->getDoctrine()->getManager();
-    // Required line for modifying database entries
 
-    $date = new \DateTime();
-    $date = $date->format('l, j F, Y');
-
-    $item = $this->getDoctrine()
-        ->getRepository(Item::class)
-        ->find($id)
-    ;
-    
-    $item_loc = $this->getDoctrine()
-        ->getRepository(Item::class)
-        ->findById($id)
-    ;
+    $item = $this->item_repo->find($id);
 
     $form = $this->createFormBuilder($item)
       ->add('name', TextType::class)
       ->add('location', ChoiceType::class, [
         'choices' => [
-          $em->getRepository(Location::class)
-            ->findAll()
+          $this->loc_repo->findAll()
         ],
         'choice_label' => 'name',
         'label' => 'Location',
@@ -115,16 +97,14 @@ class OverviewController extends AbstractController
     if($form->isSubmitted() && $form->isValid())
     {
       $item = $form->getData();
-      $em->persist($item);
-      $em->flush();
-
+      $this->em->persist($item);
+      $this->em->flush();
       return $this->redirectToRoute('show_items');
     }
 
     return $this->render('modify_item.html.twig', [
       'form' => $form->createView(),
-      'date' => $date,
-      'hostname' => $this->hostname,
+      'date' => $this->date,
     ]);
     
   }
@@ -139,11 +119,6 @@ class OverviewController extends AbstractController
    */
   public function new_item(Request $request): Response
   {
-    $em = $this->getDoctrine()->getManager();
-    // Required line for modifying database entries
-
-    $date = new \DateTime();
-    $date = $date->format('l, j F, Y');
 
     $item = new Item();
 
@@ -151,8 +126,7 @@ class OverviewController extends AbstractController
       ->add('name', TextType::class)
       ->add('location', ChoiceType::class, [
         'choices' => [
-          $em->getRepository(Location::class)
-            ->findAll()
+          $this->loc_repo->findAll()
         ],
         'label' => 'Location',
         'choice_label' => 'name',
@@ -166,16 +140,15 @@ class OverviewController extends AbstractController
     if($form->isSubmitted() && $form->isValid())
     {
       $item = $form->getData();
-      $em->persist($item);
-      $em->flush();
+      $this->em->persist($item);
+      $this->em->flush();
 
       return $this->redirectToRoute('show_items');
     }
 
     return $this->render('new_item.html.twig', [
       'form' => $form->createView(),
-      'date' => $date,
-      'hostname' => $this->hostname,
+      'date' => $this->date,
     ]);
     
   }
@@ -190,11 +163,6 @@ class OverviewController extends AbstractController
    */
   public function add_location(Request $request): Response
   {
-    $em = $this->getDoctrine()->getManager();
-    // Required line for modifying database entries
-
-    $date = new \DateTime();
-    $date = $date->format('l, j F, Y');
 
     $loc = new Location();
 
@@ -208,16 +176,14 @@ class OverviewController extends AbstractController
     if($form->isSubmitted() && $form->isValid())
     {
       $loc = $form->getData();
-      $em->persist($loc);
-      $em->flush();
-
+      $this->em->persist($loc);
+      $this->em->flush();
       return $this->redirectToRoute('show_locations');
     }
 
     return $this->render('new_location.html.twig', [
       'form' => $form->createView(),
-      'date' => $date,
-      'hostname' => $this->hostname,
+      'date' => $this->date,
     ]);
 
   }
@@ -232,19 +198,14 @@ class OverviewController extends AbstractController
    */
   public function show_locations(): Response
   {
-    $date = new \DateTime();
-    $date = $date->format('D, j F, Y');
 
-    $result = $this->getDoctrine()
-      ->getRepository(Location::class)
-      ->findAll()
-    ;
+    $result = $this->loc_repo->findAll();
 
     return $this->render('overview_locations.html.twig', [
-      'date' => $date,
+      'date' => $this->date,
       'result' => $result,
-      'hostname' => $this->hostname,
     ]);
+
   }
 
 
@@ -257,19 +218,15 @@ class OverviewController extends AbstractController
    */
   public function modify_location(Request $request, $id): Response
   {
-    $em = $this->getDoctrine()->getManager['name'];
-    $date = new \DateTime();
-    $date = $date->format('l, j F, Y');
+    // $em = $this->getDoctrine()->getManager('name');
 
-    $loc = $this->getDoctrine()
-        ->getRepository(Location::class)
-        ->find($id)
-    ;
+    $loc = $this->loc_repo->find($id);
 
     $items = $loc->getItems();
 
     $options_array = array('label' => 'Delete Location', 'disabled' => true);
     if(count($items) == 0)
+    // disable delete button if items are in location
     {
       $options_array['disabled'] = false;
     } else {
@@ -289,13 +246,13 @@ class OverviewController extends AbstractController
       ->add('search', SubmitType::class)
       ->getForm()
     ;
+    // search for items
 
     $search_form->handleRequest($request);
     if($search_form->isSubmitted() && $search_form->isValid())
     {
       $search = $search_form->getData();
-      $items = $this->getDoctrine()->getRepository(Item::class);
-      $items = $items->findItem($search['name']);
+      $items = $this->item_repo->findItem($search['name']);
     }
       
     $modify_form->handleRequest($request);
@@ -303,12 +260,12 @@ class OverviewController extends AbstractController
     {
       if($modify_form->get('submit')->isClicked()){
         $loc = $modify_form->getData();
-        $em->persist($loc);
-        $em->flush();
+        $this->em->persist($loc);
+        $this->em->flush();
       } elseif($modify_form->get('delete')->isClicked()) {
         $loc = $modify_form->getData();
-        $em->remove($loc);
-        $em->flush();
+        $this->em->remove($loc);
+        $this->em->flush();
       }
 
       return $this->redirectToRoute('show_locations');
@@ -318,8 +275,7 @@ class OverviewController extends AbstractController
       'search_form' => $search_form->createView(),
       'modify_form' => $modify_form->createView(),
       'items' => $items,
-      'date' => $date,
-      'hostname' => $this->hostname,
+      'date' => $this->date,
     ]);
     
   }
