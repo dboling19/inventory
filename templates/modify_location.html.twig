@@ -1,37 +1,54 @@
+<!DOCTYPE html>
+
 <html>
   <head>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    {% block stylesheets %}
+      {{encore_entry_link_tags('app')}}
+    {% endblock %}
+    <script src="https://kit.fontawesome.com/0db354818b.js" crossorigin="anonymous"></script>
 
     <title>Inventory - Modify</title>
   </head>
 
   <body>
     {{ include('navbar.html.twig') }}
-    <div class="w3-panel">
-      <div class="w3-panel">
-        <h3>Modify Location</h3>
-        <p>{{ date }}</p>
-      </div>
+    <div class="w3-container">
+      <h3>Modify Location</h3>
+      <p>{{ date }}</p>
     </div>
-    <div class="w3-panel">
-      <b>{{ form(modify_form) }}</b>
+    <div class="w3-container">
+      {{ form_start(modify_form, {'attr': {'class': 'w3-third'} }) }}
+        <p>
+          {{ form_label(modify_form.name) }}
+          {{ form_widget(modify_form.name, {'attr': {'class': 'w3-input w3-border'} }) }}
+        </p>
+        <p>
+          {{ form_widget(modify_form.submit, {'attr': {'class': 'w3-button w3-border'} }) }}
+          {{ form_widget(modify_form.delete, {'attr': {'class': 'w3-button w3-border'} }) }}
+        </p>
+      {{ form_end(modify_form) }}
     </div>
-    <div class="w3-panel">
-      <b>{{ form(search_form) }}</b>
+    <div class="w3-container">
+      {{ form_start(search_form) }}
+        <div class="w3-inline-block">
+          {{ form_widget(search_form.name, {'attr': {'class': 'w3-input w3-border w3-third w3-padding-small', 'placeholder': 'Search', 'onfocus': "this.value=''"}}) }} {{ form_widget(search_form.search, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"}} )}}
+        </div>
+        {{ form_errors(search_form) }}
+      {{ form_end(search_form) }}
     </div>
 
-    <div class="w3-panel .dbtheme-purple">
-      <table class="w3-table-all">
+    <div class="w3-display-container w3-responsive">
+      <table class="w3-table-all w3-medium">
         <tr>
-          <th>Item</th>
-          <th>Quantity</th>
+          <th>{{ knp_pagination_sortable(items, 'Item', 'name') }}</th>
+          <th>{{ knp_pagination_sortable(items, 'Quantity', 'quantity') }}</th>
           <th></th>
         </tr>
         {% for row in items %} {# simple loop to output rows #}
           <tr>
             <td>{{ row.name }}</td>
             <td>{{ row.quantity }}</td>
-            <td><a href="{{ path('modify_item', {'id': row.id }) }}">Modify</a></td>
+            <td><a class="w3-button w3-border w3-padding-small w3-right w3-margin-right" href="{{ path('modify_item', {'id': row.id }) }}">Modify</a></td>
           </tr>
         {% endfor %}
       </table>

@@ -13,6 +13,9 @@ use App\Repository\ItemRepository;
 use App\Repository\LocationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
+use Symfony\Component\HttpFoundation\Cookie;
+use Acme\Client;
 
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\SearchType;
@@ -21,136 +24,16 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
-class OverviewController extends AbstractController
+class LocationController extends AbstractController
 {
-
-  public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo)
+  public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, PaginatorInterface $paginator)
   {
     $this->em = $em;
     $this->item_repo = $item_repo;
     $this->loc_repo = $loc_repo;
+    $this->paginator = $paginator;
     $this->date = (new \DateTime('now'))->format('D, j F, Y');
-  }
 
-  /**
-   * Function to display all items in the system
-   * 
-   * @author Daniel Boling
-   * 
-   * @Route("/", name="show_items")
-   */
-  public function show_items(Request $request): Response
-  {
-
-    $result = $this->item_repo->findAll();
-
-    $search = array('name' => '');
-
-    $form = $this->createFormBuilder($search)
-      ->add('name', SearchType::class)
-      ->add('search', SubmitType::class)
-      ->getForm()
-    ;
-
-    $form->handleRequest($request);
-    if($form->isSubmitted() && $form->isValid())
-    {
-      $search = $form->getData();
-      $result = $this->item_repo->findItem($search['name']);
-    }
-
-    return $this->render('overview_items.html.twig', [
-      'form' => $form->createView(),
-      'date' => $this->date,
-      'result' => $result,
-    ]);
-
-  }
-
-  /**
-   * Function to display and handle item modification forms
-   * 
-   * @author Daniel Boling
-   * 
-   * @Route("/modify/item/{id}", name="modify_item");
-   */
-  public function modify_item(Request $request, $id): Response
-  {
-
-    $item = $this->item_repo->find($id);
-
-    $form = $this->createFormBuilder($item)
-      ->add('name', TextType::class)
-      ->add('location', ChoiceType::class, [
-        'choices' => [
-          $this->loc_repo->findAll()
-        ],
-        'choice_label' => 'name',
-        'label' => 'Location',
-      ])
-      ->add('quantity', IntegerType::class)
-      ->add('submit', SubmitType::class, ['label' => 'Store Item'])
-      ->getForm()
-      ;
-    
-    $form->handleRequest($request);
-    if($form->isSubmitted() && $form->isValid())
-    {
-      $item = $form->getData();
-      $this->em->persist($item);
-      $this->em->flush();
-      return $this->redirectToRoute('show_items');
-    }
-
-    return $this->render('modify_item.html.twig', [
-      'form' => $form->createView(),
-      'date' => $this->date,
-    ]);
-    
-  }
-
-
-  /**
-   * Function to display and handle new item forms
-   * 
-   * @author Daniel Boling
-   * 
-   * @Route("/new/item", name="new_item");
-   */
-  public function new_item(Request $request): Response
-  {
-
-    $item = new Item();
-
-    $form = $this->createFormBuilder($item)
-      ->add('name', TextType::class)
-      ->add('location', ChoiceType::class, [
-        'choices' => [
-          $this->loc_repo->findAll()
-        ],
-        'label' => 'Location',
-        'choice_label' => 'name',
-      ])
-      ->add('quantity', IntegerType::class)
-      ->add('submit', SubmitType::class, ['label' => 'Add Item'])
-      ->getForm()
-      ;
-    
-    $form->handleRequest($request);
-    if($form->isSubmitted() && $form->isValid())
-    {
-      $item = $form->getData();
-      $this->em->persist($item);
-      $this->em->flush();
-
-      return $this->redirectToRoute('show_items');
-    }
-
-    return $this->render('new_item.html.twig', [
-      'form' => $form->createView(),
-      'date' => $this->date,
-    ]);
-    
   }
 
 
@@ -188,7 +71,7 @@ class OverviewController extends AbstractController
 
   }
 
-  
+
   /**
    * Function to display all locations in the system
    * 
@@ -196,10 +79,11 @@ class OverviewController extends AbstractController
    * 
    * @Route("/locations", name="show_locations")
    */
-  public function show_locations(): Response
+  public function show_locations(Request $request): Response
   {
 
     $result = $this->loc_repo->findAll();
+    $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), 10);
 
     return $this->render('overview_locations.html.twig', [
       'date' => $this->date,
@@ -223,6 +107,7 @@ class OverviewController extends AbstractController
     $loc = $this->loc_repo->find($id);
 
     $items = $loc->getItems();
+    $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 10);
 
     $options_array = array('label' => 'Delete Location', 'disabled' => true);
     if(count($items) == 0)
@@ -235,7 +120,7 @@ class OverviewController extends AbstractController
 
     $modify_form = $this->createFormBuilder($loc)
       ->add('name', TextType::class)
-      ->add('submit', SubmitType::class, ['label' => 'Modify Location'])
+      ->add('submit', SubmitType::class, ['label' => 'Rename Location'])
       ->add('delete', SubmitType::class, $options_array)
       ->getForm()
     ;
@@ -253,6 +138,8 @@ class OverviewController extends AbstractController
     {
       $search = $search_form->getData();
       $items = $this->item_repo->findItem($search['name']);
+      $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 10);
+
     }
       
     $modify_form->handleRequest($request);
@@ -280,6 +167,9 @@ class OverviewController extends AbstractController
     
   }
 
+
+
 }
+
 
 // EOF

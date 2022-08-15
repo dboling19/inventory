@@ -1,20 +1,35 @@
+<!DOCTYPE html>
+
 <html>
   <head>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
     <title>Inventory - Add New Item</title>
   </head>
 
   <body>
     {{ include('navbar.html.twig') }}
-    <div class="w3-panel">
-      <div class="w3-panel">
-        <h3>Add New Item</h3>
-        <p>{{ date }}</p>
-      </div>
+    <div class="w3-container">
+      <h3>Add New Item</h3>
+      <p>{{ date }}</p>
     </div>
-    <div class="w3-panel">
-      <b>{{ form(form) }}</b>
+    <div class="w3-container w3-third">
+      {{ form_start(form) }}
+        <p>
+          {{ form_label(form.name) }}
+          {{ form_widget(form.name, {'attr': {'class': 'w3-input w3-border'}}) }}
+        </p>
+        <p>
+          {{ form_label(form.location) }}
+          {{ form_widget(form.location, {'attr': {'class': 'w3-select w3-border'}}) }}
+        </p>
+        <p>
+          {{ form_label(form.quantity) }}
+          {{ form_widget(form.quantity, {'attr': {'class': 'w3-input w3-border'}}) }}
+        </p>
+        <p>
+          {{ form_row(form.submit, {'attr': {'class': 'w3-button w3-border'} }) }}
+        </p>
+      {{ form_end(form)}}
     </div>
   </body>
 

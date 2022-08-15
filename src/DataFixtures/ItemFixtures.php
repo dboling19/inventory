@@ -20,11 +20,22 @@ class ItemFixtures extends Fixture
         $loc->setName('Cupboard');
         $manager->persist($loc);
 
-        $item = new Item();
-        $item->setName('Ketchup');
-        $item->setQuantity(2);
-        $item->setLocation($loc);
-        $manager->persist($item);
+        $loc = new Location();
+        $loc->setName('Top Shelf');
+        $manager->persist($loc);
+
+        $loc = new Location();
+        $loc->setName('Bottom Shelf');
+        $manager->persist($loc);
+
+        $items = array('Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Chocolate', 'Candy', 'Apples', 'Oranges', 'Lemons', 'Limes');
+        foreach ($items as $i) {
+            $item = new Item();
+            $item->setName($i);
+            $item->setQuantity(1);
+            $item->setLocation($loc);
+            $manager->persist($item);
+        }
 
         $manager->flush();
     }
