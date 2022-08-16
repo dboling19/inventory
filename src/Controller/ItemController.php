@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,13 +48,14 @@ class ItemController extends AbstractController
    */
   public function show_items(Request $request): Response
   {
-    $session = $this->request_stack->getSession();
-    if ($session->get('limit') != null)
+    if ($request->cookies->get('limit') != null)
     {
-      $limit = array('limit' => $session->get('limit'));
+      $limit = array('limit' => $request->cookies->get('limit'));
+      echo "Found Cookie!";
 
     } else {
       $limit = array('limit' => 10);
+      echo "No Cookie Found!";
       
     }
 
@@ -78,11 +80,15 @@ class ItemController extends AbstractController
       ->getForm()
     ;
 
+
     $limit_form->handleRequest($request);
     if($limit_form->isSubmitted() && $limit_form->isValid())
     {
       $limit = $limit_form->getData();
-      $session->set('limit', $limit['limit_choice']);
+      $cookie = new Cookie('limit', $limit['limit_choice']);
+      $response = new Response();
+      $response->headers->setCookie($cookie);
+      $response->send();
       $result = $this->item_repo->findItem($search['search_input']);
       $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['limit_choice']);
 
@@ -100,6 +106,7 @@ class ItemController extends AbstractController
       $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), 10);
 
     }
+
 
     return $this->render('overview_items.html.twig', [
       'search_form' => $search_form->createView(),
