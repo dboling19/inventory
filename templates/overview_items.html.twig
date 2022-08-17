@@ -1,32 +1,36 @@
-<html>
+<!DOCTYPE html>
 
+<html>
   <head>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="stylesheet.css">
+    {% block stylesheets %}
+      {{encore_entry_link_tags('app')}}
+    {% endblock %}
 
     <title>Inventory - Overview</title>
   </head>
 
   <body>
-    <div class="w3-bar">
-      <a class="w3-button" href="https://{{ hostname }}:8000/">Items</a>
-      <a class="w3-button" href="https://{{ hostname }}:8000/new/item">New Item</a>
-      <a class="w3-button" href="https://{{ hostname }}:8000/locations">Locations</a>
-      <a class="w3-button" href="https://{{ hostname }}:8000/new/location">New Location</a>
-    </div>
-    <div class="w3-panel">
+    {{ include('navbar.html.twig') }}
+    <div class="w3-container">
       <h3>Inventory</h3>
       <p>{{ date }}</p>
     </div>
-    <div class="w3-panel">
-      {{ form(form) }}
+    <div class="w3-container">
+      {{ form_start(search_form) }}
+        <p class="w3-inline-block">
+          {{ form_widget(search_form.search_input, {'attr': {'class': 'w3-input w3-border w3-padding-small w3-third', 'placeholder': 'Search', 'onfocus':"this.value=''"}}) }} 
+          {{ form_widget(search_form.search_submit, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"}} )}}
+        </p>
+        {{ form_errors(search_form) }}
+      {{ form_end(search_form) }}
     </div>
-    <div class="w3-panel .dbtheme-purple">
-      <table class="w3-table-all">
+    </div>
+    <div class="w3-display-container w3-responsive">
+      <table class="w3-table-all w3-medium">
         <tr>
-          <th>Item</th>
-          <th>Quantity</th>
-          <th>Location</th>
+          <th>{{ knp_pagination_sortable(result, 'Item', 'name') }}</th>
+          <th>{{ knp_pagination_sortable(result, 'Quantity', 'quantity') }}</th>
+          <th>{{ knp_pagination_sortable(result, 'Location', 'location') }}</th>
           <th></th>
         </tr>
         {% for row in result %} {# simple loop to output rows #}
@@ -34,10 +38,27 @@
             <td>{{ row.name }}</td>
             <td>{{ row.quantity }}</td>
             <td><a href="{{ path('modify_location', {'id': row.location.id }) }}">{{ row.location.name }}</a></td>
-            <td><a href="{{ path('modify_item', {'id': row.id }) }}">Modify</a></td>
+            <td><a class="w3-button w3-border w3-padding-small w3-right w3-margin-right" href="{{ path('modify_item', {'id': row.id }) }}">Modify</a></td>
           </tr>
         {% endfor %}
       </table>
+    </div>
+    <div class="w3-bar w3-bottom" style="background-color:#f1f1f1">
+      <div class="w3-cell-row w3-section">
+        <div class="w3-container w3-cell">
+          {{ form_start(limit_form) }}
+            <div class="w3-inline-block">
+              {{ form_widget(limit_form.limit_choice, {'attr': {'class': 'w3-select w3-border w3-third'} }) }}
+              {{ form_widget(limit_form.limit_submit, {'attr': {'class': 'w3-button w3-border'} }) }}
+            </div>
+          {{ form_end(limit_form) }}
+        </div>
+        <div class="w3-container w3-cell">
+            <div class="w3-container w3-right">
+              {{ knp_pagination_render(result, 'pagination/bootstrap_v5_pagination.html.twig') }}
+            </div>
+          </div>
+        </div>
     </div>
   </body>
 

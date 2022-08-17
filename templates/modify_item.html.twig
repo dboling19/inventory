@@ -1,25 +1,41 @@
+<!DOCTYPE html>
+
 <html>
   <head>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
     <title>Inventory - Modify</title>
   </head>
 
   <body>
-    <div class="w3-bar">
-      <a class="w3-button" href="https://{{ hostname }}:8000/">Items</a>
-      <a class="w3-button" href="https://{{ hostname }}:8000/new/item">New Item</a>
-      <a class="w3-button" href="https://{{ hostname }}:8000/locations">Locations</a>
-      <a class="w3-button" href="https://{{ hostname }}:8000/new/location">New Location</a>
+    {{ include('navbar.html.twig') }}
+    <div class="w3-container">
+      <h3>Modify Item</h3>
+      <p>{{ date }}</p>
     </div>
-    <div class="w3-panel">
-      <div class="w3-panel">
-        <h3>Modify Item</h3>
-        <p>{{ date }}</p>
-      </div>
-    </div>
-    <div class="w3-panel">
-      <b>{{ form(form) }}</b>
+    <div class="w3-container">
+      {{ form_start(form, {'attr': {'class': 'w3-third'} }) }}
+        <p>
+          {{ form_label(form.name) }}
+          {{ form_widget(form.name, {'attr': {'class': 'w3-input w3-border'}}) }}
+        </p>
+        <p>
+          {{ form_label(form.location) }}
+          {{ form_widget(form.location, {'attr': {'class': 'w3-select w3-border'}}) }}
+        </p>
+        <p>
+          Quantity<br>
+          <b>{{ item_quantity }}</b>
+        </p>
+        <p>
+          {{ form_label(form.count_change) }}
+          {{ form_widget(form.count_change, {'attr': {'class': 'w3-input w3-border'}}) }}
+          <i class="w3-small">Prepend an '-' or '+' to the number</i>
+        </p>
+        <p>
+          {{ form_row(form.submit, {'attr': {'class': 'w3-button w3-border w3-half'} }) }}
+          {{ form_row(form.delete, {'attr': {'class': 'w3-button w3-border w3-half'} }) }}
+        </p>
+      {{ form_end(form)}}
     </div>
   </body>
 

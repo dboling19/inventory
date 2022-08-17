@@ -1,37 +1,44 @@
+<!DOCTYPE html>
+
 <html>
 
   <head>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="stylesheet.css">
+    {% block stylesheets %}
+      {{encore_entry_link_tags('app')}}
+    {% endblock %}
+    <script src="https://kit.fontawesome.com/0db354818b.js" crossorigin="anonymous"></script>
 
     <title>Inventory - Location Overview</title>
   </head>
 
   <body>
-    <div class="w3-bar">
-      <a class="w3-button" href="https://{{ hostname }}:8000/">Items</a>
-      <a class="w3-button" href="https://{{ hostname }}:8000/new/item">New Item</a>
-      <a class="w3-button" href="https://{{ hostname }}:8000/locations">Locations</a>
-      <a class="w3-button" href="https://{{ hostname }}:8000/new/location">New Location</a>
-    </div>
-    <div class="w3-panel">
+    {{ include('navbar.html.twig') }}
+    <div class="w3-container">
       <h3>Locations</h3>
       <p>{{ date }}</p>
     </div>
-    <div class="w3-panel .dbtheme-purple">
+    <div class="w3-container">
+      {{ form_start(loc_form) }}
+        <p class="w3-inline-block">
+          {{ form_widget(loc_form.name, {'attr': {'class': 'w3-input w3-border w3-padding-small w3-third', 'placeholder': 'Location'} }) }}
+          {{ form_widget(loc_form.submit, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"} }) }}
+        </p>
+      {{ form_end(loc_form) }}
+    </div>
+    <div class="w3-display-container w3-responsive">
       <table class="w3-table-all">
         <tr>
-          <th>Name</th>
+          <th>{{ knp_pagination_sortable(loc_result, 'Location', 'name') }}</th>
           <th></th>
         </tr>
-        {% for row in result %} {# simple loop to output rows #}
+        {% for row in loc_result %} {# simple loop to output rows #}
           <tr>
             <td>{{ row.name }}</td>
-            <td><a href="{{ path('modify_location', {'id': row.id }) }}">Modify</a></td>
+            <td><a class="w3-button w3-border w3-right w3-margin-right" href="{{ path('modify_location', {'id': row.id }) }}">Modify</a></td>
           </tr>
         {% endfor %}
       </table>
     </div>
   </body>
 
-</html>
+</html> 

@@ -26,7 +26,7 @@ class ItemRepository extends ServiceEntityRepository
     public function findItem($name)
     {
         return $this->createQueryBuilder('i')
-            ->andWhere('i.Name like :val')
+            ->andWhere('i.name like :val')
             ->setParameter('val', '%'.$name.'%')
             ->getQuery()
             ->getResult()
