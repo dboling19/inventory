@@ -17,14 +17,13 @@
     </div>
     <div class="w3-container">
       {{ form_start(search_form) }}
-        <div class="w3-inline-block">
+        <p class="w3-inline-block">
           {{ form_widget(search_form.search_input, {'attr': {'class': 'w3-input w3-border w3-padding-small w3-third', 'placeholder': 'Search', 'onfocus':"this.value=''"}}) }} 
           {{ form_widget(search_form.search_submit, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"}} )}}
-        </div>
+        </p>
         {{ form_errors(search_form) }}
       {{ form_end(search_form) }}
     </div>
-    <br>
     </div>
     <div class="w3-display-container w3-responsive">
       <table class="w3-table-all w3-medium">

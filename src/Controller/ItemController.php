@@ -24,6 +24,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Validator\Constraints\Count;
 
 class ItemController extends AbstractController
 {
@@ -51,11 +52,9 @@ class ItemController extends AbstractController
     if ($request->cookies->get('limit') != null)
     {
       $limit = array('limit' => $request->cookies->get('limit'));
-      echo "Found Cookie!";
 
     } else {
       $limit = array('limit' => 10);
-      echo "No Cookie Found!";
       
     }
 
@@ -75,6 +74,7 @@ class ItemController extends AbstractController
           '50' => 50,
           '100' => 100,
         ],
+        'data' => $request->cookies->get('limit'),
       ])
       ->add('limit_submit', SubmitType::class, ['label' => 'Limit'])
       ->getForm()
@@ -115,49 +115,6 @@ class ItemController extends AbstractController
       'result' => $result,
     ]);
 
-  }
-
-  /**
-   * Function to display and handle item modification forms
-   * 
-   * @author Daniel Boling
-   * 
-   * @Route("/modify/item/{id}", name="modify_item");
-   */
-  public function modify_item(Request $request, $id): Response
-  {
-
-    $item = $this->item_repo->find($id);
-
-    $form = $this->createFormBuilder($item)
-      ->add('name', TextType::class)
-      ->add('location', ChoiceType::class, [
-        'choice_loader' => new CallbackChoiceLoader(function() {
-          return $this->loc_repo->findAll();
-        }),
-        'placeholder' => 'Choose an option',
-        'choice_label' => 'name',
-        'label' => 'Location',
-      ])
-      ->add('quantity', IntegerType::class)
-      ->add('submit', SubmitType::class, ['label' => 'Modify Item'])
-      ->getForm()
-      ;
-    
-    $form->handleRequest($request);
-    if($form->isSubmitted() && $form->isValid())
-    {
-      $item = $form->getData();
-      $this->em->persist($item);
-      $this->em->flush();
-      return $this->redirectToRoute('show_items');
-    }
-
-    return $this->render('modify_item.html.twig', [
-      'form' => $form->createView(),
-      'date' => $this->date,
-    ]);
-    
   }
 
 
@@ -204,6 +161,88 @@ class ItemController extends AbstractController
     ]);
     
   }
+
+  
+  /**
+   * Function to display and handle item modification forms
+   * 
+   * @author Daniel Boling
+   * 
+   * @Route("/modify/item/{id}", name="modify_item");
+   */
+  public function modify_item(Request $request, $id): Response
+  {
+
+    $item = $this->item_repo->find($id);
+    $item_quantity = $item->getQuantity();
+
+    $form = $this->createFormBuilder($item)
+      ->add('name', TextType::class)
+      ->add('location', ChoiceType::class, [
+        'choice_loader' => new CallbackChoiceLoader(function() {
+          return $this->loc_repo->findAll();
+        }),
+        'placeholder' => 'Choose an option',
+        'choice_label' => 'name',
+        'label' => 'Location',
+      ])
+      ->add('count_change', TextType::class, [
+        'mapped' => false,
+      ])
+      ->getForm();
+    if($item->getQuantity() == 0)
+    // disable delete button if items are in location
+    {
+      $form->add('delete', SubmitType::class, [
+        'label' => 'Delete Entry',
+        'disabled' => false,
+      ]);
+    } else {
+      $form->add('delete', SubmitType::class, [
+        'label' => 'Delete Entry',
+        'disabled' => true,
+      ]);
+    }
+    $form->add('submit', SubmitType::class, ['label' => 'Modify Entry']);
+    
+    $form->handleRequest($request);
+    if($form->isSubmitted() && $form->isValid())
+    {
+      if($form->get('submit')->isClicked()) 
+      {
+        $item = $form->getData();
+        $count_change = (int)trim($form->get('count_change')->getData(), '+');
+        var_dump($count_change);
+        $item->setQuantity($item->getQuantity() + $count_change);
+        $this->em->persist($item);
+        $this->em->flush();
+        return $this->render('modify_item.html.twig', [
+          'form' => $form->createView(),
+          'item_quantity' => $item_quantity,
+          'date' => $this->date,
+        ]);
+
+      } elseif ($form->get('delete')->isClicked()) {
+        if ($item->getQuantity() == 0)
+        {
+          $this->em->remove($item);
+          $this->em->flush();
+          return $this->redirectToRoute('show_items');
+        
+        }
+      }
+    }
+
+    return $this->render('modify_item.html.twig', [
+      'form' => $form->createView(),
+      'item_quantity' => $item_quantity,
+      'date' => $this->date,
+    ]);
+
+
+    
+  }
+
 
 
 }

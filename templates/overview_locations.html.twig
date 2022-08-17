@@ -17,18 +17,28 @@
       <h3>Locations</h3>
       <p>{{ date }}</p>
     </div>
-    <table class="w3-table-all">
-      <tr>
-        <th>{{ knp_pagination_sortable(result, 'Location', 'name') }}</th>
-        <th></th>
-      </tr>
-      {% for row in result %} {# simple loop to output rows #}
+    <div class="w3-container">
+      {{ form_start(loc_form) }}
+        <p class="w3-inline-block">
+          {{ form_widget(loc_form.name, {'attr': {'class': 'w3-input w3-border w3-padding-small w3-third', 'placeholder': 'Location'} }) }}
+          {{ form_widget(loc_form.submit, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"} }) }}
+        </p>
+      {{ form_end(loc_form) }}
+    </div>
+    <div class="w3-display-container w3-responsive">
+      <table class="w3-table-all">
         <tr>
-          <td>{{ row.name }}</td>
-          <td><a class="w3-button w3-border w3-right w3-margin-right" href="{{ path('modify_location', {'id': row.id }) }}">Modify</a></td>
+          <th>{{ knp_pagination_sortable(loc_result, 'Location', 'name') }}</th>
+          <th></th>
         </tr>
-      {% endfor %}
-    </table>
+        {% for row in loc_result %} {# simple loop to output rows #}
+          <tr>
+            <td>{{ row.name }}</td>
+            <td><a class="w3-button w3-border w3-right w3-margin-right" href="{{ path('modify_location', {'id': row.id }) }}">Modify</a></td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
   </body>
 
-</html>
+</html> 

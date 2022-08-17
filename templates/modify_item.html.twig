@@ -12,8 +12,8 @@
       <h3>Modify Item</h3>
       <p>{{ date }}</p>
     </div>
-    <div class="w3-container w3-third">
-      {{ form_start(form) }}
+    <div class="w3-container">
+      {{ form_start(form, {'attr': {'class': 'w3-third'} }) }}
         <p>
           {{ form_label(form.name) }}
           {{ form_widget(form.name, {'attr': {'class': 'w3-input w3-border'}}) }}
@@ -23,11 +23,17 @@
           {{ form_widget(form.location, {'attr': {'class': 'w3-select w3-border'}}) }}
         </p>
         <p>
-          {{ form_label(form.quantity) }}
-          {{ form_widget(form.quantity, {'attr': {'class': 'w3-input w3-border'}}) }}
+          Quantity<br>
+          <b>{{ item_quantity }}</b>
         </p>
         <p>
-          {{ form_row(form.submit, {'attr': {'class': 'w3-button w3-border'} }) }}
+          {{ form_label(form.count_change) }}
+          {{ form_widget(form.count_change, {'attr': {'class': 'w3-input w3-border'}}) }}
+          <i class="w3-small">Prepend an '-' or '+' to the number</i>
+        </p>
+        <p>
+          {{ form_row(form.submit, {'attr': {'class': 'w3-button w3-border w3-half'} }) }}
+          {{ form_row(form.delete, {'attr': {'class': 'w3-button w3-border w3-half'} }) }}
         </p>
       {{ form_end(form)}}
     </div>

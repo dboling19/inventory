@@ -23,18 +23,20 @@
           {{ form_widget(modify_form.name, {'attr': {'class': 'w3-input w3-border'} }) }}
         </p>
         <p>
-          {{ form_widget(modify_form.submit, {'attr': {'class': 'w3-button w3-border'} }) }}
-          {{ form_widget(modify_form.delete, {'attr': {'class': 'w3-button w3-border'} }) }}
+          {{ form_widget(modify_form.submit, {'attr': {'class': 'w3-button w3-border w3-half'} }) }}
+          {{ form_widget(modify_form.delete, {'attr': {'class': 'w3-button w3-border w3-half'} }) }}
         </p>
       {{ form_end(modify_form) }}
     </div>
     <div class="w3-container">
-      {{ form_start(search_form) }}
-        <div class="w3-inline-block">
-          {{ form_widget(search_form.name, {'attr': {'class': 'w3-input w3-border w3-third w3-padding-small', 'placeholder': 'Search', 'onfocus': "this.value=''"}}) }} {{ form_widget(search_form.search, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"}} )}}
-        </div>
-        {{ form_errors(search_form) }}
-      {{ form_end(search_form) }}
+      <p>
+        {{ form_start(search_form) }}
+          <div class="w3-inline-block">
+            {{ form_widget(search_form.name, {'attr': {'class': 'w3-input w3-border w3-third w3-padding-small', 'placeholder': 'Search', 'onfocus': "this.value=''"}}) }} {{ form_widget(search_form.search, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"}} )}}
+          </div>
+          {{ form_errors(search_form) }}
+        {{ form_end(search_form) }}
+      </p>
     </div>
 
     <div class="w3-display-container w3-responsive">

@@ -36,42 +36,7 @@ class LocationController extends AbstractController
 
   }
 
-
-  /**
-   * Function to control the addition of new locations
-   * 
-   * @author Daniel Boling
-   * 
-   * @Route("/new/location", name="new_location")
-   */
-  public function add_location(Request $request): Response
-  {
-
-    $loc = new Location();
-
-    $form = $this->createFormBuilder($loc)
-      ->add('name', TextType::class)
-      ->add('submit', SubmitType::class,['label' => 'Add Location'])
-      ->getForm()
-    ;
-
-    $form->handleRequest($request);
-    if($form->isSubmitted() && $form->isValid())
-    {
-      $loc = $form->getData();
-      $this->em->persist($loc);
-      $this->em->flush();
-      return $this->redirectToRoute('show_locations');
-    }
-
-    return $this->render('new_location.html.twig', [
-      'form' => $form->createView(),
-      'date' => $this->date,
-    ]);
-
-  }
-
-
+  
   /**
    * Function to display all locations in the system
    * 
@@ -82,12 +47,32 @@ class LocationController extends AbstractController
   public function show_locations(Request $request): Response
   {
 
-    $result = $this->loc_repo->findAll();
-    $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), 10);
+    $loc_result = $this->loc_repo->findAll();
+    $loc_result = $this->paginator->paginate($loc_result, $request->query->getInt('page', 1), 10);
+
+    $loc = new Location();
+
+    $loc_form = $this->createFormBuilder($loc)
+      ->add('name', TextType::class)
+      ->add('submit', SubmitType::class,['label' => 'Add Location'])
+      ->getForm()
+    ;
+
+    $loc_form->handleRequest($request);
+    if($loc_form->isSubmitted() && $loc_form->isValid())
+    {
+      $loc = $loc_form->getData();
+      $this->em->persist($loc);
+      $this->em->flush();
+
+      return $this->redirectToRoute('show_locations');
+
+    }
 
     return $this->render('overview_locations.html.twig', [
       'date' => $this->date,
-      'result' => $result,
+      'loc_result' => $loc_result,
+      'loc_form' => $loc_form->createView(),
     ]);
 
   }
@@ -102,31 +87,32 @@ class LocationController extends AbstractController
    */
   public function modify_location(Request $request, $id): Response
   {
-    // $em = $this->getDoctrine()->getManager('name');
 
     $loc = $this->loc_repo->find($id);
 
     $items = $loc->getItems();
     $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 10);
 
-    $options_array = array('label' => 'Delete Location', 'disabled' => true);
-    if(count($items) == 0)
-    // disable delete button if items are in location
-    {
-      $options_array['disabled'] = false;
-    } else {
-      $options_array['disabled'] = true;
-    }
-
     $modify_form = $this->createFormBuilder($loc)
       ->add('name', TextType::class)
       ->add('submit', SubmitType::class, ['label' => 'Rename Location'])
-      ->add('delete', SubmitType::class, $options_array)
-      ->getForm()
-    ;
+      ->getForm();
+    if(count($items) == 0)
+    // disable delete button if items are in location
+    {
+      $modify_form->add('delete', SubmitType::class, [
+        'label' => 'Delete Entry',
+        'disabled' => false,
+      ]);
+    } else {
+      $modify_form->add('delete', SubmitType::class, [
+        'label' => 'Delete Entry',
+        'disabled' => true,
+      ]);
+    }
 
     $search = array('name' => '');
-    $search_form = $this->createFormBuilder($search)
+    $search_form = $this->createFormBuilder($search, ['allow_extra_fields' => true])
       ->add('name', SearchType::class)
       ->add('search', SubmitType::class)
       ->getForm()
@@ -149,13 +135,19 @@ class LocationController extends AbstractController
         $loc = $modify_form->getData();
         $this->em->persist($loc);
         $this->em->flush();
+        return $this->redirectToRoute('show_locations');
+
       } elseif($modify_form->get('delete')->isClicked()) {
-        $loc = $modify_form->getData();
-        $this->em->remove($loc);
-        $this->em->flush();
+        if(count($items) == 0)
+        {
+          $loc = $modify_form->getData();
+          $this->em->remove($loc);
+          $this->em->flush();
+          return $this->redirectToRoute('show_locations');
+
+        }
       }
 
-      return $this->redirectToRoute('show_locations');
     }
 
     return $this->render('modify_location.html.twig', [
