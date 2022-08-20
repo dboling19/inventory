@@ -25,13 +25,13 @@ class Location
     private $name;
 
     /**
-     * @ORM\OneToMany(targetEntity=Item::class, mappedBy="Location")
+     * @ORM\OneToMany(targetEntity=ItemLocation::class, mappedBy="location", orphanRemoval=true, cascade={"persist", "remove"})
      */
-    private $items;
+    private $itemlocation;
 
     public function __construct()
     {
-        $this->items = new ArrayCollection();
+        $this->itemlocation = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -52,32 +52,33 @@ class Location
     }
 
     /**
-     * @return Collection|Item[]
+     * @return Collection<int, itemlocation>
      */
-    public function getItems(): Collection
+    public function getItemlocation(): Collection
     {
-        return $this->items;
+        return $this->itemlocation;
     }
 
-    public function addItem(Item $item): self
+    public function addItemlocation(itemlocation $itemlocation): self
     {
-        if (!$this->items->contains($item)) {
-            $this->items[] = $item;
-            $item->setLocation($this);
+        if (!$this->itemlocation->contains($itemlocation)) {
+            $this->itemlocation[] = $itemlocation;
+            $itemlocation->setLocation($this);
         }
 
         return $this;
     }
 
-    public function removeItem(Item $item): self
+    public function removeItemlocation(itemlocation $itemlocation): self
     {
-        if ($this->items->removeElement($item)) {
+        if ($this->itemlocation->removeElement($itemlocation)) {
             // set the owning side to null (unless already changed)
-            if ($item->getLocation() === $this) {
-                $item->setLocation(null);
+            if ($itemlocation->getLocation() === $this) {
+                $itemlocation->setLocation(null);
             }
         }
 
         return $this;
     }
+
 }

@@ -2,8 +2,8 @@
 
 <html>
   <head>
-
     <title>Inventory - Modify</title>
+
   </head>
 
   <body>
@@ -15,8 +15,12 @@
     <div class="w3-container">
       {{ form_start(form, {'attr': {'class': 'w3-third'} }) }}
         <p>
-          {{ form_label(form.name) }}
-          {{ form_widget(form.name, {'attr': {'class': 'w3-input w3-border'}}) }}
+          {{ form_label(form.item.name) }}
+          {{ form_widget(form.item.name, {'attr': {'class': 'w3-input w3-border'}}) }}
+        </p>
+        <p>
+          {{ form_label(form.item.description) }}
+          {{ form_widget(form.item.description, {'attr': {'class': 'w3-input w3-border'}}) }}
         </p>
         <p>
           {{ form_label(form.location) }}
@@ -27,8 +31,8 @@
           <b>{{ item_quantity }}</b>
         </p>
         <p>
-          {{ form_label(form.count_change) }}
-          {{ form_widget(form.count_change, {'attr': {'class': 'w3-input w3-border'}}) }}
+          {{ form_label(form.quantityChange) }}
+          {{ form_widget(form.quantityChange, {'attr': {'class': 'w3-input w3-border'}}) }}
           <i class="w3-small">Prepend an '-' or '+' to the number</i>
         </p>
         <p>

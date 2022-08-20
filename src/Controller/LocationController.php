@@ -4,18 +4,23 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Item;
 use App\Entity\Location;
+use App\Entity\Transaction;
+use App\Entity\ItemLocation;
 use App\Repository\ItemRepository;
 use App\Repository\LocationRepository;
+use App\Repository\TransactionRepository;
+use App\Repository\ItemLocationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
-use Symfony\Component\HttpFoundation\Cookie;
-use Acme\Client;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\SearchType;
@@ -23,16 +28,21 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Validator\Constraints\Count;
 
 class LocationController extends AbstractController
 {
-  public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, PaginatorInterface $paginator)
+
+  public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, TransactionRepository $trans_repo, ItemLocationRepository $item_loc_repo, PaginatorInterface $paginator, RequestStack $request_stack)
   {
     $this->em = $em;
     $this->item_repo = $item_repo;
     $this->loc_repo = $loc_repo;
+    $this->trans_repo = $trans_repo;
+    $this->item_loc_repo = $item_loc_repo;
     $this->paginator = $paginator;
     $this->date = (new \DateTime('now'))->format('D, j F, Y');
+    $this->request_stack = $request_stack;
 
   }
 
@@ -160,8 +170,9 @@ class LocationController extends AbstractController
   }
 
 
-
 }
 
 
 // EOF
+
+?>

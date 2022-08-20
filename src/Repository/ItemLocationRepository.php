@@ -2,46 +2,47 @@
 
 namespace App\Repository;
 
-use App\Entity\Item;
+use App\Entity\ItemLocation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Item>
+ * @extends ServiceEntityRepository<ItemLocation>
  *
- * @method Item|null find($id, $lockMode = null, $lockVersion = null)
- * @method Item|null findOneBy(array $criteria, array $orderBy = null)
- * @method Item[]    findAll()
- * @method Item[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method ItemLocation|null find($id, $lockMode = null, $lockVersion = null)
+ * @method ItemLocation|null findOneBy(array $criteria, array $orderBy = null)
+ * @method ItemLocation[]    findAll()
+ * @method ItemLocation[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ItemRepository extends ServiceEntityRepository
+class ItemLocationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Item::class);
+        parent::__construct($registry, ItemLocation::class);
     }
 
-    // /**
-    //  * @author Daniel Boling
-    //  * @return Item[] Returns an array of Item objects
-    //  */
-    // public function findItem($name)
-    // {
-    //     return $this->createQueryBuilder('i')
-    //         ->andWhere('i.name like :val')
-    //         ->setParameter('val', '%'.$name.'%')
-    //         ->getQuery()
-    //         ->getResult()
-    //     ;
-    // }
+    /**
+     * @author Daniel Boling
+     * @return Item[] Returns an array of Item objects
+     */
+    public function findItem($item)
+    {
+        return $this->createQueryBuilder('il')
+            ->andWhere('item.name like :val')
+            ->leftJoin('il.item', 'item')
+            ->setParameter('val', '%'.$item.'%')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
     /**
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function add(Item $entity, bool $flush = true): void
+    public function add(ItemLocation $entity, bool $flush = true): void
     {
         $this->_em->persist($entity);
         if ($flush) {
@@ -53,7 +54,7 @@ class ItemRepository extends ServiceEntityRepository
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function remove(Item $entity, bool $flush = true): void
+    public function remove(ItemLocation $entity, bool $flush = true): void
     {
         $this->_em->remove($entity);
         if ($flush) {
@@ -62,7 +63,7 @@ class ItemRepository extends ServiceEntityRepository
     }
 
     // /**
-    //  * @return Item[] Returns an array of Item objects
+    //  * @return ItemLocation[] Returns an array of ItemLocation objects
     //  */
     /*
     public function findByExampleField($value)
@@ -79,7 +80,7 @@ class ItemRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?Item
+    public function findOneBySomeField($value): ?ItemLocation
     {
         return $this->createQueryBuilder('i')
             ->andWhere('i.exampleField = :val')
