@@ -148,7 +148,6 @@ class ItemController extends AbstractController
       // setupItem(?string $name, ?string $desc, ?int $quantity, ?string $change, ?Location $loc)
       $this->em->persist($item_loc);
       // update item record
-
       $this->em->flush();
 
       $item_loc = new ItemLocation();
@@ -203,13 +202,13 @@ class ItemController extends AbstractController
       if($form->get('submit')->isClicked())
       {
         $item_loc_result = $form->getData();
-        $item_loc->setQuantity($item_loc_result->getQuantity() + ((int)trim($form->get('quantityChange')->getData(), '+')));
-        $item->setName($form->get('item')->getData()->getName());
+        $item_result = $form->get('item')->getData();
+        $item_loc->setupItem($item_result->getName(), $item_result->getDescription(), $item_loc_result->getQuantity() + ((int)trim($form->get('quantityChange')->getData(), '+')), $form->get('quantityChange')->getData(), $item_loc_result->getLocation());
+        // setupItem(?string $name, ?string $desc, ?int $quantity, ?string $change, ?Location $loc)
         $this->em->persist($item_loc);
         // update item record
-
-        $item->setQuantityChange($form->get('quantityChange')->getData());
         $this->em->flush();
+
         return $this->render('modify_item.html.twig', [
           'form' => $form->createView(),
           'item_quantity' => $item_loc->getQuantity(),

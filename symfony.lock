@@ -133,9 +133,6 @@
     "phpdocumentor/type-resolver": {
         "version": "1.5.1"
     },
-    "phpspec/prophecy": {
-        "version": "1.14.0"
-    },
     "phpunit/php-code-coverage": {
         "version": "9.2.8"
     },
@@ -238,6 +235,18 @@
         },
         "files": [
             "config/packages/sensio_framework_extra.yaml"
+        ]
+    },
+    "symfony/apache-pack": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "9d254a22efca7264203eea98b866f16f944b2f09"
+        },
+        "files": [
+            "./public/.htaccess"
         ]
     },
     "symfony/asset": {

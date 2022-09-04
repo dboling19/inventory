@@ -39,6 +39,18 @@ class ItemLocationRepository extends ServiceEntityRepository
     }
 
     /**
+     * @author Daniel Boling
+     * @return Location[] Returns an array of Location objects
+     */
+    public function findLocations()
+    {
+        return $this->createQueryBuilder('il')
+            ->addGroupBy('il.location')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+    /**
      * @throws ORMException
      * @throws OptimisticLockException
      */

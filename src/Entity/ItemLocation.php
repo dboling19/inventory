@@ -120,7 +120,12 @@ class ItemLocation
      */
     public function setupItem(?string $name, ?string $desc, ?int $quantity, ?string $change, ?Location $loc)
     {
-        $this->item = new Item();
+        if ($this->getItem() == null)
+        {
+            $this->item = new Item();
+        } else {
+            $this->item = $this->getItem();
+        }
         $this->setItemName($name);
         $this->setItemDescription($desc);
         $this->setQuantity($quantity);

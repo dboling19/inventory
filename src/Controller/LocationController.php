@@ -28,7 +28,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Validator\Constraints\Count;
 
 class LocationController extends AbstractController
 {
@@ -99,9 +98,8 @@ class LocationController extends AbstractController
   {
 
     $loc = $this->loc_repo->find($id);
-
-    $items = $loc->getItems();
-    $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 10);
+    $item_loc_result = $loc->getItemlocation();
+    $items = $this->paginator->paginate($item_loc_result, $request->query->getInt('page', 1), 10);
 
     $modify_form = $this->createFormBuilder($loc)
       ->add('name', TextType::class)
@@ -121,10 +119,10 @@ class LocationController extends AbstractController
       ]);
     }
 
-    $search = array('name' => '');
+    $search = array();
     $search_form = $this->createFormBuilder($search, ['allow_extra_fields' => true])
-      ->add('name', SearchType::class)
-      ->add('search', SubmitType::class)
+      ->add('search_input', SearchType::class)
+      ->add('search_submit', SubmitType::class)
       ->getForm()
     ;
     // search for items
@@ -133,7 +131,7 @@ class LocationController extends AbstractController
     if($search_form->isSubmitted() && $search_form->isValid())
     {
       $search = $search_form->getData();
-      $items = $this->item_repo->findItem($search['name']);
+      $items = $this->item_loc_repo->findItem($search['search_input']);
       $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 10);
 
     }

@@ -32,7 +32,7 @@
       <p>
         {{ form_start(search_form) }}
           <div class="w3-inline-block">
-            {{ form_widget(search_form.name, {'attr': {'class': 'w3-input w3-border w3-third w3-padding-small', 'placeholder': 'Search', 'onfocus': "this.value=''"}}) }} {{ form_widget(search_form.search, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"}} )}}
+            {{ form_widget(search_form.search_input, {'attr': {'class': 'w3-input w3-border w3-third w3-padding-small', 'placeholder': 'Search', 'onfocus': "this.value=''"}}) }} {{ form_widget(search_form.search_submit, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"}} )}}
           </div>
           {{ form_errors(search_form) }}
         {{ form_end(search_form) }}
@@ -42,13 +42,13 @@
     <div class="w3-display-container w3-responsive">
       <table class="w3-table-all w3-medium">
         <tr>
-          <th>{{ knp_pagination_sortable(items, 'Item', 'name') }}</th>
+          <th>{{ knp_pagination_sortable(items, 'Item', 'item.name') }}</th>
           <th>{{ knp_pagination_sortable(items, 'Quantity', 'quantity') }}</th>
           <th></th>
         </tr>
         {% for row in items %} {# simple loop to output rows #}
           <tr>
-            <td>{{ row.name }}</td>
+            <td>{{ row.item.name }}</td>
             <td>{{ row.quantity }}</td>
             <td><a class="w3-button w3-border w3-padding-small w3-right w3-margin-right" href="{{ path('modify_item', {'id': row.id }) }}">Modify</a></td>
           </tr>
@@ -59,3 +59,9 @@
 
 
 </html>
+
+<script>
+  if ( window.history.replaceState ) {
+    window.history.replaceState( null, null, window.location.href );
+  }
+</script>
