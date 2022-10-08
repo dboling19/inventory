@@ -203,7 +203,12 @@ class ItemController extends AbstractController
       {
         $item_loc_result = $form->getData();
         $item_result = $form->get('item')->getData();
-        $item_loc->setupItem($item_result->getName(), $item_result->getDescription(), $item_loc_result->getQuantity() + ((int)trim($form->get('quantityChange')->getData(), '+')), $form->get('quantityChange')->getData(), $item_loc_result->getLocation());
+        if (!$form->get('quantityChange')->getData()) {
+          $quantity_change = '0';
+        } else {
+          $quantity_change = $form->get('quantityChange')->getData();
+        }
+        $item_loc->setupItem($item_result->getName(), $item_result->getDescription(), $item_loc_result->getQuantity() + ((int)trim($form->get('quantityChange')->getData(), '+')), $quantity_change, $item_loc_result->getLocation());
         // setupItem(?string $name, ?string $desc, ?int $quantity, ?string $change, ?Location $loc)
         $this->em->persist($item_loc);
         // update item record
