@@ -29,12 +29,20 @@
       <table class="w3-table-all">
         <tr>
           <th>{{ knp_pagination_sortable(loc_result, 'Location', 'name') }}</th>
+          {# <th>Entries</th>
+          <th>Total Items</th> #}
           <th></th>
         </tr>
         {% for row in loc_result %} {# simple loop to output rows #}
+          {# {% set total_quantity = 0 %}
+          {% for item in row.Itemlocation %}
+            {% set total_quantity = item.quantity + total_quantity %}
+          {% endfor %} #}
           <tr>
             <td>{{ row.name }}</td>
-            <td><a class="w3-button w3-border w3-right w3-margin-right" href="{{ path('modify_location', {'id': row.id }) }}">Modify</a></td>
+            {# <td>{{ row.Itemlocation|length }}</td>
+            <td>{{ total_quantity}} #}
+            <td><a class="w3-button w3-border w3-right w3-margin-right w3-padding-small" href="{{ path('modify_location', {'id': row.id }) }}">Modify</a></td>
           </tr>
         {% endfor %}
       </table>

@@ -6,7 +6,7 @@
       {{encore_entry_link_tags('app')}}
     {% endblock %}
 
-    <title>Inventory - Overview</title>
+    <title>Transactions - Overview</title>
   </head>
 
   <body>
@@ -28,17 +28,13 @@
     <div class="w3-display-container w3-responsive">
       <table class="w3-table-all w3-medium">
         <tr>
-          <th>{{ knp_pagination_sortable(result, 'Item', 'item.name') }}</th>
-          <th>{{ knp_pagination_sortable(result, 'Quantity', 'quantity') }}</th>
-          <th>{{ knp_pagination_sortable(result, 'Location', 'location') }}</th>
-          <th></th>
+          <th>{{ knp_pagination_sortable(result, 'Item', 'item') }}</th>
+          <th>{{ knp_pagination_sortable(result, 'Change', 'quantityChange') }}</th>
         </tr>
         {% for row in result %} {# simple loop to output rows #}
           <tr>
             <td>{{ row.item.name }}</td>
-            <td>{{ row.quantity }}</td>
-            <td><a href="{{ path('modify_location', {'id': row.location.id }) }}">{{ row.location.name }}</a></td>
-            <td><a class="w3-button w3-border w3-padding-small w3-right w3-margin-right" href="{{ path('modify_item', {'id': row.id }) }}">Modify</a></td>
+            <td><b>{{ row.quantityChange }}</b></td>
           </tr>
         {% endfor %}
       </table>

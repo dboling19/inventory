@@ -10,30 +10,37 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Item;
 use App\Entity\Location;
+use App\Entity\Transaction;
+use App\Entity\ItemLocation;
 use App\Repository\ItemRepository;
 use App\Repository\LocationRepository;
+use App\Repository\TransactionRepository;
+use App\Repository\ItemLocationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+use App\Form\ItemType;
+use App\Form\ItemLocationType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\SearchType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Validator\Constraints\Count;
 
 class ItemController extends AbstractController
 {
 
-  public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, PaginatorInterface $paginator, RequestStack $request_stack)
+  public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, TransactionRepository $trans_repo, ItemLocationRepository $item_loc_repo, PaginatorInterface $paginator, RequestStack $request_stack)
   {
     $this->em = $em;
     $this->item_repo = $item_repo;
     $this->loc_repo = $loc_repo;
+    $this->trans_repo = $trans_repo;
+    $this->item_loc_repo = $item_loc_repo;
     $this->paginator = $paginator;
     $this->date = (new \DateTime('now'))->format('D, j F, Y');
     $this->request_stack = $request_stack;
@@ -49,23 +56,23 @@ class ItemController extends AbstractController
    */
   public function show_items(Request $request): Response
   {
-    if ($request->cookies->get('limit') != null)
+    if ($request->cookies->get('items_limit') != null)
     {
-      $limit = array('limit' => $request->cookies->get('limit'));
+      $limit = array('items_limit' => $request->cookies->get('items_limit'));
 
     } else {
-      $limit = array('limit' => 10);
+      $limit = array('items_limit' => 10);
       
     }
 
     $search = array('search_input' => '');
-    $search_form = $this->createFormBuilder($search)
+    $search_form = $this->createFormBuilder($search, ['allow_extra_fields' => true])
       ->add('search_input', SearchType::class, ['label' => 'Search', 'required' => false])
-      ->add('search_submit', SubmitType::class)
+      ->add('search_submit', SubmitType::class, ['label' => 'Search'])
       ->getForm()
     ;
 
-    $limit_form = $this->createFormBuilder($limit)
+    $limit_form = $this->createFormBuilder($limit, ['allow_extra_fields' => true])
       ->add('limit_choice', ChoiceType::class, [
         'choices' => [
           '5' => 5,
@@ -74,7 +81,7 @@ class ItemController extends AbstractController
           '50' => 50,
           '100' => 100,
         ],
-        'data' => $request->cookies->get('limit'),
+        'data' => $request->cookies->get('items_limit'),
       ])
       ->add('limit_submit', SubmitType::class, ['label' => 'Limit'])
       ->getForm()
@@ -85,16 +92,16 @@ class ItemController extends AbstractController
     if($limit_form->isSubmitted() && $limit_form->isValid())
     {
       $limit = $limit_form->getData();
-      $cookie = new Cookie('limit', $limit['limit_choice']);
+      $cookie = new Cookie('items_limit', $limit['limit_choice']);
       $response = new Response();
       $response->headers->setCookie($cookie);
       $response->send();
-      $result = $this->item_repo->findItem($search['search_input']);
+      $result = $this->item_loc_repo->findAll();
       $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['limit_choice']);
 
     } else {
-      $result = $this->item_repo->findAll();
-      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['limit']);
+      $result = $this->item_loc_repo->findAll();
+      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['items_limit']);
 
     }
 
@@ -102,11 +109,10 @@ class ItemController extends AbstractController
     if($search_form->isSubmitted() && $search_form->isValid())
     {
       $search = $search_form->getData();
-      $result = $this->item_repo->findItem($search['search_input']);
+      $result = $this->item_loc_repo->findItem($search['search_input']);
       $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), 10);
 
     }
-
 
     return $this->render('overview_items.html.twig', [
       'search_form' => $search_form->createView(),
@@ -125,38 +131,36 @@ class ItemController extends AbstractController
    * 
    * @Route("/new/item", name="new_item");
    */
-  public function new_item(Request $request): Response
+  public function new_item(Request $request, $submitted = False): Response
   {
 
-    $item = new Item();
+    $item_loc = new ItemLocation();
 
-    $form = $this->createFormBuilder($item)
-      ->add('name', TextType::class)
-      ->add('location', ChoiceType::class, [
-        'choice_loader' => new CallbackChoiceLoader(function() {
-          return $this->loc_repo->findAll();
-        }),
-        'placeholder' => 'Choose an option',
-        'label' => 'Location',
-        'choice_label' => 'name',
-      ])
-      ->add('quantity', IntegerType::class)
-      ->add('submit', SubmitType::class, ['label' => 'Add Item'])
-      ->getForm()
-      ;
+    $form = $this->createForm(ItemLocationType::class, $item_loc);
+    $form->add('submit', SubmitType::class, ['label' => 'Create Entry']);
     
     $form->handleRequest($request);
     if($form->isSubmitted() && $form->isValid())
     {
-      $item = $form->getData();
-      $this->em->persist($item);
+      $item_loc_result = $form->getData();
+      $item_result = $form->get('item')->getData();
+      $item_loc->setupItem($item_result->getName(), $item_result->getDescription(), $item_loc_result->getQuantity() + ((int)trim($form->get('quantityChange')->getData(), '+')), $form->get('quantityChange')->getData(), $item_loc_result->getLocation());
+      // setupItem(?string $name, ?string $desc, ?int $quantity, ?string $change, ?Location $loc)
+      $this->em->persist($item_loc);
+      // update item record
       $this->em->flush();
 
-      return $this->redirectToRoute('show_items');
+      $item_loc = new ItemLocation();
+
+      $form = $this->createForm(ItemLocationType::class, $item_loc);
+      $form->add('submit', SubmitType::class, ['label' => 'Create Entry']);
+
+      $submitted = True;
     }
 
     return $this->render('new_item.html.twig', [
       'form' => $form->createView(),
+      'submitted' => $submitted,
       'date' => $this->date,
     ]);
     
@@ -173,24 +177,11 @@ class ItemController extends AbstractController
   public function modify_item(Request $request, $id): Response
   {
 
-    $item = $this->item_repo->find($id);
-    $item_quantity = $item->getQuantity();
+    $item_loc = $this->item_loc_repo->find($id);
+    $item = $item_loc->getItem();
 
-    $form = $this->createFormBuilder($item)
-      ->add('name', TextType::class)
-      ->add('location', ChoiceType::class, [
-        'choice_loader' => new CallbackChoiceLoader(function() {
-          return $this->loc_repo->findAll();
-        }),
-        'placeholder' => 'Choose an option',
-        'choice_label' => 'name',
-        'label' => 'Location',
-      ])
-      ->add('count_change', TextType::class, [
-        'mapped' => false,
-      ])
-      ->getForm();
-    if($item->getQuantity() == 0)
+    $form = $this->createForm(ItemLocationType::class, $item_loc);
+    if($item_loc->getQuantity() == 0)
     // disable delete button if items are in location
     {
       $form->add('delete', SubmitType::class, [
@@ -208,24 +199,26 @@ class ItemController extends AbstractController
     $form->handleRequest($request);
     if($form->isSubmitted() && $form->isValid())
     {
-      if($form->get('submit')->isClicked()) 
+      if($form->get('submit')->isClicked())
       {
-        $item = $form->getData();
-        $count_change = (int)trim($form->get('count_change')->getData(), '+');
-        var_dump($count_change);
-        $item->setQuantity($item->getQuantity() + $count_change);
-        $this->em->persist($item);
+        $item_loc_result = $form->getData();
+        $item_result = $form->get('item')->getData();
+        $item_loc->setupItem($item_result->getName(), $item_result->getDescription(), $item_loc_result->getQuantity() + ((int)trim($form->get('quantityChange')->getData(), '+')), $form->get('quantityChange')->getData(), $item_loc_result->getLocation());
+        // setupItem(?string $name, ?string $desc, ?int $quantity, ?string $change, ?Location $loc)
+        $this->em->persist($item_loc);
+        // update item record
         $this->em->flush();
+
         return $this->render('modify_item.html.twig', [
           'form' => $form->createView(),
-          'item_quantity' => $item_quantity,
+          'item_quantity' => $item_loc->getQuantity(),
           'date' => $this->date,
         ]);
 
       } elseif ($form->get('delete')->isClicked()) {
-        if ($item->getQuantity() == 0)
+        if ($item_loc->getQuantity() == 0)
         {
-          $this->em->remove($item);
+          $this->em->remove($item_loc);
           $this->em->flush();
           return $this->redirectToRoute('show_items');
         
@@ -235,17 +228,17 @@ class ItemController extends AbstractController
 
     return $this->render('modify_item.html.twig', [
       'form' => $form->createView(),
-      'item_quantity' => $item_quantity,
+      'item_quantity' => $item_loc->getQuantity(),
       'date' => $this->date,
     ]);
 
 
-    
   }
-
 
 
 }
 
 
 // EOF
+
+?>

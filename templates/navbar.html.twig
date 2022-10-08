@@ -4,7 +4,7 @@
   <script src="https://kit.fontawesome.com/0db354818b.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
-  {% set route =app.request.attributes.get('_route')%}
+  {% set route = app.request.attributes.get('_route')%}
 
   <div class="w3-bar" style="background-color:#f1f1f1">
     <a class="w3-bar-item w3-button" href="{{ path('show_items') }}" {% if route == 'show_items' %} style="background-color:#A9A9A9" {% endif %}>Items</a>

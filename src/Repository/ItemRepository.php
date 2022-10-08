@@ -4,9 +4,13 @@ namespace App\Repository;
 
 use App\Entity\Item;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
+ * @extends ServiceEntityRepository<Item>
+ *
  * @method Item|null find($id, $lockMode = null, $lockVersion = null)
  * @method Item|null findOneBy(array $criteria, array $orderBy = null)
  * @method Item[]    findAll()
@@ -19,18 +23,42 @@ class ItemRepository extends ServiceEntityRepository
         parent::__construct($registry, Item::class);
     }
 
+    // /**
+    //  * @author Daniel Boling
+    //  * @return Item[] Returns an array of Item objects
+    //  */
+    // public function findItem($name)
+    // {
+    //     return $this->createQueryBuilder('i')
+    //         ->andWhere('i.name like :val')
+    //         ->setParameter('val', '%'.$name.'%')
+    //         ->getQuery()
+    //         ->getResult()
+    //     ;
+    // }
+
     /**
-     * @author Daniel Boling
-     * @return Item[] Returns an array of Item objects
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
-    public function findItem($name)
+    public function add(Item $entity, bool $flush = true): void
     {
-        return $this->createQueryBuilder('i')
-            ->andWhere('i.name like :val')
-            ->setParameter('val', '%'.$name.'%')
-            ->getQuery()
-            ->getResult()
-        ;
+        $this->_em->persist($entity);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function remove(Item $entity, bool $flush = true): void
+    {
+        $this->_em->remove($entity);
+        if ($flush) {
+            $this->_em->flush();
+        }
     }
 
     // /**

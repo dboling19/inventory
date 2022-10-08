@@ -13,18 +13,32 @@
       <p>{{ date }}</p>
     </div>
     <div class="w3-container w3-third">
+      {% if submitted == true %}
+        <div class="w3-half w3-round" style="background-color:#4BE905">
+          <p class='w3-center'>
+            Entry Created
+          </p>
+        </div>
+        <br>
+        <br>
+      {% endif %}
       {{ form_start(form) }}
         <p>
-          {{ form_label(form.name) }}
-          {{ form_widget(form.name, {'attr': {'class': 'w3-input w3-border'}}) }}
+          {{ form_label(form.item.name) }}
+          {{ form_widget(form.item.name, {'attr': {'class': 'w3-input w3-border'}}) }}
+        </p>
+        <p>
+          {{ form_label(form.item.description) }}
+          {{ form_widget(form.item.description, {'attr': {'class': 'w3-input w3-border'}}) }}
         </p>
         <p>
           {{ form_label(form.location) }}
           {{ form_widget(form.location, {'attr': {'class': 'w3-select w3-border'}}) }}
         </p>
         <p>
-          {{ form_label(form.quantity) }}
-          {{ form_widget(form.quantity, {'attr': {'class': 'w3-input w3-border'}}) }}
+          {{ form_label(form.quantityChange) }}
+          {{ form_widget(form.quantityChange, {'attr': {'class': 'w3-input w3-border'}}) }}
+          <i class="w3-small">Prepend an '-' or '+' to the number</i>
         </p>
         <p>
           {{ form_row(form.submit, {'attr': {'class': 'w3-button w3-border'} }) }}
@@ -33,5 +47,10 @@
     </div>
   </body>
 
-
 </html>
+
+<script>
+  if ( window.history.replaceState ) {
+    window.history.replaceState( null, null, window.location.href );
+  }
+</script>
