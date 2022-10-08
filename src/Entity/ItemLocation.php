@@ -27,13 +27,13 @@ class ItemLocation
     private $quantity;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Item::class, inversedBy="itemlocation", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity=Item::class, inversedBy="itemlocation", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $item;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Location::class, inversedBy="itemlocation", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity=Location::class, inversedBy="itemlocation", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $location;

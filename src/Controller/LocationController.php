@@ -100,12 +100,16 @@ class LocationController extends AbstractController
     $loc = $this->loc_repo->find($id);
     $item_loc_result = $loc->getItemlocation();
     $items = $this->paginator->paginate($item_loc_result, $request->query->getInt('page', 1), 10);
+    $loc_qty = $this->item_loc_repo->getLocQty($id)[0]['quantity'];
 
-    $modify_form = $this->createFormBuilder($loc)
+
+    $modify_form = $this->createFormBuilder($loc, ['allow_extra_fields' => true])
       ->add('name', TextType::class)
-      ->add('submit', SubmitType::class, ['label' => 'Rename Location'])
+      ->add('modify_submit', SubmitType::class, ['label' => 'Rename Location'])
       ->getForm();
-    if(count($items) == 0)
+
+
+    if($loc_qty == 0)
     // disable delete button if items are in location
     {
       $modify_form->add('delete', SubmitType::class, [
@@ -135,27 +139,26 @@ class LocationController extends AbstractController
       $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 10);
 
     }
-      
+
+
     $modify_form->handleRequest($request);
     if($modify_form->isSubmitted() && $modify_form->isValid())
     {
-      if($modify_form->get('submit')->isClicked()){
+      if($modify_form->get('modify_submit')->isClicked()){
         $loc = $modify_form->getData();
         $this->em->persist($loc);
         $this->em->flush();
         return $this->redirectToRoute('show_locations');
 
       } elseif($modify_form->get('delete')->isClicked()) {
-        if(count($items) == 0)
+        if($loc_qty == 0 or $loc_qty == NULL)
         {
-          $loc = $modify_form->getData();
           $this->em->remove($loc);
           $this->em->flush();
           return $this->redirectToRoute('show_locations');
 
         }
       }
-
     }
 
     return $this->render('modify_location.html.twig', [
