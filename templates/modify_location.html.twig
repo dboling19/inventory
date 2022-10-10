@@ -17,26 +17,24 @@
       <p>{{ date }}</p>
     </div>
     <div class="w3-container">
-      {{ form_start(modify_form, {'attr': {'class': 'w3-third'} }) }}
+      {{ form_start(form, {'attr': {'class': 'w3-third'} }) }}
         <p>
-          {{ form_label(modify_form.name) }}
-          {{ form_widget(modify_form.name, {'attr': {'class': 'w3-input w3-border'} }) }}
+          {{ form_label(form.modify_form.name) }}
+          {{ form_widget(form.modify_form.name, {'attr': {'class': 'w3-input w3-border'} }) }}
         </p>
         <p>
-          {{ form_widget(modify_form.modify_submit, {'attr': {'class': 'w3-button w3-border w3-padding-small w3-half'} }) }}
-          {{ form_widget(modify_form.delete, {'attr': {'class': 'w3-button w3-border w3-padding-small w3-half'} }) }}
+          {{ form_widget(form.modify_form.modify_submit, {'attr': {'class': 'w3-button w3-border w3-padding-small w3-half'} }) }}
+          {{ form_widget(form.modify_form.delete, {'attr': {'class': 'w3-button w3-border w3-padding-small w3-half'} }) }}
         </p>
-      {{ form_end(modify_form) }}
     </div>
     <div class="w3-container">
       <p>
-        {{ form_start(search_form) }}
+        {{ form_start(form) }}
           <div class="w3-inline-block">
-            {{ form_widget(search_form.search_input, {'attr': {'class': 'w3-input w3-border w3-third w3-padding-small', 'placeholder': 'Search', 'onfocus': "this.value=''"}}) }}
-            {{ form_widget(search_form.search_submit, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"}} )}}
+            {{ form_widget(form.search_form.search_input, {'attr': {'class': 'w3-input w3-border w3-third w3-padding-small', 'placeholder': 'Search', 'onfocus': "this.value=''"}}) }}
+            {{ form_widget(form.search_form.search_submit, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"}} )}}
           </div>
-          {{ form_errors(search_form) }}
-        {{ form_end(search_form) }}
+        {{ form_end(form) }}
       </p>
     </div>
 

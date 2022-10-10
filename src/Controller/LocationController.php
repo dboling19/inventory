@@ -16,6 +16,8 @@ use App\Repository\ItemRepository;
 use App\Repository\LocationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ItemLocationRepository;
+use App\Form\ModifyFormType;
+use App\Form\SearchFormType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
@@ -103,67 +105,47 @@ class LocationController extends AbstractController
     $loc_qty = $this->item_loc_repo->getLocQty($id)[0]['quantity'];
 
 
-    $modify_form = $this->createFormBuilder($loc, ['allow_extra_fields' => true])
-      ->add('name', TextType::class)
-      ->add('modify_submit', SubmitType::class, ['label' => 'Rename Location'])
+    $form_array = array('modify_form' => $loc);
+    $form = $this->createFormBuilder($form_array)
+      ->add('modify_form', ModifyFormType::class, ['required' => false])
+      ->add('search_form', SearchFormType::class, ['required' => false])
       ->getForm();
+    // combine forms
 
 
-    if($loc_qty == 0)
-    // disable delete button if items are in location
-    {
-      $modify_form->add('delete', SubmitType::class, [
-        'label' => 'Delete Entry',
-        'disabled' => false,
-      ]);
-    } else {
-      $modify_form->add('delete', SubmitType::class, [
-        'label' => 'Delete Entry',
-        'disabled' => true,
-      ]);
-    }
+    $form->handleRequest($request);
+    if($form->isSubmitted() && $form->isValid()) {
+      $form_data = $form->getData();
+      $loc_data = $form_data['modify_form'];
+      $search_input = $form_data['search_form']['search_input'];
 
-    $search = array();
-    $search_form = $this->createFormBuilder($search, ['allow_extra_fields' => true])
-      ->add('search_input', SearchType::class)
-      ->add('search_submit', SubmitType::class)
-      ->getForm()
-    ;
-    // search for items
+      if(!in_array($search_input, [null, NULL, '', ' '])) {
+      // if search_input is null or empty, run search function
+        $items = $this->item_loc_repo->findItem($search_input);
+        $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 10);
 
-    $search_form->handleRequest($request);
-    if($search_form->isSubmitted() && $search_form->isValid())
-    {
-      $search = $search_form->getData();
-      $items = $this->item_loc_repo->findItem($search['search_input']);
-      $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 10);
-
-    }
-
-
-    $modify_form->handleRequest($request);
-    if($modify_form->isSubmitted() && $modify_form->isValid())
-    {
-      if($modify_form->get('modify_submit')->isClicked()){
-        $loc = $modify_form->getData();
-        $this->em->persist($loc);
-        $this->em->flush();
-        return $this->redirectToRoute('show_locations');
-
-      } elseif($modify_form->get('delete')->isClicked()) {
-        if($loc_qty == 0 or $loc_qty == NULL)
-        {
-          $this->em->remove($loc);
+      } else {
+      
+        if($form->get('modify_form')->get('modify_submit')->isClicked()) {
+          $this->em->persist($loc_data);
           $this->em->flush();
           return $this->redirectToRoute('show_locations');
 
+        } elseif($form->get('modify_form')->get('delete')->isClicked()) {
+          if($loc_qty == 0 or $loc_qty == NULL)
+          {
+            $this->em->remove($loc_data);
+            $this->em->flush();
+            return $this->redirectToRoute('show_locations');
+
+          }
         }
       }
     }
 
+
     return $this->render('modify_location.html.twig', [
-      'search_form' => $search_form->createView(),
-      'modify_form' => $modify_form->createView(),
+      'form' => $form->createView(),
       'items' => $items,
       'date' => $this->date,
     ]);
