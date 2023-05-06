@@ -1,0 +1,344 @@
+@import "./../../node_modules/nord/src/sass/nord.scss";
+
+
+body {
+  background-color: white;
+  color: $nord1;
+}
+
+label {
+  width:100%;
+}
+
+label .db-button {
+  background-color: #d8dce3;
+  color:$nord6;
+  padding:0.5rem;
+  font-family:sans-serif;
+  border-radius:0.3rem;
+  cursor:pointer;
+  margin-top:1rem;
+}
+
+#file-chosen{
+  margin-left: 0.3rem;
+  font-family: sans-serif;
+}
+
+th {
+  width:auto;
+  padding: 4px;
+  border-bottom:1px solid #ccc;
+  text-align:left;
+}
+
+tr, td {
+  width:auto;
+  padding:4px;
+  text-align:left;
+}
+
+tr:hover {
+  background-color: white!important;
+}
+
+tr:nth-child(odd) {
+  background-color: $nord5;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f6ff;
+}
+
+a.db-button, a.db-bar-item { 
+  text-decoration: none;
+}
+
+.db-left-round {
+  border-radius: 8px 0px 0px 8px;
+}
+
+.db-right-round {
+  border-radius: 0px 8px 8px 0px;
+}
+
+.db-input {
+  padding: 2px;
+  border:1px solid $nord4;
+  width: 100%;
+}
+
+select.db-input {
+  background-color:$nord6 !important;
+}
+
+.db-border {
+  border:1px solid #ccc;
+}
+
+.db-padding-small {
+  padding: 5px !important;
+}
+
+.db-half {
+  width: 50%;
+}
+
+.db-third {
+  width: 32%;
+}
+
+.db-twothird {
+  width: 65%;
+}
+
+.db-quarter {
+  width: 25%;
+}
+
+.db-threequarter {
+  width: 75%;
+}
+
+.db-max-large {
+  max-width: 1000px;
+}
+
+.db-max-small {
+  max-width: 300px;
+}
+
+.db-container {
+  padding: 0px 10px 0px 10px;
+}
+
+.db-panel {
+  padding: 10px;
+}
+
+.db-left {
+  float:left!important;
+}
+
+.db-right {
+  float:right!important;
+}
+
+.db-center {
+  margin:auto;
+  width:50%;
+}
+
+.db-bottom {
+  position:fixed;
+  width:100%;
+  z-index:1;
+}.db-bottom{
+  bottom:0;
+}
+
+.db-form-popup {
+  background-color:#f6f8ff;
+  display:none;
+  position:fixed;
+  top:70px;
+  left:16px;
+  z-index:1;
+}
+
+.db-button {
+  background-color:$nord6;
+  padding:6px;
+  border:1px solid #ccc;
+  color:$nord1;
+  text-align:center;
+}
+
+.db-button:hover {
+  color:$nord1!important;
+  background-color:white;
+}
+
+.db-bar {
+  width:100%;
+  overflow:hidden;
+  background-color:$nord4;
+}
+
+.db-bar .db-bar-item {
+  padding:6px;
+  float:left;
+  width:auto;
+  border:none;
+  display:block;
+  outline:0;
+  color:$nord1;
+}
+
+.db-bar-item.db-button-route {
+  background-color: $nord3;
+  color: $nord6;
+}
+
+.db-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.db-error-message {
+  background-color:#d8dce3;
+  width:200px;
+  padding-left:10px;
+  padding-right:10px;
+  padding-top:5px;
+  padding-bottom:5px;
+  margin-left:0px;
+  display:none;
+  border-radius:2px;
+  position:relative;
+}
+
+.db-error-message.db-top-arrow:after {
+  content: " ";
+  position:absolute;
+  left:15px;
+  top:-15px;
+  border-top:none;
+  border-right:10px solid transparent;
+  border-left:10px solid transparent;
+  border-bottom:15px solid #d8dce3;
+}
+
+.db-tag-label {
+  background-color:#39A0ED;
+  color:white;
+  width:auto;
+  height:auto;
+  position:relative;
+  margin-top:10px;
+  font-size:13px;
+  padding-left:3px;
+  padding-right:3px;
+  padding-top:0px;
+  padding-bottom:0px;
+  display:inline-block;
+}
+
+.db-tag-remove-btn {
+  background-color:#e1cdff;
+  position:relative;
+  cursor:pointer;
+  top:0px;
+  margin-right:6px;
+  padding:0px 4px 2px 4px;
+}
+
+.db-tag-remove-btn:hover {
+  background-color:#ffcdfe;
+}
+
+:disabled {
+  border: 1px solid lightgrey;
+}
+
+.db-button:disabled {
+  background-color:#d8dce3!important;
+  color:#97999b!important;
+  cursor:not-allowed;
+}
+
+.db-button:disabled:hover {
+  background-color:#d8dce3!important;
+  color:#97999b!important;
+  cursor:not-allowed;
+}
+
+
+
+
+// start dark mode
+.db-dark-mode {
+  background-color: $nord0;
+  color: $nord6;
+}
+
+.db-dark-mode .db-button {
+  background-color: $nord3;
+  color: $nord6;
+}
+
+.db-dark-mode .db-button:hover {
+  background-color: $nord2!important;
+  color: $nord6!important;
+}
+
+.db-dark-mode .db-button:disabled {
+  background-color:#535e77!important;
+  color:#97999b!important;
+}
+
+.db-dark-mode .db-button:disabled:hover {
+  background-color:#535e77!important;
+  color:#97999b!important;
+}
+
+.db-dark-mode #navbar {
+  background-color: $nord1;
+  color: $nord4;
+}
+
+.db-dark-mode #navbar .db-button-route {
+  background-color: $nord4;
+  color: $nord1;
+}
+
+.db-dark-mode th {
+  border-bottom: 1px solid $nord4;
+}
+
+.db-dark-mode tr:hover {
+  background-color: $nord3!important;
+}
+
+.db-dark-mode tr:nth-child(even) {
+  background-color: $nord1;
+}
+
+.db-dark-mode tr:nth-child(odd) {
+  background-color: $nord2;
+}
+
+.db-dark-mode input {
+  background-color: $nord2;
+  color: $nord6;
+}
+
+.db-dark-mode .db-form-popup {
+  background-color: $nord0;
+  color: $nord6;
+}
+
+.db-dark-mode .db-info {
+  background-color: $nord1;
+  color: $nord6;
+}
+
+.db-dark-mode .db-error-message {
+  background-color:#434c5e;
+}
+
+.db-dark-mode .db-error-message.db-top-arrow:after {
+  border-bottom:15px solid #434c5e;
+}
+
+span .db-dark-mode .db-tag-label {
+  background-color:#e2cdff;
+}
+
+.db-dark-mode .db-tag-remove-btn {
+  background-color:#b4a4cc;
+}
+
+.db-dark-mode .db-tag-remove-btn:hover {
+  background-color:#e1cdff;
+}

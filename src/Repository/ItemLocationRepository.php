@@ -27,15 +27,27 @@ class ItemLocationRepository extends ServiceEntityRepository
    * @author Daniel Boling
    * @return Item[] Returns an array of Item objects
    */
-  public function findItem($item)
+  public function findItem(array $params)
   {
-    return $this->createQueryBuilder('il')
-      ->andWhere('item.name like :val')
+    $qb = $this->createQueryBuilder('il')
       ->leftJoin('il.item', 'item')
-      ->setParameter('val', '%'.$item.'%')
-      ->getQuery()
-      ->getResult()
+      ->leftJoin('il.location', 'location')
     ;
+    if (isset($params['item_name']))
+    {
+      $qb
+        ->setParameter('item_name', '%'.$params['item_name'].'%')
+        ->andWhere('item.name like :item_name')
+      ;
+    }
+    if (isset($params['location']))
+    {
+      $qb
+        ->setParameter('loc_id', $params['location'])
+        ->andWhere('location.id in (:loc_id)')
+      ;
+    }
+    return $qb->getQuery();
 
   }
 

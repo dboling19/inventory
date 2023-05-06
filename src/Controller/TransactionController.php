@@ -33,6 +33,15 @@ use Symfony\Component\Validator\Constraints\Count;
 class TransactionController extends AbstractController
 {
 
+  private $em;
+  private $item_repo;
+  private $loc_repo;
+  private $trans_repo;
+  private $item_loc_repo;
+  private $paginator;
+  private $date;
+  private $request_stack;
+
   public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, TransactionRepository $trans_repo, ItemLocationRepository $item_loc_repo, PaginatorInterface $paginator, RequestStack $request_stack)
   {
     $this->em = $em;

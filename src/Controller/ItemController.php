@@ -34,6 +34,15 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 class ItemController extends AbstractController
 {
 
+  private $em;
+  private $item_repo;
+  private $loc_repo;
+  private $trans_repo;
+  private $item_loc_repo;
+  private $paginator;
+  private $date;
+  private $request_stack;
+
   public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, TransactionRepository $trans_repo, ItemLocationRepository $item_loc_repo, PaginatorInterface $paginator, RequestStack $request_stack)
   {
     $this->em = $em;
@@ -42,9 +51,8 @@ class ItemController extends AbstractController
     $this->trans_repo = $trans_repo;
     $this->item_loc_repo = $item_loc_repo;
     $this->paginator = $paginator;
-    $this->date = (new \DateTime('now'))->format('D, j F, Y');
+    $this->date = (new \DateTime('now', new \DateTimeZone('America/Indiana/Indianapolis')))->format('Y-m-d');
     $this->request_stack = $request_stack;
-
   }
 
   /**
@@ -59,45 +67,30 @@ class ItemController extends AbstractController
     if ($request->cookies->get('items_limit') != null)
     {
       $limit = array('items_limit' => $request->cookies->get('items_limit'));
-
     } else {
-      $limit = array('items_limit' => 10);
-      
+      $limit = array('items_limit' => 25);
     }
 
-    $search = array('search_input' => '');
-    $search_form = $this->createFormBuilder($search, ['allow_extra_fields' => true])
-      ->add('search_input', SearchType::class, ['label' => 'Search', 'required' => false])
-      ->add('search_submit', SubmitType::class, ['label' => 'Search'])
-      ->getForm()
-    ;
-
-    $limit_form = $this->createFormBuilder($limit, ['allow_extra_fields' => true])
-      ->add('limit_choice', ChoiceType::class, [
-        'choices' => [
-          '5' => 5,
-          '10' => 10,
-          '25' => 20,
-          '50' => 50,
-          '100' => 100,
-        ],
-        'data' => $request->cookies->get('items_limit'),
-      ])
-      ->add('limit_submit', SubmitType::class, ['label' => 'Limit'])
-      ->getForm()
-    ;
+    $params = [
+      'item_name' => '',
+      'location' => '',
+      'limit' => $limit['items_limit'],
+    ];
 
 
-    $limit_form->handleRequest($request);
-    if($limit_form->isSubmitted() && $limit_form->isValid())
+    if($request->query->all())
     {
-      $limit = $limit_form->getData();
-      $cookie = new Cookie('items_limit', $limit['limit_choice']);
-      $response = new Response();
-      $response->headers->setCookie($cookie);
-      $response->send();
-      $result = $this->item_loc_repo->findAll();
-      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['limit_choice']);
+      $params = $request->query->all();
+      if (isset($params['limit']) && $limit['items_limit'] == $params['limit'])
+      {
+        $cookie = new Cookie('items_limit', $params['limit']);
+        $response = new Response();
+        $response->headers->setCookie($cookie);
+        $response->send();  
+        $limit['items_limit'] = $params['limit'];
+      }
+      $result = $this->item_loc_repo->findItem($params);
+      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['items_limit']);
 
     } else {
       $result = $this->item_loc_repo->findAll();
@@ -105,20 +98,10 @@ class ItemController extends AbstractController
 
     }
 
-    $search_form->handleRequest($request);
-    if($search_form->isSubmitted() && $search_form->isValid())
-    {
-      $search = $search_form->getData();
-      $result = $this->item_loc_repo->findItem($search['search_input']);
-      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), 10);
-
-    }
-
     return $this->render('overview_items.html.twig', [
-      'search_form' => $search_form->createView(),
-      'limit_form' => $limit_form->createView(),
-      'date' => $this->date,
+      'locations' => $this->loc_repo->findAll(),
       'result' => $result,
+      'params' => $params,
     ]);
 
   }
@@ -131,37 +114,40 @@ class ItemController extends AbstractController
    * 
    * @Route("/new/item", name="new_item");
    */
-  public function new_item(Request $request, $submitted = False): Response
+  public function new_item(Request $request, $submitted = false): Response
   {
-
-    $item_loc = new ItemLocation();
-
-    $form = $this->createForm(ItemLocationType::class, $item_loc);
-    $form->add('submit', SubmitType::class, ['label' => 'Create Entry']);
+    $post_data = [
+      'date' => $this->date,
+    ];
+    $locations = $this->em
+      ->getRepository(Location::class)
+      ->createQueryBuilder('l')
+      ->getQuery()
+      ->getArrayResult()
+    ;
     
-    $form->handleRequest($request);
-    if($form->isSubmitted() && $form->isValid())
+    if($form_data = $request->query->all())
     {
-      $item_loc_result = $form->getData();
-      $item_result = $form->get('item')->getData();
-      $item_loc->setupItem($item_result->getName(), $item_result->getDescription(), $item_loc_result->getQuantity() + ((int)trim($form->get('quantityChange')->getData(), '+')), $form->get('quantityChange')->getData(), $item_loc_result->getLocation());
-      // setupItem(?string $name, ?string $desc, ?int $quantity, ?string $change, ?Location $loc)
+      $item = new Item;
+      $item_loc = new ItemLocation;
+      $item->setName($form_data['name']);
+      $item->setDescription($form_data['desc']);
+      $date = new \DateTime($form_data['date'], new \DateTimeZone('America/Indiana/Indianapolis'));
+      $item->setExpDate($date);
+      $item_loc->setItem($item);
+      $item_loc->setQuantity($form_data['quantity_change']);
+      $location = $this->loc_repo->find($form_data['location']);
+      $item_loc->setLocation($location);
       $this->em->persist($item_loc);
-      // update item record
       $this->em->flush();
 
-      $item_loc = new ItemLocation();
-
-      $form = $this->createForm(ItemLocationType::class, $item_loc);
-      $form->add('submit', SubmitType::class, ['label' => 'Create Entry']);
-
-      $submitted = True;
+      $submitted = true;
     }
 
     return $this->render('new_item.html.twig', [
-      'form' => $form->createView(),
       'submitted' => $submitted,
-      'date' => $this->date,
+      'locations' => $locations,
+      'post_data' => $post_data,
     ]);
     
   }
