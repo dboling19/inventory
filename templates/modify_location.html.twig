@@ -1,66 +1,63 @@
-<!DOCTYPE html>
-
-<html>
-  <head>
-    {% block stylesheets %}
-      {{encore_entry_link_tags('app')}}
-    {% endblock %}
-    <script src="https://kit.fontawesome.com/0db354818b.js" crossorigin="anonymous"></script>
-
-    <title>Inventory - Modify</title>
-  </head>
-
-  <body>
-    {{ include('navbar.html.twig') }}
-    <div class="w3-container">
-      <h3>Modify Location</h3>
-      <p>{{ date }}</p>
+{% extends 'base.html.twig' %}
+{% block title %}Modify Location{% endblock %}
+{% block body %}
+{{ include('navbar.html.twig') }}
+<div class="w3-container">
+  <h3>Modify Location</h3>
+  <p>{{ date }}</p>
+</div>
+<div class="w3-container">
+  {{ form_start(form, {'attr': {'class': 'w3-third'} }) }}
+    <p>
+      {{ form_label(form.modify_form.name) }}
+      {{ form_widget(form.modify_form.name, {'attr': {'class': 'w3-input w3-border'} }) }}
+    </p>
+    <p>
+      {{ form_widget(form.modify_form.modify_submit, {'attr': {'class': 'w3-button w3-border w3-padding-small w3-half'} }) }}
+      {{ form_widget(form.modify_form.delete, {'attr': {'class': 'w3-button w3-border w3-padding-small w3-half'} }) }}
+    </p>
+</div>
+<div class="w3-container">
+  <p>
+    {{ form_start(form) }}
+      <div class="w3-inline-block">
+        {{ form_widget(form.search_form.search_input, {'attr': {'class': 'w3-input w3-border w3-third w3-padding-small', 'placeholder': 'Search', 'onfocus': "this.value=''"}}) }}
+        {{ form_widget(form.search_form.search_submit, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"}} )}}
+      </div>
+    {{ form_end(form) }}
+  </p>
+</div>
+{% if submitted == true %}
+  <div class="db-notif">
+    <div class="db-center" style="padding:48">
+      <h3>Record Saved</h3>
     </div>
-    <div class="w3-container">
-      {{ form_start(form, {'attr': {'class': 'w3-third'} }) }}
-        <p>
-          {{ form_label(form.modify_form.name) }}
-          {{ form_widget(form.modify_form.name, {'attr': {'class': 'w3-input w3-border'} }) }}
-        </p>
-        <p>
-          {{ form_widget(form.modify_form.modify_submit, {'attr': {'class': 'w3-button w3-border w3-padding-small w3-half'} }) }}
-          {{ form_widget(form.modify_form.delete, {'attr': {'class': 'w3-button w3-border w3-padding-small w3-half'} }) }}
-        </p>
-    </div>
-    <div class="w3-container">
-      <p>
-        {{ form_start(form) }}
-          <div class="w3-inline-block">
-            {{ form_widget(form.search_form.search_input, {'attr': {'class': 'w3-input w3-border w3-third w3-padding-small', 'placeholder': 'Search', 'onfocus': "this.value=''"}}) }}
-            {{ form_widget(form.search_form.search_submit, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"}} )}}
-          </div>
-        {{ form_end(form) }}
-      </p>
-    </div>
-
-    <div class="w3-display-container w3-responsive">
-      <table class="w3-table-all w3-medium">
-        <tr>
-          <th>{{ knp_pagination_sortable(items, 'Item', 'item.name') }}</th>
-          <th>{{ knp_pagination_sortable(items, 'Quantity', 'quantity') }}</th>
-          <th></th>
-        </tr>
-        {% for row in items %} {# simple loop to output rows #}
-          <tr>
-            <td>{{ row.item.name }}</td>
-            <td>{{ row.quantity }}</td>
-            <td><a class="w3-button w3-border w3-padding-small w3-right w3-margin-right" href="{{ path('modify_item', {'id': row.id }) }}">Modify</a></td>
-          </tr>
-        {% endfor %}
-      </table>
-    </div>
-  </body>
+  </div>
+{% endif %}
 
 
-</html>
+<div class="w3-display-container w3-responsive">
+  <table class="w3-table-all w3-medium">
+    <tr>
+      <th>{{ knp_pagination_sortable(items, 'Item', 'item.name') }}</th>
+      <th>{{ knp_pagination_sortable(items, 'Quantity', 'quantity') }}</th>
+      <th></th>
+    </tr>
+    {% for row in items %} {# simple loop to output rows #}
+      <tr>
+        <td>{{ row.item.name }}</td>
+        <td>{{ row.quantity }}</td>
+        <td><a class="w3-button w3-border w3-padding-small w3-right w3-margin-right" href="{{ path('modify_item', {'id': row.id }) }}">Modify</a></td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+
 
 <script>
   if ( window.history.replaceState ) {
     window.history.replaceState( null, null, window.location.href );
   }
 </script>
+
+{% endblock %}

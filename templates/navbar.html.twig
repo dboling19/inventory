@@ -13,8 +13,12 @@
   });
 
   function select_route() {
-    const button = document.getElementById({{ route_name|json_encode()|raw }});
-    button.classList.add('db-button-route');
+    if (document.getElementById({{ route_name|json_encode()|raw }}))
+    // necessary as some routes will not have a navbar button, such as modify_item
+    {
+      const button = document.getElementById({{ route_name|json_encode()|raw }});
+      button.classList.add('db-button-route');
+    }
   }
 </script>
 

@@ -145,7 +145,7 @@ class ItemController extends AbstractController
     }
 
     return $this->render('new_item.html.twig', [
-      'submitted' => $submitted,
+      'submitted' => $submitted ?? false,
       'locations' => $locations,
       'post_data' => $post_data,
     ]);
@@ -162,70 +162,80 @@ class ItemController extends AbstractController
    */
   public function modify_item(Request $request, $id): Response
   {
-
     $item_loc = $this->item_loc_repo->find($id);
     $item = $item_loc->getItem();
+    $locations = $this->em
+      ->getRepository(Location::class)
+      ->createQueryBuilder('l')
+      ->getQuery()
+      ->getArrayResult()
+    ;
 
-    $form = $this->createForm(ItemLocationType::class, $item_loc);
-    if($item_loc->getQuantity() == 0)
-    // disable delete button if items are in location
-    {
-      $form->add('delete', SubmitType::class, [
-        'label' => 'Delete Entry',
-        'disabled' => false,
-      ]);
-    } else {
-      $form->add('delete', SubmitType::class, [
-        'label' => 'Delete Entry',
-        'disabled' => true,
-      ]);
-    }
-    $form->add('submit', SubmitType::class, ['label' => 'Modify Entry']);
+    $params = [
+      'id' => $item_loc->getId(),
+      'name' => $item->getName(),
+      'desc' => $item->getDescription(),
+      'date' => date_format($item->getExpDate(), 'Y-m-d'),
+      'quantity' => $item_loc->getQuantity(),
+      'location' => $item_loc->getLocation()->getId(),
+    ];
     
-    $form->handleRequest($request);
-    if($form->isSubmitted() && $form->isValid())
+    if($request->query->all())
     {
-      if($form->get('submit')->isClicked())
-      {
-        $item_loc_result = $form->getData();
-        $item_result = $form->get('item')->getData();
-        if (!$form->get('quantityChange')->getData()) {
-          $quantity_change = '0';
-        } else {
-          $quantity_change = $form->get('quantityChange')->getData();
-        }
-        $item_loc->setupItem($item_result->getName(), $item_result->getDescription(), $item_loc_result->getQuantity() + ((int)trim($form->get('quantityChange')->getData(), '+')), $quantity_change, $item_loc_result->getLocation());
-        // setupItem(?string $name, ?string $desc, ?int $quantity, ?string $change, ?Location $loc)
-        $this->em->persist($item_loc);
-        // update item record
-        $this->em->flush();
-
-        return $this->render('modify_item.html.twig', [
-          'form' => $form->createView(),
-          'item_quantity' => $item_loc->getQuantity(),
-          'date' => $this->date,
-        ]);
-
-      } elseif ($form->get('delete')->isClicked()) {
-        if ($item_loc->getQuantity() == 0)
-        {
-          $this->em->remove($item_loc);
-          $this->em->flush();
-          return $this->redirectToRoute('show_items');
-        
-        }
+      $params = $request->query->all();
+      if (!$params['quantity_change']) {
+        $quantity_change = '0';
+      } else {
+        $quantity_change = $params['quantity_change'];
       }
+      $item->setName($params['name']);
+      $item->setDescription($params['desc']);
+      $date = new \DateTime($params['date'], new \DateTimeZone('America/Indiana/Indianapolis'));
+      $item->setExpDate($date);
+      $item_loc->setItem($item);
+      $item_loc->setQuantity($item_loc->getQuantity() + ((int)trim($params['quantity_change'], '+')));
+      $location = $this->loc_repo->find($params['location']);
+      $item_loc->setLocation($location);
+      $this->em->persist($item_loc);
+      $this->em->flush();
+      $submitted = true;
     }
 
     return $this->render('modify_item.html.twig', [
-      'form' => $form->createView(),
       'item_quantity' => $item_loc->getQuantity(),
-      'date' => $this->date,
+      'locations' => $locations,
+      'params' => $params,
+      'item_loc' => $item_loc,
+      'submitted' => $submitted ?? false,
     ]);
-
 
   }
 
+
+  /**
+   * Delete item only if quantity = 0
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('delete/item/{id}', name:'delete_item')]
+  public function delete_item(Request $request, $id)
+  {
+    $item_loc = $this->item_loc_repo->find($id);
+    $item = $item_loc->getItem();
+
+    if ($item_loc->getQuantity() == 0)
+    {
+      $this->em->remove($item_loc);
+      $this->em->flush();
+      return $this->redirectToRoute('show_items');
+    } else {
+      return $this->render('modify_item.html.twig', [
+        'failed' => true,
+        'item_quantity' => $item_loc->getQuantity(),
+      ]);
+    }
+
+  }
 
 }
 

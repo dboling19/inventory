@@ -2,17 +2,8 @@
 {% block title %}New Item{% endblock %}
 {% block body %}
 {{ include('navbar.html.twig') }}
-<div class="db-panel db-third">
-  {% if submitted == true %}
-    <div class="db-quarter db-right">
-      <div class="db-card db-animate-right">
-        <div class="db-center" style="padding:48px">
-          <h3>Record Saved</h3>
-        </div>
-      </div>
-    </div>
-  {% endif %}
-  <form action="{{ path('new_item') }}" id="item_form" method="get">
+<div class="db-panel">
+  <form action="{{ path('new_item') }}" class="db-panel db-border db-third" id="item_form" method="get">
     <p>
       <label for="name">
         Name
@@ -44,14 +35,25 @@
       </label>
     </p>
     <p>
-      <input type="text" class="db-input" id="quantity_change" name="quantity_change"/>
-      <i style="font-size:12px">Prepend an '-' or '+' to number</i>
+      <label for="quantity_change">
+        Quantity Change
+        <input type="text" class="db-input" id="quantity_change" name="quantity_change"/>
+        <i style="font-size:12px">Prepend an '-' or '+' to number</i>
+      </label>
     </p>
     <p>
       <button type="submit" class="db-button">Create Entry</button>
     </p>
   </form>
 </div>
+{% if submitted == true %}
+  <div class="db-notif">
+    <div class="db-center" style="padding:48">
+      <h3>Record Saved</h3>
+    </div>
+  </div>
+{% endif %}
+
 
 <script>
   const post_data = {{ post_data|json_encode()|raw }};

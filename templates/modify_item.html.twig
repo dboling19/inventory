@@ -1,53 +1,97 @@
-<!DOCTYPE html>
-
-<html>
-  <head>
-    <title>Inventory - Modify</title>
-
-  </head>
-
-  <body>
-    {{ include('navbar.html.twig') }}
-    <div class="w3-container">
-      <h3>Modify Item</h3>
-      <p>{{ date }}</p>
+{% extends 'base.html.twig' %}
+{% block title %}Modify Item{% endblock %}
+{% block body %}
+{{ include('navbar.html.twig') }}
+<div class="db-container">
+  <h3><b>Modify Item <i>{{ params.name }}</i></b></h3>
+</div>
+<div class="db-panel">
+  <form action="{{ path('modify_item', { id: item_loc.id }) }}" class="db-panel db-border db-third" id="item_form" method="get">
+    <p>
+      <label for="name">
+        Name
+        <input type="text" class="db-input" id="name" name="name"/>
+      </label> 
+    </p>
+    <p>
+      <label for="desc">
+        Description (Optional)
+        <br>
+        <textarea class="db-input" id="desc" name="desc"></textarea>
+      </label>
+    </p>
+    <p>
+      <label for="date">
+        Expiration date
+        <br>
+        <input type="date" class="db-input" style="width:auto" id="date" name="date"/>
+        <br>
+        <i style="font-size:12px">Use oldest item's expiration date</i>
+      </label>
+    </p>
+    <p>
+      <label for="location">
+        Location
+        <select class="db-input" id="location" name="location">
+          <option value="default">Choose...</option>
+        </select>
+      </label>
+    </p>    <p>
+      <label for="item_quantity">
+        Quantity
+        <input type="text" class="db-input" id="quantity" disabled/>
+        </label>
+    </p>
+    <p>
+      <label for="quantity_change">
+        Quantity Change
+        <input type="text" class="db-input" id="quantity_change" name="quantity_change"/>
+        <i style="font-size:12px">Prepend an '-' or '+' to number</i>
+      </label>
+    </p>
+    <p>
+      <button type="submit" class="db-button">Modify Item</button>
+    </p>
+    <p>
+      <button type="submit" class="db-button" style="background-color:#cc0000;color:white;" action="{{ path('delete_item', { id: item_loc.id }) }}">Delete Item</button>
+    </p>
+  </form>
+</div>
+{% if submitted == true %}
+  <div class="db-notif">
+    <div class="db-center" style="padding:48">
+      <h3>Record Saved</h3>
     </div>
-    <div class="w3-container">
-      {{ form_start(form, {'attr': {'class': 'w3-third'} }) }}
-        <p>
-          {{ form_label(form.item.name) }}
-          {{ form_widget(form.item.name, {'attr': {'class': 'w3-input w3-border'}}) }}
-        </p>
-        <p>
-          {{ form_label(form.item.description) }}
-          {{ form_widget(form.item.description, {'attr': {'class': 'w3-input w3-border'}}) }}
-        </p>
-        <p>
-          {{ form_label(form.location) }}
-          {{ form_widget(form.location, {'attr': {'class': 'w3-select w3-border'}}) }}
-        </p>
-        <p>
-          Quantity<br>
-          <b>{{ item_quantity }}</b>
-        </p>
-        <p>
-          {{ form_label(form.quantityChange) }}
-          {{ form_widget(form.quantityChange, {'attr': {'class': 'w3-input w3-border'}}) }}
-          <i class="w3-small">Prepend an '-' or '+' to the number</i>
-        </p>
-        <p>
-          {{ form_row(form.submit, {'attr': {'class': 'w3-button w3-border w3-half'} }) }}
-          {{ form_row(form.delete, {'attr': {'class': 'w3-button w3-border w3-half'} }) }}
-        </p>
-      {{ form_end(form)}}
-    </div>
-  </body>
-
-
-</html>
+  </div>
+{% endif %}
 
 <script>
   if ( window.history.replaceState ) {
     window.history.replaceState( null, null, window.location.href );
   }
+
+  const params = {{ params|json_encode()|raw }};
+  const form = document.getElementById('item_form');
+  const location_select = document.getElementById('location');
+  const locations = {{ locations|json_encode()|raw }};
+
+  window.onload = (event) => {
+    item_form = document.getElementById('item_form');
+    for (let i = 0; i < locations.length; i++)
+    {
+      var option = document.createElement('option');
+      option.text = locations[i].name;
+      option.value = locations[i].id;
+      location_select.add(option);
+    } 
+    for (var parent_key in params)
+    {
+      if (item_form.elements[parent_key])
+      {
+        item_form.elements[parent_key].value = params[parent_key];
+      }
+    }
+  };
 </script>
+
+{% endblock %}

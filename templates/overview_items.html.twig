@@ -38,7 +38,7 @@
     </tr>
     {% for row in result %} {# simple loop to output rows #}
       <tr>
-        <td><a href="{{ path('modify_item', {'id': row.id }) }}">{{ row.item.name }}</a></td>
+        <td><a href="{{ path('modify_item', {id: row.id }) }}">{{ row.item.name }}</a></td>
         <td>{{ row.item.description }}</td>
         <td>{{ row.quantity }}</td>
         <td>{{ row.item.expDate|format_datetime('short', 'none') }}</td>
