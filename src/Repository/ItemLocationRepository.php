@@ -40,7 +40,7 @@ class ItemLocationRepository extends ServiceEntityRepository
         ->andWhere('item.name like :item_name')
       ;
     }
-    if (isset($params['location']))
+    if (isset($params['location']) && $params['location'] !== '')
     {
       $qb
         ->setParameter('loc_id', $params['location'])
@@ -48,7 +48,6 @@ class ItemLocationRepository extends ServiceEntityRepository
       ;
     }
     return $qb->getQuery();
-
   }
 
 
@@ -65,7 +64,6 @@ class ItemLocationRepository extends ServiceEntityRepository
       ->getQuery()
       ->getResult()
     ;
-
   }
 
   /**

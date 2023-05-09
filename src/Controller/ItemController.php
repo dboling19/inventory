@@ -71,7 +71,7 @@ class ItemController extends AbstractController
       $cookie = new Cookie('overview_items_limit', $limit['items_limit']);
       $response = new Response();
       $response->headers->setCookie($cookie);
-      $response->send();  
+      $response->send();
     }
 
     $params = [
@@ -79,6 +79,8 @@ class ItemController extends AbstractController
       'location' => '',
       'limit' => $limit['items_limit'],
     ];
+    // all occurences of these are necessary for JS in templates
+    // to autofill form fields, or leave them null.
 
 
     if($request->query->all())
