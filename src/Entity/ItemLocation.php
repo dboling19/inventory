@@ -3,134 +3,103 @@
 namespace App\Entity;
 
 use App\Repository\ItemLocationRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use App\Repository\TransactionRepository;
-use App\Entity\Transaction;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ItemLocationRepository::class)
- */
+
+#[ORM\Entity(repositoryClass:ItemLocationRepository::class)]
 class ItemLocation
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+  #[ORM\Id]
+  #[ORM\GeneratedValue]
+  #[ORM\Column]
+  private $id;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $quantity;
+  #[ORM\Column]
+  private $quantity;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Item::class, inversedBy="itemlocation", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $item;
+  #[ORM\ManyToOne(targetEntity:Item::class, inversedBy:"itemlocation", cascade:['persist'])]
+  #[ORM\JoinColumn(nullable:true)]
+  private $item;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Location::class, inversedBy="itemlocation", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $location;
+  #[ORM\ManyToOne(targetEntity:Location::class, inversedBy:'itemlocation', cascade:['persist'])]
+  #[ORM\JoinColumn(nullable:true)]
+  private $location;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+  private $trans;
 
-    public function getQuantity(): ?int
-    {
-        return $this->quantity;
-    }
+  public function getId(): ?int
+  {
+      return $this->id;
+  }
 
-    public function setQuantity(int $quantity): self
-    {
-        $this->quantity = $quantity;
+  public function getQuantity(): ?int
+  {
+      return $this->quantity;
+  }
 
-        return $this;
-    }
+  public function setQuantity(int $quantity): self
+  {
+      $this->quantity = $quantity;
 
-    public function getItem(): ?Item
-    {
-        return $this->item;
-    }
+      return $this;
+  }
 
-    public function setItem(?Item $item): self
-    {
-        $this->item = $item;
+  public function getItem(): ?Item
+  {
+      return $this->item;
+  }
 
-        return $this;
-    }
+  public function setItem(?Item $item): self
+  {
+      $this->item = $item;
 
-    public function getLocation(): ?Location
-    {
-        return $this->location;
-    }
+      return $this;
+  }
 
-    public function setLocation(?Location $location): self
-    {
-        $this->location = $location;
+  public function getLocation(): ?Location
+  {
+      return $this->location;
+  }
 
-        return $this;
-    }
+  public function setLocation(?Location $location): self
+  {
+      $this->location = $location;
 
-    public function getItemName(): ?string
-    {
-        return $this->getItem()->getName();
-    }
+      return $this;
+  }
 
-    public function setItemName(?string $name): self
-    {
-        $this->getItem()->setName($name);
+  public function getItemName(): ?string
+  {
+      return $this->getItem()->getName();
+  }
 
-        return $this;
-    }
+  public function setItemName(?string $name): self
+  {
+      $this->getItem()->setName($name);
 
-    public function getItemDescription(): ?string
-    {
-        return $this->getItem()->getDescription();
-    }
+      return $this;
+  }
 
-    public function setItemDescription(?string $description): self
-    {
-        $this->getItem()->setDescription($description);
+  public function getItemDescription(): ?string
+  {
+      return $this->getItem()->getDescription();
+  }
 
-        return $this;
-    }
+  public function setItemDescription(?string $description): self
+  {
+      $this->getItem()->setDescription($description);
 
-    public function setQuantityChange(?string $change): self
-    {
-        $this->trans = new Transaction();
-        $this->getItem()->addTransaction($this->trans);
-        $this->trans->setDate(new \DateTime());
-        $this->trans->setQuantityChange($change);
+      return $this;
+  }
 
-        return $this;
-    }
+  public function setQuantityChange(?string $change): self
+  {
+      $this->trans = new Transaction();
+      $this->getItem()->addTransaction($this->trans);
+      $this->trans->setDate(new \DateTime());
+      $this->trans->setQuantityChange($change);
 
-    /**
-     * (Item[], quantity, change str, Location[])
-     * 
-     * @author Daniel Boling
-     */
-    public function setupItem(?string $name, ?string $desc, ?int $quantity, ?string $change, ?Location $loc)
-    {
-        if ($this->getItem() == null)
-        {
-            $this->item = new Item();
-        } else {
-            $this->item = $this->getItem();
-        }
-        $this->setItemName($name);
-        $this->setItemDescription($desc);
-        $this->setQuantity($quantity);
-        $this->setQuantityChange($change);
-        $this->setLocation($loc);
-    }
+      return $this;
+  }
 
 }

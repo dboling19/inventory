@@ -1,52 +1,55 @@
-<!DOCTYPE html>
-
-<html>
-
-  <head>
-    {% block stylesheets %}
-      {{encore_entry_link_tags('app')}}
-    {% endblock %}
-    <script src="https://kit.fontawesome.com/0db354818b.js" crossorigin="anonymous"></script>
-
-    <title>Inventory - Location Overview</title>
-  </head>
-
-  <body>
-    {{ include('navbar.html.twig') }}
-    <div class="w3-container">
-      <h3>Locations</h3>
-      <p>{{ date }}</p>
+{% extends 'base.html.twig' %}
+{% block title %}Locations{% endblock %}
+{% block body %}
+{{ include('navbar.html.twig') }}
+<div class="db-panel">
+  <form action="{{ path('new_location') }}" id="location_form" method="get">
+    <input type="text" class="db-input" id="name" name="name" placeholder="Location" style="padding:6px 10px;width:300px;"/>
+    <button type="submit" class="db-button" style="margin-left:-6px;">Add Location</button>
+  </form>
+</div>
+{% if params.s == true %}
+  <span class="db-notif">
+    <span class="db-center">
+      Record Saved
+    </span>
+  </span>
+{% endif %}
+<div class="db-half">
+  <table class="db-table">
+    <tr>
+      <th>{{ knp_pagination_sortable(loc_result, 'Location', 'name') }}</th>
+      {# <th>Entries</th> #}
+      {# <th>Total Items</th> #}
+    </tr>
+    {% for row in loc_result %}
+      <tr>
+        <td><a href="{{ path('view_location', {'id': row.id }) }}">{{ row.name }}</a></td>
+        {# <td>{{ row.Itemlocation|length }}</td>
+        // number of entries
+        <td>{{ total_quantity}} #}
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+<div class="db-bar db-bottom" style="background-color:#f1f1f1">
+  <div class="w3-cell-row w3-section">
+    <div class="db-container w3-cell db-left">
+        {{ knp_pagination_render(loc_result, 'pagination/bootstrap_v5_pagination.html.twig') }}
+      </div>
     </div>
-    <div class="w3-container">
-      {{ form_start(loc_form) }}
-        <p class="w3-inline-block">
-          {{ form_widget(loc_form.name, {'attr': {'class': 'w3-input w3-border w3-padding-small w3-third', 'placeholder': 'Location'} }) }}
-          {{ form_widget(loc_form.submit, {'attr': {'class': 'w3-button w3-border w3-padding-small', style: "background-color:#f1f1f1"} }) }}
-        </p>
-      {{ form_end(loc_form) }}
-    </div>
-    <div class="w3-display-container w3-responsive">
-      <table class="w3-table-all">
-        <tr>
-          <th>{{ knp_pagination_sortable(loc_result, 'Location', 'name') }}</th>
-          {# <th>Entries</th>
-          <th>Total Items</th> #}
-          <th></th>
-        </tr>
-        {% for row in loc_result %} {# simple loop to output rows #}
-          {# {% set total_quantity = 0 %}
-          {% for item in row.Itemlocation %}
-            {% set total_quantity = item.quantity + total_quantity %}
-          {% endfor %} #}
-          <tr>
-            <td>{{ row.name }}</td>
-            {# <td>{{ row.Itemlocation|length }}</td>
-            <td>{{ total_quantity}} #}
-            <td><a class="w3-button w3-border w3-right w3-margin-right w3-padding-small" href="{{ path('modify_location', {'id': row.id }) }}">Modify</a></td>
-          </tr>
-        {% endfor %}
-      </table>
-    </div>
-  </body>
+  </div>
+</div>
 
-</html> 
+
+<script>
+
+  const params = {{ params|json_encode()|raw }};
+  window.onload = (event) => {
+    if (params.s)
+    {
+      document.getElementById('location_form').elements['name'].focus();
+    }
+  }
+</script>
+{% endblock %}

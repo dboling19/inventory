@@ -1,14 +1,25 @@
-<!DOCTYPE html>
+{% extends 'base.html.twig' %}
+{% block body %}
+{% set route_name = app.request.attributes.get('_route') %}
+<div class="db-bar">
+  <a class="db-bar-item db-button" id="items_display" href="{{ path('items_display') }}">Items</a>
+  <a class="db-bar-item db-button" id="new_item" href="{{ path('new_item') }}">New Item</a>
+  <a class="db-bar-item db-button" id="locations_display" href="{{ path('locations_display') }}">Locations</a>
+</div>
 
-<html>
-  <script src="https://kit.fontawesome.com/0db354818b.js" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<script>
+  window.addEventListener('load', function() {
+    select_route();
+  });
 
-  {% set route = app.request.attributes.get('_route')%}
+  function select_route() {
+    if (document.getElementById({{ route_name|json_encode()|raw }}))
+    // necessary as some routes will not have a navbar button, such as modify_item
+    {
+      const button = document.getElementById({{ route_name|json_encode()|raw }});
+      button.classList.add('db-button-route');
+    }
+  }
+</script>
 
-  <div class="w3-bar" style="background-color:#f1f1f1">
-    <a class="w3-bar-item w3-button" href="{{ path('show_items') }}" {% if route == 'show_items' %} style="background-color:#A9A9A9" {% endif %}>Items</a>
-    <a class="w3-bar-item w3-button" href="{{ path('new_item') }}" {% if route == 'new_item' %} style="background-color:#A9A9A9" {% endif %}>New Item</a>
-    <a class="w3-bar-item w3-button" href="{{ path('show_locations') }}" {% if route == 'show_locations' %} style="background-color:#A9A9A9" {% endif %}>Locations</a>
-  </div>
-<html>
+{% endblock %}

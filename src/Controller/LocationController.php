@@ -34,6 +34,15 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 class LocationController extends AbstractController
 {
 
+  private $em;
+  private $item_repo;
+  private $loc_repo;
+  private $trans_repo;
+  private $item_loc_repo;
+  private $paginator;
+  private $date;
+  private $request_stack;
+
   public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, TransactionRepository $trans_repo, ItemLocationRepository $item_loc_repo, PaginatorInterface $paginator, RequestStack $request_stack)
   {
     $this->em = $em;
@@ -42,9 +51,8 @@ class LocationController extends AbstractController
     $this->trans_repo = $trans_repo;
     $this->item_loc_repo = $item_loc_repo;
     $this->paginator = $paginator;
-    $this->date = (new \DateTime('now'))->format('D, j F, Y');
+    $this->date = (new \DateTime('now'))->format('Y-m-d');
     $this->request_stack = $request_stack;
-
   }
 
   
@@ -52,108 +60,144 @@ class LocationController extends AbstractController
    * Function to display all locations in the system
    * 
    * @author Daniel Boling
-   * 
-   * @Route("/locations", name="show_locations")
    */
+  #[Route('/locations', name:'locations_display')]
   public function show_locations(Request $request): Response
   {
+    $params = [
+      's' => $request->query->get('s') ?? false,
+    ];
 
     $loc_result = $this->loc_repo->findAll();
-    $loc_result = $this->paginator->paginate($loc_result, $request->query->getInt('page', 1), 10);
-
-    $loc = new Location();
-
-    $loc_form = $this->createFormBuilder($loc)
-      ->add('name', TextType::class)
-      ->add('submit', SubmitType::class,['label' => 'Add Location'])
-      ->getForm()
-    ;
-
-    $loc_form->handleRequest($request);
-    if($loc_form->isSubmitted() && $loc_form->isValid())
-    {
-      $loc = $loc_form->getData();
-      $this->em->persist($loc);
-      $this->em->flush();
-
-      return $this->redirectToRoute('show_locations');
-
-    }
+    $loc_result = $this->paginator->paginate($loc_result, $request->query->getInt('page', 1), 40);
 
     return $this->render('overview_locations.html.twig', [
-      'date' => $this->date,
+      'params' => $params,
       'loc_result' => $loc_result,
-      'loc_form' => $loc_form->createView(),
     ]);
-
   }
 
 
   /**
-   * Function to handle location modification
+   * View location details
    * 
    * @author Daniel Boling
-   * 
-   * @Route("/modify/location/{id}", name="modify_location");
    */
-  public function modify_location(Request $request, $id): Response
+  #[Route('/location/{id}', name:'view_location')]
+  public function view_location(Request $request, $id): Response
   {
-
     $loc = $this->loc_repo->find($id);
-    $item_loc_result = $loc->getItemlocation();
-    $items = $this->paginator->paginate($item_loc_result, $request->query->getInt('page', 1), 10);
+    $item_loc = $loc->getItemlocation();
+    // $items = $this->paginator->paginate($item_loc, $request->query->getInt('page', 1), 1);
     $loc_qty = $this->item_loc_repo->getLocQty($id)[0]['quantity'];
-
-
-    $form_array = array('modify_form' => $loc);
-    $form = $this->createFormBuilder($form_array)
-      ->add('modify_form', ModifyFormType::class, ['required' => false])
-      ->add('search_form', SearchFormType::class, ['required' => false])
-      ->getForm();
-    // combine forms
-
-
-    $form->handleRequest($request);
-    if($form->isSubmitted() && $form->isValid()) {
-      $form_data = $form->getData();
-      $loc_data = $form_data['modify_form'];
-      $search_input = $form_data['search_form']['search_input'];
-
-      if(!in_array($search_input, [null, NULL, '', ' '])) {
-      // if search_input is null or empty, run search function
-        $items = $this->item_loc_repo->findItem($search_input);
-        $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 10);
-
-      } else {
-      
-        if($form->get('modify_form')->get('modify_submit')->isClicked()) {
-          $this->em->persist($loc_data);
-          $this->em->flush();
-          return $this->redirectToRoute('show_locations');
-
-        } elseif($form->get('modify_form')->get('delete')->isClicked()) {
-          if($loc_qty == 0 or $loc_qty == NULL)
-          {
-            $this->em->remove($loc_data);
-            $this->em->flush();
-            return $this->redirectToRoute('show_locations');
-
-          }
-        }
-      }
+    if ($request->cookies->get('location_items_limit') != null)
+    {
+      $limit = ['items_limit' => $request->cookies->get('location_items_limit')];
+    } else {
+      $limit = ['items_limit' => 25];
+      $cookie = new Cookie('location_items_limit', $limit['items_limit']);
+      $response = new Response();
+      $response->headers->setCookie($cookie);
+      $response->send();  
     }
 
+    $params = [
+      'location' => $loc->getId(),
+      'name' => $loc->getName(),
+      's' => $request->query->get('s') ?? false,
+      'limit' => $limit['items_limit'],
+      'item_name' => '',
+    ];
 
-    return $this->render('modify_location.html.twig', [
-      'form' => $form->createView(),
-      'items' => $items,
-      'date' => $this->date,
+    if($request->query->all() && !$request->query->get('s'))
+    // prevent condition from returning true after name change
+    {
+      $params = array_merge($params, $request->query->all());
+      if (isset($params['limit']) && $limit['items_limit'] !== $params['limit'])
+      {
+        $cookie = new Cookie('location_items_limit', $params['limit']);
+        $response = new Response();
+        $response->headers->setCookie($cookie);
+        $response->send();  
+        $limit['items_limit'] = $params['limit'];
+      }
+      $result = $this->item_loc_repo->findItem($params);
+      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['items_limit']);
+
+    } else {
+      $result = $this->item_loc_repo->findAll();
+      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['items_limit']);
+
+    }
+
+    return $this->render('view_location.html.twig', [
+      'result' => $result,
+      'params' => $params,
     ]);
-    
   }
 
 
+  /**
+   * Creates location from show_locations page
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/create/location', name:'new_location')]
+  public function create_location(Request $request): Response
+  {
+    if ($request->query->all() && !$request->query->get('s'))
+    {
+      $loc = new Location;
+      $params = $request->query->all();
+      $loc->setName($params['name']);
+      $this->em->persist($loc);
+      $this->em->flush();
+    }
+    return $this->redirectToRoute('locations_display', ['s' => true]);
+  }
+
+
+  /**
+   * Modifies location details and redirects back to view location
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/modify/location/{id}', name:'modify_location')]
+  public function modify_location(Request $request, $id): Response
+  {
+    if($request->query->all()) {
+      $params = $request->query->all();
+      $loc = $this->loc_repo->find($id);
+      $loc->setName($params['name']);
+      $this->em->persist($loc);
+      $this->em->flush();
+    }
+    return $this->redirectToRoute('view_location', ['id' => $id, 's' => true]);
+  }
+
+
+  /**
+   * Deletes location if no entites are under it and redirects back to show locations
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/delete/location/{id}', name:'delete_location')]
+  public function delete_location(Request $request, $id): Response
+  {
+    $loc = $this->loc_repo->find($id);
+    $loc_qty = $this->item_loc_repo->getLocQty($id)[0]['quantity'];
+    if($loc_qty == 0 or $loc_qty == NULL)
+    {
+      $this->em->remove($loc);
+      $this->em->flush();
+    }
+    return $this->redirectToRoute('show_locations');
+  }
+
 }
+
+
+
 
 
 // EOF
