@@ -102,24 +102,4 @@ class ItemLocation
       return $this;
   }
 
-  /**
-   * (Item[], quantity, change str, Location[])
-   * 
-   * @author Daniel Boling
-   */
-  public function setupItem(?string $name, ?string $desc, ?int $quantity, ?string $change, ?Location $loc)
-  {
-      if ($this->getItem() == null)
-      {
-          $this->item = new Item();
-      } else {
-          $this->item = $this->getItem();
-      }
-      $this->setItemName($name);
-      $this->setItemDescription($desc);
-      $this->setQuantity($quantity);
-      $this->setQuantityChange($change);
-      $this->setLocation($loc);
-  }
-
 }

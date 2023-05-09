@@ -2,9 +2,9 @@
 {% block body %}
 {% set route_name = app.request.attributes.get('_route') %}
 <div class="db-bar">
-  <a class="db-bar-item db-button" id="show_items" href="{{ path('show_items') }}">Items</a>
+  <a class="db-bar-item db-button" id="items_display" href="{{ path('items_display') }}">Items</a>
   <a class="db-bar-item db-button" id="new_item" href="{{ path('new_item') }}">New Item</a>
-  <a class="db-bar-item db-button" id="show_locations" href="{{ path('show_locations') }}">Locations</a>
+  <a class="db-bar-item db-button" id="locations_display" href="{{ path('locations_display') }}">Locations</a>
 </div>
 
 <script>

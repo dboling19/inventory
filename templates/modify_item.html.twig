@@ -3,7 +3,7 @@
 {% block body %}
 {{ include('navbar.html.twig') }}
 <div class="db-container">
-  <h3><b>Modify Item <i>{{ params.name }}</i></b></h3>
+  <h3>Modify Item <i>{{ params.name }}</i></h3>
 </div>
 <div class="db-panel">
   <form action="{{ path('modify_item', { id: item_loc.id }) }}" class="db-panel db-border db-third" id="item_form" method="get">
@@ -58,11 +58,11 @@
   </form>
 </div>
 {% if submitted == true %}
-  <div class="db-notif">
-    <div class="db-center" style="padding:48">
-      <h3>Record Saved</h3>
-    </div>
-  </div>
+  <span class="db-notif">
+    <span class="db-center">
+      Record Saved
+    </span>
+  </span>
 {% endif %}
 
 <script>

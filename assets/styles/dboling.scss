@@ -142,7 +142,6 @@ select.db-input {
   display:none;
   position:fixed;
   top:70px;
-  left:16px;
   z-index:1;
 }
 
@@ -255,16 +254,17 @@ select.db-input {
 
 .db-notif {
   background-color:#d8dee9;
-  position:fixed;
-  top:45px;
-  left:700px;
+  position:absolute;
+  right:10px;
+  top:38px;
   z-index:1;
-  padding:20px;
+  padding:30px 20px;
+  font-size:20px;
   box-shadow:0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
-  animation:animate-right 0.5s;
+  animation:animate-slide-down 0.5s;
 }
 
-@keyframes animate-right{
+@keyframes animate-slide-down{
   0%{
     opacity:0;
     transform:translate(0,-20px);

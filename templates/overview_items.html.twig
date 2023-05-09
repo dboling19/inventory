@@ -6,7 +6,7 @@
   <button type="button" class="db-button db-round-small" style="width:100px" onclick="toggle_filter_form()">Filter</button>
 </div>
 <div class="db-form-popup db-quarter db-panel db-border" id="filter_form_popup" style="max-width:300px; min-width:300px">
-  <form action="{{ path('show_items') }}" class="db-border db-panel" id="filter_form" method="get">
+  <form action="{{ path('items_display') }}" class="db-border db-panel" id="filter_form" method="get">
     <p>
       <label for="item">
         Item
@@ -42,21 +42,21 @@
         <td>{{ row.item.description }}</td>
         <td>{{ row.quantity }}</td>
         <td>{{ row.item.expDate|format_datetime('short', 'none') }}</td>
-        <td><a href="{{ path('modify_location', {'id': row.location.id }) }}">{{ row.location.name }}</a></td>
+        <td><a href="{{ path('view_location', {'id': row.location.id }) }}">{{ row.location.name }}</a></td>
       </tr>
     {% endfor %}
   </table>
 </div>
 <div class="db-bar db-bottom" style="background-color:#f1f1f1">
-  <div class="w3-cell-row w3-section">
+  <div class="w3-cell-row w3-section"> 
     <div class="w3-container w3-cell">
-      <select class="db-input db-quarter" name="limit" form="filter_form" style=""/>
+      <select class="db-input db-quarter" name="limit" id="limit" form="filter_form" style="padding:4px;"/>
         <option value="10">10</option>
         <option value="25">25</option>
         <option value="50">50</option>
         <option value="100">100</option>
       </select>
-      <button type="submit" class="db-button" form="filter_form" style="padding:1px;">Limit</button>
+      <button type="submit" class="db-button" form="filter_form" style="padding:2px; margin-left:-6px;">Limit</button>
     </div>
     <div class="w3-container w3-cell">
         <div class="w3-container w3-right">

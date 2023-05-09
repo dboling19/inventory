@@ -46,7 +46,7 @@
     </p>
   </form>
 </div>
-{% if submitted == true %}
+{% if params.s == true %}
   <div class="db-notif">
     <div class="db-center" style="padding:48">
       <h3>Record Saved</h3>
@@ -56,13 +56,13 @@
 
 
 <script>
-  const post_data = {{ post_data|json_encode()|raw }};
+  const params = {{ params|json_encode()|raw }};
   const locations = {{ locations|json_encode()|raw }};
 
   window.onload = (event) => {
     const form = document.getElementById('item_form');
     const location_select = document.getElementById('location');
-    form.elements['date'].value = post_data['date'];
+    form.elements['date'].value = params['date'];
     for (let i = 0; i < locations.length; i++)
     {
       var option = document.createElement('option');
@@ -70,12 +70,15 @@
       option.value = locations[i].id;
       location_select.add(option);
     } 
+    if (params.s)
+    {
+      document.getElementById('item_form').elements['name'].focus();
+    }
   }
 
   if ( window.history.replaceState ) {
     window.history.replaceState( null, null, window.location.href );
   }
-  // 
 </script>
 
 {% endblock %}

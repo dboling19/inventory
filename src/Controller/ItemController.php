@@ -59,16 +59,19 @@ class ItemController extends AbstractController
    * Function to display all items in the system
    * 
    * @author Daniel Boling
-   * 
-   * @Route("/", name="show_items")
    */
+  #[Route('/', name:'items_display')]
   public function show_items(Request $request): Response
   {
-    if ($request->cookies->get('items_limit') != null)
+    if ($request->cookies->get('overview_items_limit') != null)
     {
-      $limit = array('items_limit' => $request->cookies->get('items_limit'));
+      $limit = ['items_limit' => $request->cookies->get('overview_items_limit')];
     } else {
-      $limit = array('items_limit' => 25);
+      $limit = ['items_limit' => 25];
+      $cookie = new Cookie('overview_items_limit', $limit['items_limit']);
+      $response = new Response();
+      $response->headers->setCookie($cookie);
+      $response->send();  
     }
 
     $params = [
@@ -80,10 +83,10 @@ class ItemController extends AbstractController
 
     if($request->query->all())
     {
-      $params = $request->query->all();
-      if (isset($params['limit']) && $limit['items_limit'] == $params['limit'])
+      $params = array_merge($params, $request->query->all());
+      if (isset($params['limit']) && $limit['items_limit'] !== $params['limit'])
       {
-        $cookie = new Cookie('items_limit', $params['limit']);
+        $cookie = new Cookie('overview_items_limit', $params['limit']);
         $response = new Response();
         $response->headers->setCookie($cookie);
         $response->send();  
@@ -111,13 +114,13 @@ class ItemController extends AbstractController
    * Function to display and handle new item forms
    * 
    * @author Daniel Boling
-   * 
-   * @Route("/new/item", name="new_item");
    */
+  #[Route('/new/item', name:'new_item')]
   public function new_item(Request $request, $submitted = false): Response
   {
-    $post_data = [
+    $params = [
       'date' => $this->date,
+      's' => $request->query->get('s') ?? false,
     ];
     $locations = $this->em
       ->getRepository(Location::class)
@@ -126,28 +129,29 @@ class ItemController extends AbstractController
       ->getArrayResult()
     ;
     
-    if($form_data = $request->query->all())
+    if($request->query->all() && !$request->query->get('s'))
     {
+      $params = $request->query->all();
       $item = new Item;
       $item_loc = new ItemLocation;
-      $item->setName($form_data['name']);
-      $item->setDescription($form_data['desc']);
-      $date = new \DateTime($form_data['date'], new \DateTimeZone('America/Indiana/Indianapolis'));
+      $item->setName($params['name']);
+      $item->setDescription($params['desc']);
+      $date = new \DateTime($params['date'], new \DateTimeZone('America/Indiana/Indianapolis'));
       $item->setExpDate($date);
       $item_loc->setItem($item);
-      $item_loc->setQuantity($form_data['quantity_change']);
-      $location = $this->loc_repo->find($form_data['location']);
+      $item_loc->setQuantity($params['quantity_change']);
+      $location = $this->loc_repo->find($params['location']);
       $item_loc->setLocation($location);
       $this->em->persist($item_loc);
       $this->em->flush();
 
-      $submitted = true;
+      return $this->redirectToRoute('new_item', ['s' => true]);
     }
 
     return $this->render('new_item.html.twig', [
-      'submitted' => $submitted ?? false,
+      's' => $request->query->get('s') ?? false,
       'locations' => $locations,
-      'post_data' => $post_data,
+      'params' => $params,
     ]);
     
   }
@@ -157,9 +161,8 @@ class ItemController extends AbstractController
    * Function to display and handle item modification forms
    * 
    * @author Daniel Boling
-   * 
-   * @Route("/modify/item/{id}", name="modify_item");
    */
+  #[Route('/modify/item/{id}', name:'modify_item')]
   public function modify_item(Request $request, $id): Response
   {
     $item_loc = $this->item_loc_repo->find($id);
