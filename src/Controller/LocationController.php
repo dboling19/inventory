@@ -123,6 +123,7 @@ class LocationController extends AbstractController
       }
       $result = $this->item_loc_repo->findItem($params);
       $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['items_limit']);
+      dd($result);
 
     } else {
       $result = $this->item_loc_repo->findAll();
