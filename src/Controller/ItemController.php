@@ -22,14 +22,6 @@ use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-use App\Form\ItemType;
-use App\Form\ItemLocationType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\SearchType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 class ItemController extends AbstractController
 {
@@ -68,10 +60,6 @@ class ItemController extends AbstractController
       $limit = ['items_limit' => $request->cookies->get('overview_items_limit')];
     } else {
       $limit = ['items_limit' => 25];
-      $cookie = new Cookie('overview_items_limit', $limit['items_limit']);
-      $response = new Response();
-      $response->headers->setCookie($cookie);
-      $response->send();
     }
 
     $params = [
@@ -86,7 +74,8 @@ class ItemController extends AbstractController
     if($request->query->all())
     {
       $params = array_merge($params, $request->query->all());
-      if (isset($params['limit']) && $limit['items_limit'] !== $params['limit'])
+      if ($limit['items_limit'] !== $params['limit'])
+      // if form submitted limit != cookie limit then update the cookie
       {
         $cookie = new Cookie('overview_items_limit', $params['limit']);
         $response = new Response();
@@ -96,11 +85,9 @@ class ItemController extends AbstractController
       }
       $result = $this->item_loc_repo->findItem($params);
       $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['items_limit']);
-
     } else {
       $result = $this->item_loc_repo->findAll();
       $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['items_limit']);
-
     }
 
     return $this->render('overview_items.html.twig', [
@@ -108,7 +95,6 @@ class ItemController extends AbstractController
       'result' => $result,
       'params' => $params,
     ]);
-
   }
 
 

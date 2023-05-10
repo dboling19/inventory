@@ -24,12 +24,6 @@ use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\SearchType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 class LocationController extends AbstractController
 {
@@ -87,18 +81,12 @@ class LocationController extends AbstractController
   public function view_location(Request $request, $id): Response
   {
     $loc = $this->loc_repo->find($id);
-    $item_loc = $loc->getItemlocation();
-    // $items = $this->paginator->paginate($item_loc, $request->query->getInt('page', 1), 1);
     $loc_qty = $this->item_loc_repo->getLocQty($id)[0]['quantity'];
     if ($request->cookies->get('location_items_limit') != null)
     {
       $limit = ['items_limit' => $request->cookies->get('location_items_limit')];
     } else {
       $limit = ['items_limit' => 25];
-      $cookie = new Cookie('location_items_limit', $limit['items_limit']);
-      $response = new Response();
-      $response->headers->setCookie($cookie);
-      $response->send();  
     }
 
     $params = [
@@ -107,13 +95,15 @@ class LocationController extends AbstractController
       's' => $request->query->get('s') ?? false,
       'limit' => $limit['items_limit'],
       'item_name' => '',
+      'loc_qty' => $loc_qty,
     ];
 
     if($request->query->all() && !$request->query->get('s'))
     // prevent condition from returning true after name change
     {
       $params = array_merge($params, $request->query->all());
-      if (isset($params['limit']) && $limit['items_limit'] !== $params['limit'])
+      if ($limit['items_limit'] !== $params['limit'])
+      // if form submitted limit != cookie limit the update the cookie
       {
         $cookie = new Cookie('location_items_limit', $params['limit']);
         $response = new Response();
