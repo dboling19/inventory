@@ -43,7 +43,7 @@
         <td><a href="{{ path('modify_item', {'id': row.id }) }}">{{ row.item.name }}</a></td>
         <td>{{ row.item.description }}</td>
         <td>{{ row.quantity }}</td>
-        <td>{{ row.item.expDate|format_datetime('short', 'none') }}</td>
+        <td>{% if row.item.expDate %}{{ row.item.expDate|format_datetime('short', 'none') }}{% endif %}</td>
       </tr>
     {% endfor %}
   </table>
