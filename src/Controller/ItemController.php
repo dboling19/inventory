@@ -166,7 +166,7 @@ class ItemController extends AbstractController
       'id' => $item_loc->getId(),
       'name' => $item->getName(),
       'desc' => $item->getDescription(),
-      'date' => date_format($item->getExpDate(), 'Y-m-d'),
+      'date' => date_format($item->getExpDate() ?? new \DateTime('now', new \DateTimeZone('America/Indiana/Indianapolis')), 'Y-m-d'),
       'quantity' => $item_loc->getQuantity(),
       'location' => $item_loc->getLocation()->getId(),
     ];
