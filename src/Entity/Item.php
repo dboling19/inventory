@@ -2,8 +2,10 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Mapping as ORM;
 
 
@@ -13,13 +15,13 @@ class Item
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private $id;
+    private ?int $id;
 
-    #[ORM\Column(length:255)]
-    private $name;
+    #[ORM\Column(type:'string', length:255, nullable:false)]
+    private ?string $name;
 
-    #[ORM\Column(length:255)]
-    private $description;
+    #[ORM\Column(type:'text', nullable:true)]
+    private ?string $description;
 
     #[ORM\OneToMany(targetEntity:Transaction::class, mappedBy:"item", cascade:["persist", "remove"])]
     private $transaction;
@@ -27,8 +29,8 @@ class Item
     #[ORM\OneToMany(targetEntity:ItemLocation::class, mappedBy:"item", cascade:["persist", "remove"])]
     private $itemlocation;
 
-    #[ORM\Column(type:'datetime')]
-    private $exp_date;
+    #[ORM\Column(type:'datetime', nullable:true)]
+    private ?DateTimeInterface $exp_date;
 
     private $date;
     private $item_loc;

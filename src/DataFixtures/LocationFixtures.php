@@ -16,21 +16,13 @@ use App\Repository\ItemLocationRepository;
 
 class LocationFixtures extends Fixture
 {
-
-  private $em;
-  private $item_repo;
-  private $loc_repo;
-  private $trans_repo;
-  private $item_loc_repo;
-
-  public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, TransactionRepository $trans_repo, ItemLocationRepository $item_loc_repo)
-  {
-    $this->em = $em;
-    $this->item_repo = $item_repo;
-    $this->loc_repo = $loc_repo;
-    $this->trans_repo = $trans_repo;
-    $this->item_loc_repo = $item_loc_repo;
-  }
+  public function __construct(
+    private EntityManagerInterface $em,
+    private ItemRepository $item_repo,
+    private LocationRepository $loc_repo,
+    private TransactionRepository $trans_repo,
+    private ItemLocationRepository $item_loc_repo,
+  ) { }
 
     
   public function load(ObjectManager $manager): void

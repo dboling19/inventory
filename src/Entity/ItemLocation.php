@@ -12,18 +12,18 @@ class ItemLocation
   #[ORM\Id]
   #[ORM\GeneratedValue]
   #[ORM\Column]
-  private $id;
+  private ?int $id;
 
-  #[ORM\Column]
-  private $quantity;
+  #[ORM\Column(type:'integer', nullable:false)]
+  private ?int $quantity;
 
   #[ORM\ManyToOne(targetEntity:Item::class, inversedBy:"itemlocation", cascade:['persist'])]
   #[ORM\JoinColumn(nullable:true)]
-  private $item;
+  private ?Item $item;
 
   #[ORM\ManyToOne(targetEntity:Location::class, inversedBy:'itemlocation', cascade:['persist'])]
   #[ORM\JoinColumn(nullable:true)]
-  private $location;
+  private ?Location $location;
 
   private $trans;
 

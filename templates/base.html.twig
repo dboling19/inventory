@@ -1,21 +1,33 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script src="https://kit.fontawesome.com/0db354818b.js" crossorigin="anonymous"></script>
-        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-        {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
-        {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-        {% endblock %}
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
+    <script src="https://kit.fontawesome.com/0db354818b.js" crossorigin="anonymous"></script>
+    {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
+    {% set route_name = app.request.attributes.get('_route')%}
+    {% block stylesheets %}
+      {{ encore_entry_link_tags('app') }}
+    {% endblock %}
 
-        {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+    {% block javascripts %}
+      {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+  </head>
+  <body>
+    {% block body %}
+      {{ include('navbar.html.twig') }}
+      <noscript>Please enable Javascript to use this page.  Most elements require JS to run correctly.</noscript>
+      {% block content %}{% endblock %}
+      {% for label, messages in app.flashes %}
+        {% for message in messages %}
+          {% if label == 'success' %}
+            <span class="db-flash-message db-notif db-panel" role="alert">{{ message }}</span>
+          {% else %}
+            <span class="db-flash-message db-error db-panel" role="alert">{{ message }}</span>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    {% endblock %}
+  </body>
 </html>

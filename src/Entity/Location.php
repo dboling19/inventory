@@ -14,10 +14,10 @@ class Location
   #[ORM\Id]
   #[ORM\GeneratedValue]
   #[ORM\Column]
-  private $id;
+  private ?int $id;
 
-  #[ORM\Column(length:255)]
-  private $name;
+  #[ORM\Column(type:'string', length:255, nullable:false)]
+  private ?string $name;
 
   #[ORM\OneToMany(targetEntity:ItemLocation::class, mappedBy:'location', orphanRemoval:true, cascade:['persist'])]
   private $itemlocation;

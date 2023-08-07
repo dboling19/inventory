@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\TransactionRepository;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 
@@ -12,17 +13,17 @@ class Transaction
   #[ORM\Id]
   #[ORM\GeneratedValue]
   #[ORM\Column]
-  private $id;
+  private ?int $id;
 
-  #[ORM\Column]
-  private $quantity_change;
+  #[ORM\Column(type:'string', nullable:false)]
+  private ?string $quantity_change;
 
-  #[ORM\Column(type:'date')]
-  private $date;
+  #[ORM\Column(type:'datetime', nullable:false)]
+  private ?DateTimeInterface $date;
 
   #[ORM\ManyToOne(targetEntity:Item::class, inversedBy:'transaction')]
   #[ORM\JoinColumn(nullable:false)]
-  private $item;
+  private ?Item $item;
 
   public function getId(): ?int
   {

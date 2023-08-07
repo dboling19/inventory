@@ -14,24 +14,18 @@ use App\Repository\ItemRepository;
 use App\Repository\LocationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ItemLocationRepository;
+use Datetime;
+use Datetimezone;
 
 class ItemFixtures extends Fixture implements DependentFixtureInterface
 {
-
-  private $em;
-  private $item_repo;
-  private $loc_repo;
-  private $trans_repo;
-  private $item_loc_repo;
-
-  public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, TransactionRepository $trans_repo, ItemLocationRepository $item_loc_repo)
-  {
-    $this->em = $em;
-    $this->item_repo = $item_repo;
-    $this->loc_repo = $loc_repo;
-    $this->trans_repo = $trans_repo;
-    $this->item_loc_repo = $item_loc_repo;
-  }
+  public function __construct(
+    private EntityManagerInterface $em,
+    private ItemRepository $item_repo,
+    private LocationRepository $loc_repo,
+    private TransactionRepository $trans_repo,
+    private ItemLocationRepository $item_loc_repo,
+  ) { }
 
 
   public function load(ObjectManager $manager): void
@@ -42,14 +36,16 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
     foreach ($cupboard_items as $i)
     {
       $item = new Item;
-      $item_loc = new ItemLocation;
       $item->setName($i);
-      $item->setDescription('cupboard test desc');
-      $date = new \DateTime('now', new \DateTimeZone('America/Indiana/Indianapolis'));
+      $item->setDescription('cupboard test');
+      $date = new datetime('now', new datetimezone('America/Indiana/Indianapolis'));
       $item->setExpDate($date);
+
+      $item_loc = new ItemLocation;
       $item_loc->setItem($item);
       $item_loc->setQuantity(1);
       $item_loc->setLocation($loc);
+
       $this->em->persist($item_loc);
       $this->em->flush();
     }
@@ -59,14 +55,16 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
     foreach ($fridge_items as $i)
     {
       $item = new Item;
-      $item_loc = new ItemLocation;
       $item->setName($i);
-      $item->setDescription('fridge test desc');
-      $date = new \DateTime('now', new \DateTimeZone('America/Indiana/Indianapolis'));
+      $item->setDescription('fridge test');
+      $date = new datetime('now', new datetimezone('America/Indiana/Indianapolis'));
       $item->setExpDate($date);
+
+      $item_loc = new ItemLocation;
       $item_loc->setItem($item);
       $item_loc->setQuantity(1);
       $item_loc->setLocation($loc);
+
       $this->em->persist($item_loc);
       $this->em->flush();
     }
@@ -76,14 +74,16 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
     foreach ($shelf_items as $i)
     {
       $item = new Item;
-      $item_loc = new ItemLocation;
       $item->setName($i);
-      $item->setDescription('shelf test desc');
-      $date = new \DateTime('now', new \DateTimeZone('America/Indiana/Indianapolis'));
+      $item->setDescription('shelf test');
+      $date = new datetime('now', new datetimezone('America/Indiana/Indianapolis'));
       $item->setExpDate($date);
+
+      $item_loc = new ItemLocation;
       $item_loc->setItem($item);
       $item_loc->setQuantity(1);
       $item_loc->setLocation($loc);
+
       $this->em->persist($item_loc);
       $this->em->flush();
     }
@@ -93,14 +93,16 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
     foreach ($shelf_items as $i)
     {
       $item = new Item;
-      $item_loc = new ItemLocation;
       $item->setName($i);
-      $item->setDescription('freezer test desc');
-      $date = new \DateTime('now', new \DateTimeZone('America/Indiana/Indianapolis'));
+      $item->setDescription('freezer test');
+      $date = new datetime('now', new datetimezone('America/Indiana/Indianapolis'));
       $item->setExpDate($date);
+
+      $item_loc = new ItemLocation;
       $item_loc->setItem($item);
       $item_loc->setQuantity(1);
       $item_loc->setLocation($loc);
+
       $this->em->persist($item_loc);
       $this->em->flush();
     }
