@@ -27,11 +27,12 @@ class ItemLocationRepository extends ServiceEntityRepository
    * @author Daniel Boling
    * @return Item[] Returns an array of Item objects
    */
-  public function findItem(array $params)
+  public function filter(array $params)
   {
-    $qb = $this->createQueryBuilder('il')
-      ->leftJoin('il.item', 'item')
-      ->leftJoin('il.location', 'location')
+    $qb = $this->createQueryBuilder('i')
+      ->leftJoin('i.item', 'item')
+      ->leftJoin('i.location', 'location')
+      ->addSelect('item', 'location')
     ;
     if (isset($params['item_name']))
     {
@@ -57,10 +58,10 @@ class ItemLocationRepository extends ServiceEntityRepository
    */
   public function getLocQty($loc)
   {
-    return $this->createQueryBuilder('il')
-      ->andWhere('il.location = :loc')
+    return $this->createQueryBuilder('i')
+      ->andWhere('i.location = :loc')
       ->setParameter('loc', $loc)
-      ->select('SUM(il.quantity) as quantity')
+      ->select('SUM(i.quantity) as quantity')
       ->getQuery()
       ->getResult()
     ;

@@ -23,31 +23,21 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Datetime;
+use Datetimezone;
 
 
 class LocationController extends AbstractController
 {
-
-  private $em;
-  private $item_repo;
-  private $loc_repo;
-  private $trans_repo;
-  private $item_loc_repo;
-  private $paginator;
-  private $date;
-  private $request_stack;
-
-  public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, TransactionRepository $trans_repo, ItemLocationRepository $item_loc_repo, PaginatorInterface $paginator, RequestStack $request_stack)
-  {
-    $this->em = $em;
-    $this->item_repo = $item_repo;
-    $this->loc_repo = $loc_repo;
-    $this->trans_repo = $trans_repo;
-    $this->item_loc_repo = $item_loc_repo;
-    $this->paginator = $paginator;
-    $this->date = (new \DateTime('now'))->format('Y-m-d');
-    $this->request_stack = $request_stack;
-  }
+  public function __construct(
+    private EntityManagerInterface $em,
+    private ItemRepository $item_repo,
+    private LocationRepository $loc_repo,
+    private TransactionRepository $trans_repo,
+    private ItemLocationRepository $item_loc_repo,
+    private PaginatorInterface $paginator,
+    private RequestStack $request_stack
+  ) { }
 
   
   /**
@@ -55,19 +45,14 @@ class LocationController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/locations', name:'locations_display')]
+  #[Route('/locations/', name:'locations_display')]
   public function show_locations(Request $request): Response
   {
-    $params = [
-      's' => $request->query->get('s') ?? false,
-    ];
+    $result = $this->loc_repo->findAll();
+    $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), 40);
 
-    $loc_result = $this->loc_repo->findAll();
-    $loc_result = $this->paginator->paginate($loc_result, $request->query->getInt('page', 1), 40);
-
-    return $this->render('overview_locations.html.twig', [
-      'params' => $params,
-      'loc_result' => $loc_result,
+    return $this->render('location/overview_locations.html.twig', [
+      'result' => $result,
     ]);
   }
 
@@ -77,48 +62,38 @@ class LocationController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/location/{id}', name:'view_location')]
-  public function view_location(Request $request, $id): Response
+  #[Route('/display_location/', name:'display_location')]
+  public function display_location(Request $request): Response
   {
+    $id = $request->query->get('location_id');
     $loc = $this->loc_repo->find($id);
     $loc_qty = $this->item_loc_repo->getLocQty($id)[0]['quantity'];
-    if ($request->cookies->get('location_items_limit') != null)
-    {
-      $limit = ['items_limit' => $request->cookies->get('location_items_limit')];
-    } else {
-      $limit = ['items_limit' => 25];
-    }
+    $limit_cookie = $request->cookies->get('overview_items_limit') ?? 25;
 
     $params = [
-      'location' => $loc->getId(),
+      'location_id' => $loc->getId(),
       'name' => $loc->getName(),
-      's' => $request->query->get('s') ?? false,
-      'limit' => $limit['items_limit'],
+      'limit' => $limit_cookie,
       'item_name' => '',
       'loc_qty' => $loc_qty,
     ];
-
-    if($request->query->all() && !$request->query->get('s'))
-    // prevent condition from returning true after name change
+    $params = array_merge($params, $request->query->all());
+    if ($limit_cookie !== $params['limit'])
+    // if form submitted limit != cookie limit then update the cookie
     {
-      $params = array_merge($params, $request->query->all());
-      if ($limit['items_limit'] !== $params['limit'])
-      // if form submitted limit != cookie limit the update the cookie
-      {
-        $cookie = new Cookie('location_items_limit', $params['limit']);
-        $response = new Response();
-        $response->headers->setCookie($cookie);
-        $response->send();  
-        $limit['items_limit'] = $params['limit'];
-      }
-      $result = $this->item_loc_repo->findItem($params);
-      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['items_limit']);
-    } else {
-      $result = $this->item_loc_repo->findAll();
-      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['items_limit']);
+      $cookie = new Cookie('overview_items_limit', $params['limit']);
+      $response = new Response();
+      $response->headers->setCookie($cookie);
+      $response->send();
+      $limit_cookie = $params['limit'];
     }
+    // to autofill form fields, or leave them null.
+    $params = array_merge($params, $request->query->all());
+    $result = $this->item_loc_repo->filter($params);
+    $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
 
-    return $this->render('view_location.html.twig', [
+
+    return $this->render('location/display_location.html.twig', [
       'result' => $result,
       'params' => $params,
     ]);
@@ -133,15 +108,18 @@ class LocationController extends AbstractController
   #[Route('/create/location', name:'new_location')]
   public function create_location(Request $request): Response
   {
-    if ($request->query->all() && !$request->query->get('s'))
+    if ($request->request->all())
     {
+      $params = $request->request->all();
+      // if ($params['location_name'] == '') { $this->addFlash('error', 'Location name required.'); }
+      // if ($request->getSession()->getFlashBag()->has('error')) { $this->redirectToRoute('location_display'); }
       $loc = new Location;
-      $params = $request->query->all();
-      $loc->setName($params['name']);
+      $loc->setName($params['location_name']);
       $this->em->persist($loc);
       $this->em->flush();
+      // $this->addFlash('success', 'Location Added');
     }
-    return $this->redirectToRoute('locations_display', ['s' => true]);
+    return $this->redirectToRoute('location_display');
   }
 
 
@@ -150,17 +128,19 @@ class LocationController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/modify/location/{id}', name:'modify_location')]
-  public function modify_location(Request $request, $id): Response
+  #[Route('/modify/location/', name:'modify_location')]
+  public function modify_location(Request $request): Response
   {
-    if($request->query->all()) {
-      $params = $request->query->all();
+    $id = $request->request->get('location_id');
+    if($request->request->all()) {
+      $params = $request->request->all();
       $loc = $this->loc_repo->find($id);
-      $loc->setName($params['name']);
+      $loc->setName($params['location_name']);
       $this->em->persist($loc);
       $this->em->flush();
+      // $this->addFlash('success', 'Location name updated.');
     }
-    return $this->redirectToRoute('view_location', ['id' => $id, 's' => true]);
+    return $this->redirectToRoute('display_location', ['location_id' => $id]);
   }
 
 
@@ -169,25 +149,24 @@ class LocationController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/delete/location/{id}', name:'delete_location')]
-  public function delete_location(Request $request, $id): Response
+  #[Route('/delete/location/', name:'delete_location')]
+  public function delete_location(Request $request): Response
   {
+    $id = $request->query->get('location_id');
     $loc = $this->loc_repo->find($id);
     $loc_qty = $this->item_loc_repo->getLocQty($id)[0]['quantity'];
     if($loc_qty == 0 or $loc_qty == NULL)
     {
       $this->em->remove($loc);
       $this->em->flush();
+      // $this->addFlash('success', 'Location removed.');
+    } else {
+      // $this->addFlash('error', 'Location cannot be deleted.  Contains items.');
+      return $this->redirectToRoute('display_location', ['location_id' => $id]);
     }
-    return $this->redirectToRoute('show_locations');
   }
 
 }
 
 
-
-
-
 // EOF
-
-?>

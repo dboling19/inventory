@@ -6,8 +6,7 @@ html * {
 }*,*:before,*:after{box-sizing:inherit}
 
 @media (min-width: 809px) {
-  body, label, table, a, .db-input, .db-background, .db-bar, .db-bar-block .db-dropdown, .db-bar-block .db-bar-item, .db-bar-block .db-dropdown .db-button {
-    background-color:white;
+  html, body, header, footer, label, table, a, .db-input, .db-background, .db-bar, .db-bar-block .db-dropdown, .db-button, .db-bar-block .db-bar-item, .db-bar-block .db-dropdown .db-button {
     color:$nord0;
     width:100%;
     text-align:left;
@@ -16,26 +15,20 @@ html * {
     float:none;
     cursor:auto;
     list-style:none;
-    text-decoration:none;
     clear:both;
     display:block;
     line-height:normal;
     overflow-y:visible;
     overflow-x:hidden;
+    box-sizing:border-box;
   }
 
   body {
+    background-color:white;
     margin:0;
     padding:0;
-  }
-
-  label {
-    width:fit-content;
-    padding:0px 4px;
-  }
-
-  label input {
-    margin:0px auto 15px auto;
+    height:100%;
+    min-height:100%;
   }
 
   label a {
@@ -56,6 +49,11 @@ html * {
     white-space:normal;
   }
 
+  li {
+    margin-top:8px;
+    margin-bottom:8px;
+  }
+
   textarea {
     white-space:normal;
     text-align:justify;
@@ -70,27 +68,21 @@ html * {
   }
 
   table {
+    display:table;
     border-collapse:collapse;
-    table-layout:fixed;
     border-top:1px solid #ccc;
     border-bottom:1px solid #ccc;
   }
 
   th {
-    width:auto;
     padding: 4px;
     border-bottom:2px solid #ccc;
   }
 
   tr, td {
-    width:auto;
     padding:4px;
     border-left: 1px solid #ccc;
     border-right: 1px solid #ccc;
-  }
-
-  tr:hover, tr:active {
-    background-color: white;
   }
 
   tr:nth-child(odd) {
@@ -109,18 +101,47 @@ html * {
     background-color:#ececec;
   }
 
+  tr:hover, tr:active {
+    background-color: white;
+  }
+
   .db-wrapper {
+    height:100%;
     display:flex;
     flex-direction:row;
   }
 
-  .db-container {
+  .db-form-section .db-wrapper {
+    align-items:center;
+  }
+
+  .db-wrapper.db-column {
+    display:flex;
     flex-direction:column;
-    flex-grow:1;
+    flex:1 0 auto;
+  }
+
+  .db-footer {
+    flex-shrink:0;
+  }
+
+  .db-header, .db-footer {
+    margin:0;
+    margin-top:0;
+    flex-grow:0;
+    flex-shrink:0;
+  }
+
+  .db-container {
+    padding: 16px 0px;
   }
   
   .db-panel {
     padding:16px;
+  }
+
+  .db-form-section {
+    padding:16px 8px;
   }
 
   .db-round {
@@ -129,19 +150,13 @@ html * {
 
   .db-button, a.db-button {
     background-color:$nord5;
-    padding:6px;
+    padding:4px 12px;
     color:$nord0;
     text-align:center;
-    width:auto;
     cursor:pointer;
     text-decoration:none;
     display:inline;
     border:none;
-  }
-
-  .db-button-route {
-    background-color:$nord2;
-    color:$nord6;
   }
 
   .db-button:hover {
@@ -149,21 +164,12 @@ html * {
   }
 
   .db-select {
-    position:relative;
-    float:center;
-    padding:3px;
+    padding:3px 10px;
     background-color:#ededf2;
   }
 
   .db-border {
     border:1px solid lightgrey;
-    overflow:hidden;
-  }
-
-  .db-header {
-    background-color:$nord4;
-    margin-top:70px;
-    padding:30px!important;
   }
 
   .db-subtitle {
@@ -190,6 +196,14 @@ html * {
   .db-section {
     margin-top:16px;
     margin-bottom:16px;
+  }
+
+  .db-whole {
+    width:100%;
+  }
+
+  .db-auto {
+    width:auto;
   }
 
   .db-half {
@@ -273,16 +287,29 @@ html * {
   }
   @keyframes animate-slide-left{from{right:-300px;opacity:0} to{right:0;opacity:1}}
 
+  .db-fixed-top {
+    top:0;
+    left:0;
+    right:0;
+    z-index:1000;
+  }
+
   .db-left {
-    float:left!important;
+    float:left;
   }
 
   .db-right {
-    float:right!important;
+    float:right;
+  }
+
+  .db-bottom {
+    bottom:0;
+    position:relative;
   }
 
   .db-center {
     text-align:center;
+    align-items:center;
   }
 
   .db-middle {
@@ -329,8 +356,8 @@ html * {
   .db-bar {
     background-color:$nord6;
     display:flex;
-    flex-direction:row;
-    justify-content:flex-left;
+    flex-flow:row nowrap;
+    justify-content:flex-start;
     align-items:center;
   }
 
@@ -338,6 +365,11 @@ html * {
     background-color:inherit;
     display:flex;
     width:auto;
+  }
+
+  .db-button.db-selected {
+    background-color:$nord2;
+    color:$nord6;
   }
 
   .db-bar .db-right {
@@ -379,5 +411,10 @@ html * {
 
   ::before, ::after {
     box-sizing:inherit;
+  }
+
+  .db-red {
+    background-color:#cc0000;
+    color:white;
   }
 }

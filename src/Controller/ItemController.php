@@ -21,31 +21,20 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Datetime;
+use Datetimezone;
 
 
 class ItemController extends AbstractController
 {
-
-  private $em;
-  private $item_repo;
-  private $loc_repo;
-  private $trans_repo;
-  private $item_loc_repo;
-  private $paginator;
-  private $date;
-  private $request_stack;
-
-  public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, TransactionRepository $trans_repo, ItemLocationRepository $item_loc_repo, PaginatorInterface $paginator, RequestStack $request_stack)
-  {
-    $this->em = $em;
-    $this->item_repo = $item_repo;
-    $this->loc_repo = $loc_repo;
-    $this->trans_repo = $trans_repo;
-    $this->item_loc_repo = $item_loc_repo;
-    $this->paginator = $paginator;
-    $this->date = (new \DateTime('now', new \DateTimeZone('America/Indiana/Indianapolis')))->format('Y-m-d');
-    $this->request_stack = $request_stack;
-  }
+  public function __construct(
+    private EntityManagerInterface $em,
+    private ItemRepository $item_repo,
+    private LocationRepository $loc_repo,
+    private TransactionRepository $trans_repo,
+    private ItemLocationRepository $item_loc_repo,
+    private PaginatorInterface $paginator,
+  ) { }
 
   /**
    * Function to display all items in the system
@@ -55,42 +44,27 @@ class ItemController extends AbstractController
   #[Route('/', name:'items_display')]
   public function show_items(Request $request): Response
   {
-    if ($request->cookies->get('overview_items_limit') != null)
-    {
-      $limit = ['items_limit' => $request->cookies->get('overview_items_limit')];
-    } else {
-      $limit = ['items_limit' => 25];
-    }
-
+    $limit_cookie = $request->cookies->get('overview_items_limit') ?? 25;
     $params = [
       'item_name' => '',
-      'location' => '',
-      'limit' => $limit['items_limit'],
+      'limit' => $limit_cookie,
     ];
-    // all occurences of these are necessary for JS in templates
-    // to autofill form fields, or leave them null.
-
-
-    if($request->query->all())
+    $params = array_merge($params, $request->query->all());
+    if ($limit_cookie !== $params['limit'])
+    // if form submitted limit != cookie limit then update the cookie
     {
-      $params = array_merge($params, $request->query->all());
-      if ($limit['items_limit'] !== $params['limit'])
-      // if form submitted limit != cookie limit then update the cookie
-      {
-        $cookie = new Cookie('overview_items_limit', $params['limit']);
-        $response = new Response();
-        $response->headers->setCookie($cookie);
-        $response->send();  
-        $limit['items_limit'] = $params['limit'];
-      }
-      $result = $this->item_loc_repo->findItem($params);
-      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['items_limit']);
-    } else {
-      $result = $this->item_loc_repo->findAll();
-      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['items_limit']);
+      $cookie = new Cookie('overview_items_limit', $params['limit']);
+      $response = new Response();
+      $response->headers->setCookie($cookie);
+      $response->send();
+      $limit_cookie = $params['limit'];
     }
+    // to autofill form fields, or leave them null.
+    $params = array_merge($params, $request->query->all());
+    $result = $this->item_loc_repo->filter($params);
+    $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
 
-    return $this->render('overview_items.html.twig', [
+    return $this->render('item/overview_items.html.twig', [
       'locations' => $this->loc_repo->findAll(),
       'result' => $result,
       'params' => $params,
@@ -103,45 +77,36 @@ class ItemController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/new/item', name:'new_item')]
-  public function new_item(Request $request, $submitted = false): Response
+  #[Route('/new/item/', name:'new_item')]
+  public function new_item(Request $request): Response
   {
-    $params = [
-      'date' => $this->date,
-      's' => $request->query->get('s') ?? false,
-    ];
-    $locations = $this->em
-      ->getRepository(Location::class)
-      ->createQueryBuilder('l')
-      ->getQuery()
-      ->getArrayResult()
-    ;
+    $params['submitted'] = $request->query->get('s') ?? false;
+    $locations = $this->loc_repo->findAll();
     
-    if($request->query->all() && !$request->query->get('s'))
+    if(!$request->request->all())
     {
-      $params = $request->query->all();
-      $item = new Item;
-      $item_loc = new ItemLocation;
-      $item->setName($params['name']);
-      $item->setDescription($params['desc']);
-      $date = new \DateTime($params['date'], new \DateTimeZone('America/Indiana/Indianapolis'));
-      $item->setExpDate($date);
-      $item_loc->setItem($item);
-      $item_loc->setQuantity($params['quantity_change']);
-      $location = $this->loc_repo->find($params['location']);
-      $item_loc->setLocation($location);
-      $this->em->persist($item_loc);
-      $this->em->flush();
-
-      return $this->redirectToRoute('new_item', ['s' => true]);
+      return $this->render('item/new_item.html.twig', [
+        'params' => $params,
+        'locations' => $locations,
+      ]);
     }
 
-    return $this->render('new_item.html.twig', [
-      's' => $request->query->get('s') ?? false,
-      'locations' => $locations,
-      'params' => $params,
-    ]);
-    
+    $params = $request->request->all();
+    $item = new Item;
+    $item_loc = new ItemLocation;
+    $item->setName($params['item_name']);
+    $item->setDescription($params['item_desc']);
+    $date = new datetime($params['item_exp_date'], new datetimezone('America/Indiana/Indianapolis'));
+    $item->setExpDate($date);
+    $item_loc->setItem($item);
+    $item_loc->setQuantity($params['item_quantity_change']);
+    $location = $this->loc_repo->find($params['item_location']);
+    $item_loc->setLocation($location);
+    $this->em->persist($item_loc);
+    $this->em->flush();
+    // $this->addFlash('success', 'Item Created');
+
+    return $this->redirectToRoute('new_item', ['s' => true]);
   }
 
   
@@ -150,56 +115,47 @@ class ItemController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/modify/item/{id}', name:'modify_item')]
-  public function modify_item(Request $request, $id): Response
+  #[Route('/display_item/', name:'display_item')]
+  public function display_item(Request $request): Response
   {
+    $id = $request->query->get('item_id');
     $item_loc = $this->item_loc_repo->find($id);
     $item = $item_loc->getItem();
-    $locations = $this->em
-      ->getRepository(Location::class)
-      ->createQueryBuilder('l')
-      ->getQuery()
-      ->getArrayResult()
-    ;
+    $locations = $this->loc_repo->findAll();
 
     $params = [
-      'id' => $item_loc->getId(),
-      'name' => $item->getName(),
-      'desc' => $item->getDescription(),
-      'date' => date_format($item->getExpDate() ?? new \DateTime('now', new \DateTimeZone('America/Indiana/Indianapolis')), 'Y-m-d'),
-      'quantity' => $item_loc->getQuantity(),
-      'location' => $item_loc->getLocation()->getId(),
+      'item_id' => $item_loc->getId(),
+      'item_name' => $item->getName(),
+      'item_desc' => $item->getDescription(),
+      'item_exp_date' => null,
+      'item_quantity' => $item_loc->getQuantity(),
+      'item_location' => $item_loc->getLocation()->getId(),
     ];
+
+    if ($item->getExpDate()) { $params['item_exp_date'] = $item->getExpDate()->format('Y-m-d'); }
     
-    if($request->query->all())
+    if(!$request->request->all())
     {
-      $params = $request->query->all();
-      if (!$params['quantity_change']) {
-        $quantity_change = '0';
-      } else {
-        $quantity_change = $params['quantity_change'];
-      }
-      $item->setName($params['name']);
-      $item->setDescription($params['desc']);
-      $date = new \DateTime($params['date'], new \DateTimeZone('America/Indiana/Indianapolis'));
-      $item->setExpDate($date);
-      $item_loc->setItem($item);
-      $item_loc->setQuantity($item_loc->getQuantity() + ((int)trim($params['quantity_change'], '+')));
-      $location = $this->loc_repo->find($params['location']);
-      $item_loc->setLocation($location);
-      $this->em->persist($item_loc);
-      $this->em->flush();
-      $submitted = true;
+      return $this->render('item/display_item.html.twig', [
+        'locations' => $locations,
+        'params' => $params,
+        'item_loc' => $item,
+      ]);
     }
 
-    return $this->render('modify_item.html.twig', [
-      'item_quantity' => $item_loc->getQuantity(),
-      'locations' => $locations,
-      'params' => $params,
-      'item_loc' => $item_loc,
-      'submitted' => $submitted ?? false,
-    ]);
-
+    $params = $request->request->all();
+    $item->setName($params['item_name']);
+    $item->setDescription($params['item_desc']);
+    $date = new datetime($params['item_exp_date'], new datetimezone('America/Indiana/Indianapolis'));
+    $item->setExpDate($date);
+    $item_loc->setItem($item);
+    $item_loc->setQuantity($item_loc->getQuantity() + ((int)trim($params['quantity_change'], '+')));
+    $location = $this->loc_repo->find($params['item_location']);
+    $item_loc->setLocation($location);
+    $this->em->persist($item_loc);
+    $this->em->flush();
+    // $this->addFlash('success', 'Item Updated');
+    return $this->redirectToRoute('display_item', ['item_id' => $item->getId()]);
   }
 
 
@@ -208,9 +164,10 @@ class ItemController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('delete/item/{id}', name:'delete_item')]
-  public function delete_item(Request $request, $id)
+  #[Route('/delete_item/', name:'delete_item')]
+  public function delete_item(Request $request)
   {
+    $id = $request->query->get('item_id');
     $item_loc = $this->item_loc_repo->find($id);
     $item = $item_loc->getItem();
 
@@ -218,19 +175,33 @@ class ItemController extends AbstractController
     {
       $this->em->remove($item_loc);
       $this->em->flush();
-      return $this->redirectToRoute('show_items');
+      // $this->addFlash('success', 'Removed Item Entry');
+      return $this->redirectToRoute('items_display');
     } else {
-      return $this->render('modify_item.html.twig', [
-        'failed' => true,
-        'item_quantity' => $item_loc->getQuantity(),
-      ]);
+      return $this->redirectToRoute('display_item', ['item_id' => $id]);
     }
+  }
 
+
+  /**
+   * Clear item exp_date from display_item form
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/clear_exp_date/', name:'clear_exp_date')]
+  public function clear_exp_date(Request $request): Response
+  {
+    $id = $request->query->get('item_id');
+    $item_loc = $this->item_loc_repo->find($id);
+    $item = $item_loc->getItem();
+    $item->setExpDate(null);
+    $this->em->persist($item);
+    $this->em->flush();
+    // $this->addFlash('success', 'Cleared item expiration date');
+    return $this->redirectToRoute('display_item', ['item_id' => $id]);
   }
 
 }
 
 
 // EOF
-
-?>
