@@ -30,6 +30,8 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
 
   public function load(ObjectManager $manager): void
   {
+    $min = strtotime((new datetime('+1 week', new datetimezone('america/indiana/indianapolis')))->format('Y-m-d'));
+    $max = strtotime((new datetime('+1 month', new datetimezone('america/indiana/indianapolis')))->format('Y-m-d'));
 
     $loc = $this->loc_repo->findOneBy(['name' => 'Cupboard']);
     $cupboard_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Chocolate', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime', 'Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Chocolate', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime', 'Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Chocolate', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime');
@@ -38,12 +40,11 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
       $item = new Item;
       $item->setName($i);
       $item->setDescription('cupboard test');
-      $date = new datetime('now', new datetimezone('America/Indiana/Indianapolis'));
-      $item->setExpDate($date);
+      $item->setExpDate($this->random_date($min, $max));
 
       $item_loc = new ItemLocation;
       $item_loc->setItem($item);
-      $item_loc->setQuantity(1);
+      $item_loc->setQuantity(mt_rand(1,10));
       $item_loc->setLocation($loc);
 
       $this->em->persist($item_loc);
@@ -57,12 +58,11 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
       $item = new Item;
       $item->setName($i);
       $item->setDescription('fridge test');
-      $date = new datetime('now', new datetimezone('America/Indiana/Indianapolis'));
-      $item->setExpDate($date);
+      $item->setExpDate($this->random_date($min, $max));
 
       $item_loc = new ItemLocation;
       $item_loc->setItem($item);
-      $item_loc->setQuantity(1);
+      $item_loc->setQuantity(mt_rand(1,10));
       $item_loc->setLocation($loc);
 
       $this->em->persist($item_loc);
@@ -76,12 +76,11 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
       $item = new Item;
       $item->setName($i);
       $item->setDescription('shelf test');
-      $date = new datetime('now', new datetimezone('America/Indiana/Indianapolis'));
-      $item->setExpDate($date);
+      $item->setExpDate($this->random_date($min, $max));
 
       $item_loc = new ItemLocation;
       $item_loc->setItem($item);
-      $item_loc->setQuantity(1);
+      $item_loc->setQuantity(mt_rand(1,10));
       $item_loc->setLocation($loc);
 
       $this->em->persist($item_loc);
@@ -95,17 +94,22 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
       $item = new Item;
       $item->setName($i);
       $item->setDescription('freezer test');
-      $date = new datetime('now', new datetimezone('America/Indiana/Indianapolis'));
-      $item->setExpDate($date);
+      $item->setExpDate($this->random_date($min, $max));
 
       $item_loc = new ItemLocation;
       $item_loc->setItem($item);
-      $item_loc->setQuantity(1);
+      $item_loc->setQuantity(mt_rand(1,10));
       $item_loc->setLocation($loc);
 
       $this->em->persist($item_loc);
       $this->em->flush();
     }
+  }
+
+  public function random_date($min, $max)
+  {
+    // Convert back to desired date format
+    return new datetime(date('Y-m-d', mt_rand($min, $max)), new datetimezone('america/indiana/indianapolis'));
   }
 
 

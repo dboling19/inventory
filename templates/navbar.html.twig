@@ -1,11 +1,9 @@
-{% extends 'base.html.twig' %}
-{% block body %}
-{% set route_name = app.request.attributes.get('_route') %}
-<div class="db-bar">
-  <a class="db-bar-item db-button" id="items_display" href="{{ path('items_display') }}">Items</a>
-  <a class="db-bar-item db-button" id="new_item" href="{{ path('new_item') }}">New Item</a>
-  <a class="db-bar-item db-button" id="locations_display" href="{{ path('locations_display') }}">Locations</a>
-</div>
+{% block navbar %}
+<nav class="db-bar db-fixed-top" id="navbar">
+  <a class="db-button" id="items_display" href="{{ path('items_display') }}">Items</a>
+  <a class="db-button" id="new_item" href="{{ path('new_item') }}">New Item</a>
+  <a class="db-button" id="locations_display" href="{{ path('locations_display') }}">Locations</a>
+</nav>
 
 <script>
   window.addEventListener('load', function() {
@@ -17,9 +15,8 @@
     // necessary as some routes will not have a navbar button, such as modify_item
     {
       const button = document.getElementById({{ route_name|json_encode()|raw }});
-      button.classList.add('db-button-route');
+      button.classList.add('db-selected');
     }
   }
 </script>
-
 {% endblock %}

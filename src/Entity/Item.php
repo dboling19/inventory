@@ -30,7 +30,7 @@ class Item
     private $itemlocation;
 
     #[ORM\Column(type:'datetime', nullable:true)]
-    private ?DateTimeInterface $exp_date;
+    private $exp_date;
 
     private $date;
     private $item_loc;
@@ -167,12 +167,12 @@ class Item
         return $this;
     }
 
-    public function getExpDate(): ?\DateTimeInterface
+    public function getExpDate()
     {
         return $this->exp_date;
     }
 
-    public function setExpDate(\DateTimeInterface $exp_date): self
+    public function setExpDate( $exp_date): self
     {
         $this->exp_date = $exp_date;
 

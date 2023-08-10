@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ params.item_name }}{% endblock %}
+{% block content %}
+<li class="db-title db-panel"><b>{{ params.item_name }}</b></li>
+<div class="db-panel db-wrapper db-colunn db-third">
+  <form action="{{ path('display_item', { item_id: item_loc.id }) }}" class="db-wrapper db-column db-panel db-border" id="item_form" method="post">
+    <div class="db-form-section">
+      <label for="item_name">Name</label>
+      <input type="text" class="db-input db-border" id="item_name" name="item_name" value="{{ params.item_name }}">
+    </div>
+    <div class="db-form-section">
+      <label for="item_desc">Description (Optional)</label>
+      <textarea class="db-input db-border" id="item_desc" name="item_desc">{{ params.item_desc }}</textarea>
+    </div>
+    <div class="db-form-section">
+      <label for="date">Expiration date</label>
+      <div class="db-wrapper">
+        <input type="date" class="db-input db-border db-auto" id="item_exp_date" name="item_exp_date" value="{{ params.item_exp_date }}">
+        <button type="button" class="db-button db-border db-red db-auto" onclick="window.location.href='{{ path('clear_exp_date', {item_id: item_loc.id}) }}';">Clear Exp Date</button>
+      </div>
+      <i style="font-size:12px">Use oldest item's expiration date</i>
+    </div>
+    <div class="db-form-section">
+      <label for="item_location">Location</label>
+      <select class="db-input db-select db-border" id="item_location" name="item_location" value="{{ params.item_location }}">
+        <option value="" selected disabled hidden>Choose...</option>
+        {% for location in locations %}
+          <option value="{{ location.id }}">{{ location.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="db-form-section">
+      <label for="item_quantity">Quantity</label>
+      <input type="text" class="db-input db-border db-auto" id="item_quantity" value="{{ params.item_quantity }}" disabled>
+    </div>
+    <div class="db-form-section">
+      <label for="quantity_change">Quantity Change</label>
+      <input type="text" class="db-input db-border" id="quantity_change" name="quantity_change" placeholder="+1">
+      <i style="font-size:12px">Prepend an '-' or '+' to number</i>
+    </div>
+    <div class="db-wrapper db-form-section">
+      <button type="submit" class="db-button db-border db-auto">Modify Item</button>
+      <button type="button" class="db-button db-border db-auto db-red" onclick="window.location.href='{{ path('delete_item', { item_id: item_loc.id }) }}';">Delete Item</button>
+    </div>
+  </form>
+</div>
+
+<script>
+const params = {{ params|json_encode()|raw }};
+window.addEventListener('load', function() {
+  location_selector = document.getElementById('item_location');
+  location_selector.value = params['item_location'];
+});
+</script>
+{% endblock %}

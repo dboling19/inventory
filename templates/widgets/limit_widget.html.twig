@@ -1,0 +1,11 @@
+{% block limit_widget %}
+<span class="db-wrapper">
+  <select class="db-select db-border" name="limit" id="limit" form="filter_form">
+    <option value="10">10</option>
+    <option value="25">25</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+  </select>
+  <button type="submit" class="db-button db-border" form="filter_form">Limit</button>
+</span>
+{% endblock %}
