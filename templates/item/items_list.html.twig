@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
-{% block title %}Overview{% endblock %}
+{% block title %}Items{% endblock %}
 {% block content %}
 <div class="db-wrapper">
-  <form action="{{ path('items_display') }}" class="db-wrapper db-column db-panel db-border" id="filter_form" method="get">
-    <button type="submit" class="db-button db-border db-whole">Filter</button>
+  <form action="{{ path('items_list') }}" class="db-wrapper db-column db-panel db-border" id="filter_form" method="get">
+    <button type="submit" class="db-button db-border db-whole"><i class="fa-solid fa-filter"></i>Filter</button>
     <label for="item_name">Item</label>
     <input type="text" class="db-input db-border" id="item_name" name="item_name">
     <div class="db-form-section">
@@ -30,11 +30,13 @@
         <td>{{ row.item.description }}</td>
         <td>{{ row.quantity }}</td>
         <td>{% if row.item.expDate %}{{ row.item.expDate|format_datetime('short', 'none') }}{% endif %}</td>
-        <td><a href="{{ path('display_location', {'location_id': row.location.id }) }}">{{ row.location.name }}</a></td>
+        <td><a href="{{ path('display_location', {location: row.location.id }) }}">{{ row.location.name }}</a></td>
       </tr>
     {% endfor %}
   </table>
 </div>
+
+
 <script>
   window.onload = (event) => {
     params = {{ params|json_encode()|raw }};
@@ -43,7 +45,7 @@
     {
       for (var child_key in params[parent_key])
       {
-        if (['item_name', 'limit'].includes(parent_key))
+        if (['item_name'].includes(parent_key))
         {
           filter_form.elements[parent_key].value = params[parent_key];
         } else {
@@ -57,10 +59,10 @@
 {% endblock %}
 
 {% block footer %}
-  <div class="db-bar">
-    {{ include('widgets/limit_widget.html.twig') }}
-    <span class="db-right">
-      {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
-    </span>
-  </div>
+<div class="db-bar">
+  {{ include('widgets/limit_widget.html.twig') }}
+  <span class="db-right">
+    {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
+  </span>
+</div>
 {% endblock %}

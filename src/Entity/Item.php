@@ -32,16 +32,11 @@ class Item
     #[ORM\Column(type:'datetime', nullable:true)]
     private $exp_date;
 
-    private $date;
-    private $item_loc;
-    private $trans;
 
     public function __construct()
     {
         $this->transaction = new ArrayCollection();
         $this->itemlocation = new ArrayCollection();
-        $this->date = new \DateTime('now');
-        $this->item_loc = new ItemLocation();
     }
 
     public function getId(): ?string
@@ -73,38 +68,14 @@ class Item
         return $this;
     }
 
-    public function getLocation(): ?Location
-    {
-        return $this->getItemLocation()->getLocation();
-    }
-
-    public function addLocation(?Location $location): self
-    {
-        $this->item_loc->setLocation($location);
-
-        return $this;
-    }
-
     public function getQuantity(): ?int
     {
-        return $this->getQuantity();
-    }
-
-    public function setQuantity(?int $quantity): self
-    {
-        $this->item_loc->setQuantity($quantity);
-
-        return $this;
-    }
-
-    public function setQuantityChange(?string $change): self
-    {
-        $this->trans = new Transaction();
-        $this->addTransaction($this->trans);
-        $this->trans->setDate(new \DateTime());
-        $this->trans->setQuantityChange($change);
-
-        return $this;
+        $quantity = 0;
+        foreach ($this->itemlocation as $itemlocation)
+        {
+            $quantity += $itemlocation->getQuantity();
+        }
+        return $quantity;
     }
 
     /**

@@ -18,61 +18,103 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class TransactionRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, Transaction::class);
-    }
+  public function __construct(ManagerRegistry $registry)
+  {
+    parent::__construct($registry, Transaction::class);
+  }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function add(Transaction $entity, bool $flush = true): void
-    {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
+  /**
+   * @author Daniel Boling
+   * @return Item[] Returns an array of Item objects
+   */
+  public function filter(array $params)
+  {
+    $qb = $this->createQueryBuilder('t')
+      ->leftJoin('t.item', 'item')
+      ->leftJoin('t.location', 'location')
+    ;
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(Transaction $entity, bool $flush = true): void
+    if (isset($params['item_name']))
     {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+      $qb
+        ->setParameter('item_name', '%'.$params['item_name'].'%')
+        ->andWhere('item.name like :item_name')
+      ;
     }
+    if (isset($params['location']) && $params['location'] !== '')
+    {
+      $qb
+        ->setParameter('loc_id', $params['location'])
+        ->andWhere('location.id in (:loc_id)')
+      ;
+    }
+    if (isset($params['min_date']) && $params['min_date'] !== '')
+    {
+      $qb
+        ->setParameter('min_date', $params['min_date'])
+        ->andWhere('datetime >= :min_date')
+      ;
+    }
+    if (isset($params['max_date']) && $params['max_date'] !== '')
+    {
+      $qb
+        ->setParameter('max_date', $params['max_date'])
+        ->andWhere('datetime <= :max_date')
+      ;
+    }
+    return $qb->getQuery();
+  }
 
-    // /**
-    //  * @return Transaction[] Returns an array of Transaction objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+  /**
+   * @throws ORMException
+   * @throws OptimisticLockException
+   */
+  public function add(Transaction $entity, bool $flush = true): void
+  {
+    $this->_em->persist($entity);
+    if ($flush) {
+      $this->_em->flush();
     }
-    */
+  }
 
-    /*
-    public function findOneBySomeField($value): ?Transaction
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+  /**
+   * @throws ORMException
+   * @throws OptimisticLockException
+   */
+  public function remove(Transaction $entity, bool $flush = true): void
+  {
+    $this->_em->remove($entity);
+    if ($flush) {
+      $this->_em->flush();
     }
-    */
+  }
+
+  // /**
+  //  * @return Transaction[] Returns an array of Transaction objects
+  //  */
+  /*
+  public function findByExampleField($value)
+  {
+    return $this->createQueryBuilder('t')
+      ->andWhere('t.exampleField = :val')
+      ->setParameter('val', $value)
+      ->orderBy('t.id', 'ASC')
+      ->setMaxResults(10)
+      ->getQuery()
+      ->getResult()
+    ;
+  }
+  */
+
+  /*
+  public function findOneBySomeField($value): ?Transaction
+  {
+    return $this->createQueryBuilder('t')
+      ->andWhere('t.exampleField = :val')
+      ->setParameter('val', $value)
+      ->getQuery()
+      ->getOneOrNullResult()
+    ;
+  }
+  */
 }

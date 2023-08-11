@@ -22,9 +22,14 @@ class Location
   #[ORM\OneToMany(targetEntity:ItemLocation::class, mappedBy:'location', orphanRemoval:true, cascade:['persist'])]
   private $itemlocation;
 
+  #[ORM\OneToMany(targetEntity:Transaction::class, mappedBy:"location", cascade:["persist", "remove"])]
+  private $transaction;
+
+
   public function __construct()
   {
       $this->itemlocation = new ArrayCollection();
+      $this->transaction = new ArrayCollection();
   }
 
   public function getId(): ?int
@@ -37,7 +42,7 @@ class Location
       return $this->name;
   }
 
-  public function setName(string $name): self
+  public function setName(string $name): static
   {
       $this->name = $name;
 
@@ -45,29 +50,59 @@ class Location
   }
 
   /**
-   * @return Collection<int, itemlocation>
+   * @return Collection<int, ItemLocation>
    */
   public function getItemlocation(): Collection
   {
       return $this->itemlocation;
   }
 
-  public function addItemlocation(itemlocation $itemlocation): self
+  public function addItemlocation(ItemLocation $itemlocation): static
   {
       if (!$this->itemlocation->contains($itemlocation)) {
-          $this->itemlocation[] = $itemlocation;
+          $this->itemlocation->add($itemlocation);
           $itemlocation->setLocation($this);
       }
 
       return $this;
   }
 
-  public function removeItemlocation(itemlocation $itemlocation): self
+  public function removeItemlocation(ItemLocation $itemlocation): static
   {
       if ($this->itemlocation->removeElement($itemlocation)) {
           // set the owning side to null (unless already changed)
           if ($itemlocation->getLocation() === $this) {
               $itemlocation->setLocation(null);
+          }
+      }
+
+      return $this;
+  }
+
+  /**
+   * @return Collection<int, Transaction>
+   */
+  public function getTransaction(): Collection
+  {
+      return $this->transaction;
+  }
+
+  public function addTransaction(Transaction $transaction): static
+  {
+      if (!$this->transaction->contains($transaction)) {
+          $this->transaction->add($transaction);
+          $transaction->setLocation($this);
+      }
+
+      return $this;
+  }
+
+  public function removeTransaction(Transaction $transaction): static
+  {
+      if ($this->transaction->removeElement($transaction)) {
+          // set the owning side to null (unless already changed)
+          if ($transaction->getLocation() === $this) {
+              $transaction->setLocation(null);
           }
       }
 

@@ -21,123 +21,60 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Datetime;
+use Datetimezone;
 
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\SearchType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Validator\Constraints\Count;
 
 class TransactionController extends AbstractController
 {
-
-  private $em;
-  private $item_repo;
-  private $loc_repo;
-  private $trans_repo;
-  private $item_loc_repo;
-  private $paginator;
-  private $date;
-  private $request_stack;
-
-  public function __construct(EntityManagerInterface $em, ItemRepository $item_repo, LocationRepository $loc_repo, TransactionRepository $trans_repo, ItemLocationRepository $item_loc_repo, PaginatorInterface $paginator, RequestStack $request_stack)
-  {
-    $this->em = $em;
-    $this->item_repo = $item_repo;
-    $this->loc_repo = $loc_repo;
-    $this->trans_repo = $trans_repo;
-    $this->item_loc_repo = $item_loc_repo;
-    $this->paginator = $paginator;
-    $this->date = (new \DateTime('now'))->format('D, j F, Y');
-    $this->request_stack = $request_stack;
-
-  }
+  public function __construct(
+    private EntityManagerInterface $em,
+    private ItemRepository $item_repo,
+    private LocationRepository $loc_repo,
+    private TransactionRepository $trans_repo,
+    private ItemLocationRepository $item_loc_repo,
+    private PaginatorInterface $paginator,
+    private RequestStack $request_stack,
+  ) { }
 
   
   /**
-   * Tracks Transaction and compiles them into a tabled page.
+   * lists transactions.
    * 
    * @author Daniel Boling
    * 
-   * @Route("/transactions", name="show_transactions")
+   * @Route("/transactions/", name="transactions_list")
    */
   public function transaction_list(Request $request): Response
   {
-
-    if ($request->cookies->get('trans_limit') != null)
+    $transactions_limit_cookie = $request->cookies->get('transactions_limit') ?? 25;
+    $params = [
+      'item_name' => '',
+      'location' => '',
+      'min_date' => '',
+      'max_date' => '',
+      'limit' => $transactions_limit_cookie,
+    ];
+    if ($transactions_limit_cookie !== $params['limit'])
+    // if form submitted limit != cookie limit then update the cookie
     {
-      $limit = array('trans_limit' => $request->cookies->get('trans_limit'));
-
-    } else {
-      $limit = array('trans_limit' => 10);
-      
-    }
-
-    $search = array('search_input' => '');
-    $search_form = $this->createFormBuilder($search, ['allow_extra_fields' => true])
-      ->add('search_input', SearchType::class, ['label' => 'Search', 'required' => false])
-      ->add('search_submit', SubmitType::class, ['label' => 'Search'])
-      ->getForm()
-    ;
-
-    $limit_form = $this->createFormBuilder($limit, ['allow_extra_fields' => true])
-      ->add('limit_choice', ChoiceType::class, [
-        'choices' => [
-          '5' => 5,
-          '10' => 10,
-          '25' => 20,
-          '50' => 50,
-          '100' => 100,
-        ],
-        'data' => $request->cookies->get('trans_limit'),
-      ])
-      ->add('limit_submit', SubmitType::class, ['label' => 'Limit'])
-      ->getForm()
-    ;
-
-
-    $limit_form->handleRequest($request);
-    if($limit_form->isSubmitted() && $limit_form->isValid())
-    {
-      $limit = $limit_form->getData();
-      $cookie = new Cookie('trans_limit', $limit['limit_choice']);
+      $cookie = new Cookie('transactions_limit', $params['limit']);
       $response = new Response();
       $response->headers->setCookie($cookie);
       $response->send();
-      $result = $this->trans_repo->findAll();
-      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['limit_choice']);
-
-    } else {
-      $result = $this->trans_repo->findAll();
-      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $limit['trans_limit']);
-
+      $items_limit_cookie = $params['limit'];
     }
+    $params = array_merge($params, $request->query->all());
+    $result = $this->trans_repo->filter($params);
+    $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
 
-    $search_form->handleRequest($request);
-    if($search_form->isSubmitted() && $search_form->isValid())
-    {
-      $search = $search_form->getData();
-      $result = $this->trans_repo->findItem($search['search_input']);
-      $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), 10);
-
-    }
-
-
-    return $this->render('overview_trans.html.twig', [
-      'search_form' => $search_form->createView(),
-      'limit_form' => $limit_form->createView(),
-      'date' => $this->date,
+    return $this->render('transaction/transactions_list.html.twig', [
+      'locations' => $this->loc_repo->findAll(),
+      'params' => $params,
       'result' => $result,
     ]);
-
   }
-
-
 }
 
 
 // EOF
-
-?>

@@ -16,8 +16,6 @@ use App\Repository\ItemRepository;
 use App\Repository\LocationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ItemLocationRepository;
-use App\Form\ModifyFormType;
-use App\Form\SearchFormType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
@@ -45,13 +43,13 @@ class LocationController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/locations/', name:'locations_display')]
-  public function show_locations(Request $request): Response
+  #[Route('/locations/', name:'locations_list')]
+  public function locations_list(Request $request): Response
   {
     $result = $this->loc_repo->findAll();
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), 40);
 
-    return $this->render('location/overview_locations.html.twig', [
+    return $this->render('location/locations_list.html.twig', [
       'result' => $result,
     ]);
   }
@@ -65,29 +63,28 @@ class LocationController extends AbstractController
   #[Route('/display_location/', name:'display_location')]
   public function display_location(Request $request): Response
   {
-    $id = $request->query->get('location_id');
+    $id = $request->query->get('location');
     $loc = $this->loc_repo->find($id);
     $loc_qty = $this->item_loc_repo->getLocQty($id)[0]['quantity'];
-    $limit_cookie = $request->cookies->get('overview_items_limit') ?? 25;
+    $locations_limit_cookie = $request->cookies->get('location_items_limit') ?? 25;
 
     $params = [
       'location_id' => $loc->getId(),
       'name' => $loc->getName(),
-      'limit' => $limit_cookie,
+      'limit' => $locations_limit_cookie,
       'item_name' => '',
       'loc_qty' => $loc_qty,
     ];
     $params = array_merge($params, $request->query->all());
-    if ($limit_cookie !== $params['limit'])
+    if ($locations_limit_cookie !== $params['limit'])
     // if form submitted limit != cookie limit then update the cookie
     {
-      $cookie = new Cookie('overview_items_limit', $params['limit']);
+      $cookie = new Cookie('location_items_limit', $params['limit']);
       $response = new Response();
       $response->headers->setCookie($cookie);
       $response->send();
-      $limit_cookie = $params['limit'];
+      $locations_limit_cookie = $params['limit'];
     }
-    // to autofill form fields, or leave them null.
     $params = array_merge($params, $request->query->all());
     $result = $this->item_loc_repo->filter($params);
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
@@ -119,7 +116,7 @@ class LocationController extends AbstractController
       $this->em->flush();
       // $this->addFlash('success', 'Location Added');
     }
-    return $this->redirectToRoute('location_display');
+    return $this->redirectToRoute('locations_list');
   }
 
 
@@ -159,6 +156,7 @@ class LocationController extends AbstractController
     {
       $this->em->remove($loc);
       $this->em->flush();
+      return $this->redirectToRoute('locations_list');
       // $this->addFlash('success', 'Location removed.');
     } else {
       // $this->addFlash('error', 'Location cannot be deleted.  Contains items.');

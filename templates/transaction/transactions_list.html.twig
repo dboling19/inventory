@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+{% block title %}Transactions{% endblock %}
+{% block content %}
+<div class="db-wrapper">
+  <form action="{{ path('transactions_list') }}" class="db-wrapper db-column db-panel db-border" id="filter_form" method="get">
+    <div class="db-form-secton">
+      <button type="submit" class="db-button db-border db-whole"><i class="fa-solid fa-filter"></i>Filter</button>
+      <label for="item_name">Item</label>
+      <input type="text" class="db-input db-border" id="item_name" name="item_name">
+      <div class="db-form-section">
+        <b>Locations</b>
+        {% for location in locations %}
+          <div class="db-wrapper">
+            <input type="checkbox" name="location[]" id="location_{{ location.id }}" value="{{ location.id }}">
+            <label for="location_{{ location.id }}">{{ location.name }}</label>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="db-form-section">
+        <label for="min_date">Min Date</label>
+        <input type="date" class="db-input db-border" id="min_date" name="min_date">
+        <br>
+        <label for="max_date">Max Date</label>
+        <input type="date" class="db-input db-border" id="max_date" name="max_date">
+      </div>
+    </div>
+  </form>
+  <table>
+    <tr>
+      <th>{{ knp_pagination_sortable(result, 'Item', 'item.name') }}</th>
+      <th>{{ knp_pagination_sortable(result, 'Location', 'location.name') }}</th>
+      <th>{{ knp_pagination_sortable(result, 'Quantity Change', 't.quantity_change') }}</th>
+      <th>Current Quantity</th>
+      <th>{{ knp_pagination_sortable(result, 'Datetime', 't.datetime') }}</th>
+    </tr>
+    {% for row in result %} {# simple loop to output rows #}
+      <tr>
+        <td><a href="{{ path('display_item', {item_id: row.item.id}) }}">{{ row.item.name }}</a></td>
+        <td><a href="{{ path('display_location', {location: row.location.id }) }}">{{ row.location.name }}</a></td>
+        <td><b>{% if row.quantityChange > 0 %}<span style="color:#5e81ac;">{% elseif row.quantityChange < 0 %}<span style="color:#d08770;">{% endif %}{{ row.quantityChange }}</span></b></td>
+        <td><b>{{ row.item.quantity }}</b></td>
+        <td>{{ row.datetime|format_datetime('short', 'short') }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<script>
+  window.onload = (event) => {
+    params = {{ params|json_encode()|raw }};
+    filter_form = document.getElementById('filter_form');
+    for (var parent_key in params)
+    {
+      for (var child_key in params[parent_key])
+      {
+        if (['item_name'].includes(parent_key))
+        {
+          filter_form.elements[parent_key].value = params[parent_key];
+        } else {
+          field_name = parent_key.concat('_', params[parent_key][child_key]);
+          filter_form.elements[field_name].checked = typeof params[parent_key][child_key];
+        }
+      }
+    }
+  };
+</script>
+{% endblock %}
+
+{% block footer %}
+<div class="db-bar">
+  {{ include('widgets/limit_widget.html.twig') }}
+  <span class="db-right">
+    {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
+  </span>
+</div>
+{% endblock %}

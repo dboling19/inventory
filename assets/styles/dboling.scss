@@ -109,6 +109,11 @@ html * {
     height:100%;
     display:flex;
     flex-direction:row;
+    align-items:flex-start;
+  }
+
+  .db-wrapper.db-fill {
+    align-items:normal;
   }
 
   .db-form-section .db-wrapper {
@@ -119,10 +124,6 @@ html * {
     display:flex;
     flex-direction:column;
     flex:1 0 auto;
-  }
-
-  .db-footer {
-    flex-shrink:0;
   }
 
   .db-header, .db-footer {

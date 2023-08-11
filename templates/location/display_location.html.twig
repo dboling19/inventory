@@ -7,12 +7,12 @@
     <form action="{{ path('modify_location') }}" class="db-wrapper db-column db-panel" id="location_form" method="post">
       <input type="text" class="db-input db-border" name="location_name" placeholder="Location Name" value="{{ params.name }}" required>
       <button type="submit" class="db-button db-border" for="location_form">Modify Entry</button>
-      <input type="text" name="location_id" value="{{ params.location_id }}" hidden>
+      <input type="text" name="location" value="{{ params.location_id }}" hidden>
     </form>
     <form action="{{ path('display_location') }}" class="db-wrapper db-column db-panel" id="filter_form" method="get">
       <input type="text" class="db-input db-border" id="item_name" name="item_name" placeholder="Item Name">
       <button type="submit" class="db-button db-border" for="filter_form">Filter</button>
-      <input type="text" name="location_id" value="{{ params.location_id }}" hidden>
+      <input type="text" name="location" value="{{ params.location_id }}" hidden>
     </form>
   </div>
 </div>
