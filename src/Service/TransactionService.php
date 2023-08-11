@@ -23,7 +23,6 @@ class TransactionService
     $transaction->setItem($item);
     $transaction->setLocation($location);
     $transaction->setQuantityChange($quantity_change);
-    $transaction->setQuantity($item->getQuantity() + $quantity_change);
     $transaction->setDatetime(new datetime('now', new datetimezone('America/Indiana/Indianapolis')));
     $this->em->persist($transaction);
   }
