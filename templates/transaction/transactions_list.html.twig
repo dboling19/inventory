@@ -53,7 +53,7 @@
     {
       for (var child_key in params[parent_key])
       {
-        if (['item_name'].includes(parent_key))
+        if (['item_name', 'min_date', 'max_date'].includes(parent_key))
         {
           filter_form.elements[parent_key].value = params[parent_key];
         } else {
