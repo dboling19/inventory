@@ -52,14 +52,14 @@ class TransactionRepository extends ServiceEntityRepository
     {
       $qb
         ->setParameter('min_date', $params['min_date'])
-        ->andWhere('datetime >= :min_date')
+        ->andWhere('t.datetime >= :min_date')
       ;
     }
     if (isset($params['max_date']) && $params['max_date'] !== '')
     {
       $qb
         ->setParameter('max_date', $params['max_date'])
-        ->andWhere('datetime <= :max_date')
+        ->andWhere('t.datetime <= :max_date')
       ;
     }
     return $qb->getQuery();
