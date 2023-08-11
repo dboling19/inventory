@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 
 #[ORM\Entity(repositoryClass:TransactionRepository::class)]
+#[ORM\Table(name: "`transaction`")]
 class Transaction
 {
   #[ORM\Id]
@@ -30,7 +31,6 @@ class Transaction
   #[ORM\JoinColumn(nullable:false)]
   private ?Location $location;
 
-
   public function getId(): ?int
   {
       return $this->id;
@@ -48,12 +48,12 @@ class Transaction
       return $this;
   }
 
-  public function getDatetime(): ?datetimeinterface
+  public function getDatetime(): ?\DateTimeInterface
   {
       return $this->datetime;
   }
 
-  public function setDatetime(datetimeinterface $datetime): static
+  public function setDatetime(\DateTimeInterface $datetime): static
   {
       $this->datetime = $datetime;
 

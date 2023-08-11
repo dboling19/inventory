@@ -30,7 +30,7 @@
       <th>{{ knp_pagination_sortable(result, 'Item', 'item.name') }}</th>
       <th>{{ knp_pagination_sortable(result, 'Location', 'location.name') }}</th>
       <th>{{ knp_pagination_sortable(result, 'Quantity Change', 't.quantity_change') }}</th>
-      <th>{{ knp_pagination_sortable(result, 'Current Quantity', 'item.quantity') }}</th>
+      <th>Current Quantity</th>
       <th>{{ knp_pagination_sortable(result, 'Datetime', 't.datetime') }}</th>
     </tr>
     {% for row in result %} {# simple loop to output rows #}

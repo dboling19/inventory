@@ -32,8 +32,6 @@ class Item
     #[ORM\Column(type:'datetime', nullable:true)]
     private $exp_date;
 
-    private $quantity;
-
 
     public function __construct()
     {
