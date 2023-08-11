@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\TransactionRepository;
 use DateTimeInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 
@@ -19,11 +20,16 @@ class Transaction
   private ?string $quantity_change;
 
   #[ORM\Column(type:'datetime', nullable:false)]
-  private ?DateTimeInterface $date;
+  private ?DateTimeInterface $datetime;
 
   #[ORM\ManyToOne(targetEntity:Item::class, inversedBy:'transaction')]
   #[ORM\JoinColumn(nullable:false)]
   private ?Item $item;
+
+  #[ORM\ManyToOne(targetEntity:Location::class, inversedBy:'transaction')]
+  #[ORM\JoinColumn(nullable:false)]
+  private ?Location $location;
+
 
   public function getId(): ?int
   {
@@ -35,21 +41,21 @@ class Transaction
       return $this->quantity_change;
   }
 
-  public function setQuantityChange(?string $quantity_change): self
+  public function setQuantityChange(string $quantity_change): static
   {
       $this->quantity_change = $quantity_change;
 
       return $this;
   }
 
-  public function getDate(): ?\DateTimeInterface
+  public function getDatetime(): ?datetimeinterface
   {
-      return $this->date;
+      return $this->datetime;
   }
 
-  public function setDate(\DateTimeInterface $date): self
+  public function setDatetime(datetimeinterface $datetime): static
   {
-      $this->date = $date;
+      $this->datetime = $datetime;
 
       return $this;
   }
@@ -59,9 +65,21 @@ class Transaction
       return $this->item;
   }
 
-  public function setItem(?Item $item): self
+  public function setItem(?Item $item): static
   {
       $this->item = $item;
+
+      return $this;
+  }
+
+  public function getLocation(): ?Location
+  {
+      return $this->location;
+  }
+
+  public function setLocation(?Location $location): static
+  {
+      $this->location = $location;
 
       return $this;
   }

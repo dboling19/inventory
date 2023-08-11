@@ -16,6 +16,7 @@ use App\Repository\ItemRepository;
 use App\Repository\LocationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ItemLocationRepository;
+use App\Service\TransactionService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
@@ -33,6 +34,7 @@ class ItemController extends AbstractController
     private LocationRepository $loc_repo,
     private TransactionRepository $trans_repo,
     private ItemLocationRepository $item_loc_repo,
+    private TransactionService $trans_service,
     private PaginatorInterface $paginator,
   ) { }
 
@@ -41,30 +43,30 @@ class ItemController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/', name:'items_display')]
-  public function show_items(Request $request): Response
+  #[Route('/', name:'items_list')]
+  public function items_list(Request $request): Response
   {
-    $limit_cookie = $request->cookies->get('overview_items_limit') ?? 25;
+    $items_limit_cookie = $request->cookies->get('items_limit') ?? 25;
     $params = [
       'item_name' => '',
-      'limit' => $limit_cookie,
+      'limit' => $items_limit_cookie,
     ];
     $params = array_merge($params, $request->query->all());
-    if ($limit_cookie !== $params['limit'])
+    if ($items_limit_cookie !== $params['limit'])
     // if form submitted limit != cookie limit then update the cookie
     {
-      $cookie = new Cookie('overview_items_limit', $params['limit']);
+      $cookie = new Cookie('items_limit', $params['limit']);
       $response = new Response();
       $response->headers->setCookie($cookie);
       $response->send();
-      $limit_cookie = $params['limit'];
+      $items_limit_cookie = $params['limit'];
     }
     // to autofill form fields, or leave them null.
     $params = array_merge($params, $request->query->all());
     $result = $this->item_loc_repo->filter($params);
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
 
-    return $this->render('item/overview_items.html.twig', [
+    return $this->render('item/items_list.html.twig', [
       'locations' => $this->loc_repo->findAll(),
       'result' => $result,
       'params' => $params,
@@ -103,9 +105,9 @@ class ItemController extends AbstractController
     $location = $this->loc_repo->find($params['item_location']);
     $item_loc->setLocation($location);
     $this->em->persist($item_loc);
+    $this->trans_service->create_transaction($item, $location, $params['item_quantity_change']);
     $this->em->flush();
     // $this->addFlash('success', 'Item Created');
-
     return $this->redirectToRoute('new_item', ['s' => true]);
   }
 
@@ -153,6 +155,7 @@ class ItemController extends AbstractController
     $location = $this->loc_repo->find($params['item_location']);
     $item_loc->setLocation($location);
     $this->em->persist($item_loc);
+    $this->trans_service->create_transaction($item, $location, ((int)trim($params['quantity_change'], '+')));
     $this->em->flush();
     // $this->addFlash('success', 'Item Updated');
     return $this->redirectToRoute('display_item', ['item_id' => $item->getId()]);
@@ -176,7 +179,7 @@ class ItemController extends AbstractController
       $this->em->remove($item_loc);
       $this->em->flush();
       // $this->addFlash('success', 'Removed Item Entry');
-      return $this->redirectToRoute('items_display');
+      return $this->redirectToRoute('items_list');
     } else {
       return $this->redirectToRoute('display_item', ['item_id' => $id]);
     }

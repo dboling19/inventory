@@ -18,75 +18,61 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ItemRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, Item::class);
-    }
+  public function __construct(ManagerRegistry $registry)
+  {
+    parent::__construct($registry, Item::class);
+  }
 
-    // /**
-    //  * @author Daniel Boling
-    //  * @return Item[] Returns an array of Item objects
-    //  */
-    // public function findItem($name)
-    // {
-    //     return $this->createQueryBuilder('i')
-    //         ->andWhere('i.name like :val')
-    //         ->setParameter('val', '%'.$name.'%')
-    //         ->getQuery()
-    //         ->getResult()
-    //     ;
-    // }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function add(Item $entity, bool $flush = true): void
-    {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+  /**
+   * @throws ORMException
+   * @throws OptimisticLockException
+   */
+  public function add(Item $entity, bool $flush = true): void
+  {
+    $this->_em->persist($entity);
+    if ($flush) {
+      $this->_em->flush();
     }
+  }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(Item $entity, bool $flush = true): void
-    {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
+  /**
+   * @throws ORMException
+   * @throws OptimisticLockException
+   */
+  public function remove(Item $entity, bool $flush = true): void
+  {
+    $this->_em->remove($entity);
+    if ($flush) {
+      $this->_em->flush();
     }
+  }
 
-    // /**
-    //  * @return Item[] Returns an array of Item objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('i')
-            ->andWhere('i.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('i.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+  // /**
+  //  * @return Item[] Returns an array of Item objects
+  //  */
+  /*
+  public function findByExampleField($value)
+  {
+    return $this->createQueryBuilder('i')
+      ->andWhere('i.exampleField = :val')
+      ->setParameter('val', $value)
+      ->orderBy('i.id', 'ASC')
+      ->setMaxResults(10)
+      ->getQuery()
+      ->getResult()
+    ;
+  }
+  */
 
-    /*
-    public function findOneBySomeField($value): ?Item
-    {
-        return $this->createQueryBuilder('i')
-            ->andWhere('i.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
+  /*
+  public function findOneBySomeField($value): ?Item
+  {
+    return $this->createQueryBuilder('i')
+      ->andWhere('i.exampleField = :val')
+      ->setParameter('val', $value)
+      ->getQuery()
+      ->getOneOrNullResult()
+    ;
+  }
+  */
 }

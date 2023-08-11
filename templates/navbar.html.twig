@@ -1,8 +1,9 @@
 {% block navbar %}
 <nav class="db-bar db-fixed-top" id="navbar">
-  <a class="db-button" id="items_display" href="{{ path('items_display') }}">Items</a>
+  <a class="db-button" id="items_list" href="{{ path('items_list') }}">Items</a>
   <a class="db-button" id="new_item" href="{{ path('new_item') }}">New Item</a>
-  <a class="db-button" id="locations_display" href="{{ path('locations_display') }}">Locations</a>
+  <a class="db-button" id="locations_list" href="{{ path('locations_list') }}">Locations</a>
+  <a class="db-button" id="transactions_list" href="{{ path('transactions_list') }}">Transactions</a>
 </nav>
 
 <script>

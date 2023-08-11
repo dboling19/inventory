@@ -2,8 +2,8 @@
 {% block title %}{{ params.item_name }}{% endblock %}
 {% block content %}
 <li class="db-title db-panel"><b>{{ params.item_name }}</b></li>
-<div class="db-panel db-wrapper db-colunn db-third">
-  <form action="{{ path('display_item', { item_id: item_loc.id }) }}" class="db-wrapper db-column db-panel db-border" id="item_form" method="post">
+<div class="db-panel db-wrapper db-third">
+  <form action="{{ path('display_item', { item_id: item_loc.id }) }}" class="db-wrapper db-fill db-column db-border" id="item_form" method="post">
     <div class="db-form-section">
       <label for="item_name">Name</label>
       <input type="text" class="db-input db-border" id="item_name" name="item_name" value="{{ params.item_name }}">
