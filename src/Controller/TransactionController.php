@@ -42,10 +42,9 @@ class TransactionController extends AbstractController
    * lists transactions.
    * 
    * @author Daniel Boling
-   * 
-   * @Route("/transactions/", name="transactions_list")
    */
-  public function transaction_list(Request $request): Response
+  #[Route('/transactions/', name:'list_transactions')]
+  public function list_transactions(Request $request): Response
   {
     $transactions_limit_cookie = $request->cookies->get('transactions_limit') ?? 25;
     $params = [
@@ -68,7 +67,7 @@ class TransactionController extends AbstractController
     $result = $this->trans_repo->filter($params);
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
 
-    return $this->render('transaction/transactions_list.html.twig', [
+    return $this->render('transaction/list_transactions.html.twig', [
       'locations' => $this->loc_repo->findAll(),
       'params' => $params,
       'result' => $result,

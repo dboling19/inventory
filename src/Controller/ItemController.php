@@ -43,8 +43,8 @@ class ItemController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/', name:'items_list')]
-  public function items_list(Request $request): Response
+  #[Route('/', name:'list_items')]
+  public function list_items(Request $request): Response
   {
     $items_limit_cookie = $request->cookies->get('items_limit') ?? 25;
     $params = [
@@ -66,7 +66,7 @@ class ItemController extends AbstractController
     $result = $this->item_loc_repo->filter($params);
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
 
-    return $this->render('item/items_list.html.twig', [
+    return $this->render('item/list_items.html.twig', [
       'locations' => $this->loc_repo->findAll(),
       'result' => $result,
       'params' => $params,
@@ -179,7 +179,7 @@ class ItemController extends AbstractController
       $this->em->remove($item_loc);
       $this->em->flush();
       // $this->addFlash('success', 'Removed Item Entry');
-      return $this->redirectToRoute('items_list');
+      return $this->redirectToRoute('list_items');
     } else {
       return $this->redirectToRoute('display_item', ['item_id' => $id]);
     }

@@ -2,7 +2,7 @@
 {% block title %}Items{% endblock %}
 {% block content %}
 <div class="db-wrapper">
-  <form action="{{ path('items_list') }}" class="db-wrapper db-column db-panel db-border" id="filter_form" method="get">
+  <form action="{{ path('list_items') }}" class="db-wrapper db-column db-panel db-border" id="filter_form" method="get">
     <button type="submit" class="db-button db-border db-whole"><i class="fa-solid fa-filter"></i>Filter</button>
     <label for="item_name">Item</label>
     <input type="text" class="db-input db-border" id="item_name" name="item_name">
@@ -40,12 +40,11 @@
 <script>
   window.onload = (event) => {
     params = {{ params|json_encode()|raw }};
-    filter_form = document.getElementById('filter_form');
     for (var parent_key in params)
     {
       for (var child_key in params[parent_key])
       {
-        if (['item_name'].includes(parent_key))
+        if (['item_name', 'limit'].includes(parent_key))
         {
           filter_form.elements[parent_key].value = params[parent_key];
         } else {
