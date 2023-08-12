@@ -25,6 +25,7 @@ class Location
   #[ORM\OneToMany(targetEntity:Transaction::class, mappedBy:"location", cascade:["persist", "remove"])]
   private $transaction;
 
+  private $item_quantity;
 
   public function __construct()
   {
@@ -109,4 +110,13 @@ class Location
       return $this;
   }
 
+  public function getItemQuantity(): ?int
+  {
+    $item_quantity = 0;
+    foreach ($this->itemlocation as $itemlocation)
+    {
+        $item_quantity += $itemlocation->getQuantity();
+    }
+    return $item_quantity;
+  }
 }

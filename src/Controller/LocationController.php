@@ -43,13 +43,13 @@ class LocationController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/locations/', name:'locations_list')]
+  #[Route('/locations/', name:'list_locations')]
   public function locations_list(Request $request): Response
   {
     $result = $this->loc_repo->findAll();
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), 40);
 
-    return $this->render('location/locations_list.html.twig', [
+    return $this->render('location/list_locations.html.twig', [
       'result' => $result,
     ]);
   }
@@ -64,16 +64,12 @@ class LocationController extends AbstractController
   public function display_location(Request $request): Response
   {
     $id = $request->query->get('location');
-    $loc = $this->loc_repo->find($id);
-    $loc_qty = $this->item_loc_repo->getLocQty($id)[0]['quantity'];
+    $location = $this->loc_repo->find($id);
     $locations_limit_cookie = $request->cookies->get('location_items_limit') ?? 25;
 
     $params = [
-      'location_id' => $loc->getId(),
-      'name' => $loc->getName(),
       'limit' => $locations_limit_cookie,
       'item_name' => '',
-      'loc_qty' => $loc_qty,
     ];
     $params = array_merge($params, $request->query->all());
     if ($locations_limit_cookie !== $params['limit'])
@@ -93,6 +89,7 @@ class LocationController extends AbstractController
     return $this->render('location/display_location.html.twig', [
       'result' => $result,
       'params' => $params,
+      'location' => $location,
     ]);
   }
 
@@ -116,7 +113,7 @@ class LocationController extends AbstractController
       $this->em->flush();
       // $this->addFlash('success', 'Location Added');
     }
-    return $this->redirectToRoute('locations_list');
+    return $this->redirectToRoute('list_locations');
   }
 
 
@@ -156,7 +153,7 @@ class LocationController extends AbstractController
     {
       $this->em->remove($loc);
       $this->em->flush();
-      return $this->redirectToRoute('locations_list');
+      return $this->redirectToRoute('list_locations');
       // $this->addFlash('success', 'Location removed.');
     } else {
       // $this->addFlash('error', 'Location cannot be deleted.  Contains items.');
