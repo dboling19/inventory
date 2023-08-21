@@ -105,13 +105,13 @@ class LocationController extends AbstractController
     if ($request->request->all())
     {
       $params = $request->request->all();
-      // if ($params['location_name'] == '') { $this->addFlash('error', 'Location name required.'); }
+      if ($params['location_name'] == '') { $this->addFlash('error', 'Location name required.'); }
       // if ($request->getSession()->getFlashBag()->has('error')) { $this->redirectToRoute('location_display'); }
       $loc = new Location;
       $loc->setName($params['location_name']);
       $this->em->persist($loc);
       $this->em->flush();
-      // $this->addFlash('success', 'Location Added');
+      $this->addFlash('success', 'Location Added');
     }
     return $this->redirectToRoute('list_locations');
   }
@@ -132,7 +132,7 @@ class LocationController extends AbstractController
       $loc->setName($params['location_name']);
       $this->em->persist($loc);
       $this->em->flush();
-      // $this->addFlash('success', 'Location name updated.');
+      $this->addFlash('success', 'Location name updated.');
     }
     return $this->redirectToRoute('display_location', ['location_id' => $id]);
   }
@@ -154,9 +154,9 @@ class LocationController extends AbstractController
       $this->em->remove($loc);
       $this->em->flush();
       return $this->redirectToRoute('list_locations');
-      // $this->addFlash('success', 'Location removed.');
+      $this->addFlash('success', 'Location removed.');
     } else {
-      // $this->addFlash('error', 'Location cannot be deleted.  Contains items.');
+      $this->addFlash('error', 'Location cannot be deleted.  Contains items.');
       return $this->redirectToRoute('display_location', ['location_id' => $id]);
     }
   }
