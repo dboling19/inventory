@@ -22,11 +22,11 @@
       </header>
       <noscript>Please enable Javascript to use this page.  Most elements require JS to run correctly.</noscript>
       {% block content %}{% endblock %}
-      {# {% for label, messages in app.flashes %}
+      {% for label, messages in app.flashes %}
         {% for message in messages %}
           <span class="db-flash-message db-notif db-panel" role="alert">{{ message }}</span>
-        {% endfor %} #}
-      {# {% endfor %} #}
+        {% endfor %}
+      {% endfor %}
       <footer class="db-footer">
         {% block footer %}{% endblock %}
       </footer>

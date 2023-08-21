@@ -107,7 +107,7 @@ class ItemController extends AbstractController
     $this->em->persist($item_loc);
     $this->trans_service->create_transaction($item, $location, $params['item_quantity_change']);
     $this->em->flush();
-    // $this->addFlash('success', 'Item Created');
+    $this->addFlash('success', 'Item Created');
     return $this->redirectToRoute('new_item', ['s' => true]);
   }
 
@@ -157,7 +157,7 @@ class ItemController extends AbstractController
     $this->em->persist($item_loc);
     $this->trans_service->create_transaction($item, $location, ((int)trim($params['quantity_change'], '+')));
     $this->em->flush();
-    // $this->addFlash('success', 'Item Updated');
+    $this->addFlash('success', 'Item Updated');
     return $this->redirectToRoute('display_item', ['item_id' => $item->getId()]);
   }
 
@@ -178,7 +178,7 @@ class ItemController extends AbstractController
     {
       $this->em->remove($item_loc);
       $this->em->flush();
-      // $this->addFlash('success', 'Removed Item Entry');
+      $this->addFlash('success', 'Removed Item Entry');
       return $this->redirectToRoute('list_items');
     } else {
       return $this->redirectToRoute('display_item', ['item_id' => $id]);
@@ -200,7 +200,7 @@ class ItemController extends AbstractController
     $item->setExpDate(null);
     $this->em->persist($item);
     $this->em->flush();
-    // $this->addFlash('success', 'Cleared item expiration date');
+    $this->addFlash('success', 'Cleared item expiration date');
     return $this->redirectToRoute('display_item', ['item_id' => $id]);
   }
 
