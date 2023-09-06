@@ -32,11 +32,15 @@ class Item
     #[ORM\Column(type:'datetime', nullable:true)]
     private $exp_date;
 
+    #[ORM\OneToMany(mappedBy: 'item', targetEntity: PurchaseOrder::class)]
+    private Collection $purchaseOrders;
+
 
     public function __construct()
     {
         $this->transaction = new ArrayCollection();
         $this->itemlocation = new ArrayCollection();
+        $this->purchaseOrders = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -146,6 +150,36 @@ class Item
     public function setExpDate( $exp_date): self
     {
         $this->exp_date = $exp_date;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PurchaseOrder>
+     */
+    public function getPurchaseOrders(): Collection
+    {
+        return $this->purchaseOrders;
+    }
+
+    public function addPurchaseOrder(PurchaseOrder $purchaseOrder): static
+    {
+        if (!$this->purchaseOrders->contains($purchaseOrder)) {
+            $this->purchaseOrders->add($purchaseOrder);
+            $purchaseOrder->setItem($this);
+        }
+
+        return $this;
+    }
+
+    public function removePurchaseOrder(PurchaseOrder $purchaseOrder): static
+    {
+        if ($this->purchaseOrders->removeElement($purchaseOrder)) {
+            // set the owning side to null (unless already changed)
+            if ($purchaseOrder->getItem() === $this) {
+                $purchaseOrder->setItem(null);
+            }
+        }
 
         return $this;
     }
