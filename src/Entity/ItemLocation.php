@@ -10,34 +10,25 @@ use Doctrine\ORM\Mapping as ORM;
 class ItemLocation
 {
   #[ORM\Id]
-  #[ORM\GeneratedValue]
-  #[ORM\Column]
-  private ?int $id;
-
-  #[ORM\Column(type:'integer', nullable:false)]
-  private ?int $quantity;
-
   #[ORM\ManyToOne(targetEntity:Item::class, inversedBy:"itemlocation", cascade:['persist'])]
-  #[ORM\JoinColumn(nullable:true)]
+  #[ORM\JoinColumn(nullable:false, name:'item', referencedColumnName:'name')]
   private ?Item $item;
 
   #[ORM\ManyToOne(targetEntity:Location::class, inversedBy:'itemlocation', cascade:['persist'])]
-  #[ORM\JoinColumn(nullable:true)]
+  #[ORM\JoinColumn(nullable:false, name:'location', referencedColumnName:'name')]
   private ?Location $location;
 
-  private $trans;
+  #[ORM\Column(type:'integer', nullable:false)]
+  private ?int $quantity = 0;
 
-  public function getId(): ?int
-  {
-      return $this->id;
-  }
+  private $trans;
 
   public function getQuantity(): ?int
   {
       return $this->quantity;
   }
 
-  public function setQuantity(int $quantity): self
+  public function setQuantity(int $quantity): static
   {
       $this->quantity = $quantity;
 
@@ -49,7 +40,7 @@ class ItemLocation
       return $this->item;
   }
 
-  public function setItem(?Item $item): self
+  public function setItem(?Item $item): static
   {
       $this->item = $item;
 
@@ -61,7 +52,7 @@ class ItemLocation
       return $this->location;
   }
 
-  public function setLocation(?Location $location): self
+  public function setLocation(?Location $location): static
   {
       $this->location = $location;
 

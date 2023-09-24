@@ -2,6 +2,26 @@
 {% block title %}Product Orders{% endblock %}
 {% block content %}
 <div class="db-wrapper">
+  <div class="db-resize-horizontal">
+    <table>
+      <tr>
+        <th>{{ knp_pagination_sortable(result, 'Item', 'item.name') }}</th>
+        <th>Description</th>
+        <th>{{ knp_pagination_sortable(result, 'Quantity', 'i.quantity') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Exp. Date', 'item.exp_date') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Location', 'location.name') }}</th>
+      </tr>
+      {% for row in result %} {# simple loop to output rows #}
+        <tr>
+          <td><a href="{{ path('display_item', {item_id: row.id }) }}">{{ row.item.name }}</a></td>
+          <td>{{ row.item.description }}</td>
+          <td>{{ row.quantity }}</td>
+          <td>{% if row.item.expDate %}{{ row.item.expDate|format_datetime('short', 'none') }}{% endif %}</td>
+          <td><a href="{{ path('display_location', {location: row.location.id }) }}">{{ row.location.name }}</a></td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
   <form action="{{ path('list_product_orders') }}" class="db-wrapper db-column db-panel db-border" id="filter_form" method="get">
     <button type="submit" class="db-button db-border db-whole"><i class="fa-solid fa-filter"></i>Filter</button>
     <label for="item_name">Item</label>
@@ -16,24 +36,6 @@
       {% endfor %}
     </div>
   </form>
-  <table>
-    <tr>
-      <th>{{ knp_pagination_sortable(result, 'Item', 'item.name') }}</th>
-      <th>Description</th>
-      <th>{{ knp_pagination_sortable(result, 'Quantity', 'i.quantity') }}</th>
-      <th>{{ knp_pagination_sortable(result, 'Exp. Date', 'item.exp_date') }}</th>
-      <th>{{ knp_pagination_sortable(result, 'Location', 'location.name') }}</th>
-    </tr>
-    {% for row in result %} {# simple loop to output rows #}
-      <tr>
-        <td><a href="{{ path('display_item', {item_id: row.id }) }}">{{ row.item.name }}</a></td>
-        <td>{{ row.item.description }}</td>
-        <td>{{ row.quantity }}</td>
-        <td>{% if row.item.expDate %}{{ row.item.expDate|format_datetime('short', 'none') }}{% endif %}</td>
-        <td><a href="{{ path('display_location', {location: row.location.id }) }}">{{ row.location.name }}</a></td>
-      </tr>
-    {% endfor %}
-  </table>
 </div>
 {% endblock %}
 

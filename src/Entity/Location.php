@@ -12,30 +12,26 @@ use Doctrine\ORM\Mapping as ORM;
 class Location
 {
   #[ORM\Id]
-  #[ORM\GeneratedValue]
-  #[ORM\Column]
-  private ?int $id;
-
   #[ORM\Column(type:'string', length:255, nullable:false)]
   private ?string $name;
 
   #[ORM\OneToMany(targetEntity:ItemLocation::class, mappedBy:'location', orphanRemoval:true, cascade:['persist'])]
+  #[ORM\InverseJoinColumn(name:'item', referencedColumnName:'item')]
+  #[ORM\InverseJoinColumn(name:'location', referencedColumnName:'location')]
   private $itemlocation;
 
-  #[ORM\OneToMany(targetEntity:Transaction::class, mappedBy:"location", cascade:["persist", "remove"])]
+  #[ORM\OneToMany(targetEntity:Transaction::class, mappedBy:'location', cascade:['persist', 'remove'])]
+  #[ORM\InverseJoinColumn(name:'item', referencedColumnName:'item')]  
+  #[ORM\InverseJoinColumn(name:'location', referencedColumnName:'location')]
   private $transaction;
 
   private $item_quantity;
 
+
   public function __construct()
-  {
+  {      
       $this->itemlocation = new ArrayCollection();
       $this->transaction = new ArrayCollection();
-  }
-
-  public function getId(): ?int
-  {
-      return $this->id;
   }
 
   public function getName(): ?string

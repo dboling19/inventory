@@ -1,9 +1,6 @@
-{% extends 'base.html.twig' %}
-{% block title %}{{ params.item_name }}{% endblock %}
-{% block content %}
-<li class="db-title db-panel"><b>{{ params.item_name }}</b></li>
+{% block form %}
 <div class="db-panel db-wrapper db-third">
-  <form action="{{ path('display_item', { item_id: item_loc.id }) }}" class="db-wrapper db-fill db-column db-border" id="item_form" method="post">
+  <form class="db-wrapper db-fill db-column db-border" id="item_form" method="post">
     <div class="db-form-section">
       <label for="item_name">Name</label>
       <input type="text" class="db-input db-border" id="item_name" name="item_name" value="{{ params.item_name }}">
@@ -16,7 +13,7 @@
       <label for="date">Expiration date</label>
       <div class="db-wrapper">
         <input type="date" class="db-input db-border db-auto" id="item_exp_date" name="item_exp_date" value="{{ params.item_exp_date }}">
-        <button type="button" class="db-button db-border db-red db-auto" onclick="window.location.href='{{ path('clear_exp_date', {item_id: item_loc.id}) }}';">Clear Exp Date</button>
+        <button type="button" class="db-button db-border db-red db-auto" onclick="window.location.href='{{ path('clear_exp_date', {item_id: params.item_id}) }}';">Clear Exp Date</button>
       </div>
       <i style="font-size:12px">Use oldest item's expiration date</i>
     </div>
@@ -30,17 +27,25 @@
       </select>
     </div>
     <div class="db-form-section">
+      <label for="item_unit">Unit of Measure</label>
+      <select class="db-input db-select db-border" id="item_unit" name="item_unit" value="{{ params.item_unit }}">
+        {% for unit in units %}
+          <option value="{{ unit.id }}">{{ unit.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="db-form-section">
       <label for="item_quantity">Quantity</label>
       <input type="text" class="db-input db-border db-auto" id="item_quantity" value="{{ params.item_quantity }}" disabled>
     </div>
-    <div class="db-form-section">
-      <label for="quantity_change">Quantity Change</label>
-      <input type="text" class="db-input db-border" id="quantity_change" name="quantity_change" placeholder="+1">
-      <i style="font-size:12px">Prepend an '-' or '+' to number</i>
-    </div>
     <div class="db-wrapper db-form-section">
-      <button type="submit" class="db-button db-border db-auto">Modify Item</button>
-      <button type="button" class="db-button db-border db-auto db-red" onclick="window.location.href='{{ path('delete_item', { item_id: item_loc.id }) }}';">Delete Item</button>
+      {% if item_loc is defined %}
+        <button type="submit" class="db-button db-border db-auto" formaction="{{ path('modify_item', { item_id: item_loc.id }) }}">Modify Item</button>
+        <button type="button" class="db-button db-border db-auto db-red" onclick="window.location.href='{{ path('delete_item', { item_id: params.item_id }) }}';">Delete Item</button>
+      {% else %}
+        <button type="submit" class="db-button db-border db-auto" formaction="{{ path('new_item') }}">Create Item</button>
+        <button type="button" class="db-button db-border db-auto" disabled>Delete Item</button>
+      {% endif %}
     </div>
   </form>
 </div>

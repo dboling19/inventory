@@ -2,31 +2,30 @@
 
 namespace App\Entity;
 
-use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ItemRepository;
 
 
 #[ORM\Entity(repositoryClass:ItemRepository::class)]
 class Item
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id;
-
-    #[ORM\Column(type:'string', length:255, nullable:false)]
+    #[ORM\Column(type:'string', length:50, nullable:false)]
     private ?string $name;
 
     #[ORM\Column(type:'text', nullable:true)]
     private ?string $description;
 
     #[ORM\OneToMany(targetEntity:Transaction::class, mappedBy:"item", cascade:["persist", "remove"])]
+    #[ORM\InverseJoinColumn(nullable:false, name:'item', referencedColumnName:'item')]
+    #[ORM\InverseJoinColumn(nullable:false, name:'location', referencedColumnName:'location')]
     private $transaction;
 
     #[ORM\OneToMany(targetEntity:ItemLocation::class, mappedBy:"item", cascade:["persist", "remove"])]
+    #[ORM\JoinColumn(name:'item', referencedColumnName:'item')]
+    #[ORM\JoinColumn(name:'location', referencedColumnName:'location')]
     private $itemlocation;
 
     #[ORM\Column(type:'datetime', nullable:true)]
@@ -35,17 +34,16 @@ class Item
     #[ORM\OneToMany(mappedBy: 'item', targetEntity: PurchaseOrder::class)]
     private Collection $purchaseOrders;
 
+    #[ORM\ManyToOne(inversedBy: 'items')]
+    #[ORM\JoinColumn(name: 'unit', referencedColumnName: 'code', nullable: false)]
+    private ?Unit $unit;
+
 
     public function __construct()
     {
         $this->transaction = new ArrayCollection();
         $this->itemlocation = new ArrayCollection();
         $this->purchaseOrders = new ArrayCollection();
-    }
-
-    public function getId(): ?string
-    {
-        return $this->id;
     }
 
     public function getName(): ?string
@@ -65,7 +63,7 @@ class Item
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): static
     {
         $this->description = $description;
 
@@ -90,7 +88,7 @@ class Item
         return $this->transaction;
     }
 
-    public function addTransaction(Transaction $transaction): self
+    public function addTransaction(Transaction $transaction): static
     {
         if (!$this->transaction->contains($transaction)) {
             $this->transaction->add($transaction);
@@ -100,7 +98,7 @@ class Item
         return $this;
     }
 
-    public function removeTransaction(Transaction $transaction): self
+    public function removeTransaction(Transaction $transaction): static
     {
         if ($this->transaction->removeElement($transaction)) {
             // set the owning side to null (unless already changed)
@@ -120,7 +118,7 @@ class Item
         return $this->itemlocation;
     }
 
-    public function addItemlocation(ItemLocation $itemlocation): self
+    public function addItemlocation(ItemLocation $itemlocation): static
     {
         if (!$this->itemlocation->contains($itemlocation)) {
             $this->itemlocation->add($itemlocation);
@@ -130,7 +128,7 @@ class Item
         return $this;
     }
 
-    public function removeItemlocation(ItemLocation $itemlocation): self
+    public function removeItemlocation(ItemLocation $itemlocation): static
     {
         if ($this->itemlocation->removeElement($itemlocation)) {
             // set the owning side to null (unless already changed)
@@ -142,12 +140,12 @@ class Item
         return $this;
     }
 
-    public function getExpDate()
+    public function getExpDate(): ?\DateTimeInterface
     {
         return $this->exp_date;
     }
 
-    public function setExpDate( $exp_date): self
+    public function setExpDate(?\DateTimeInterface $exp_date): static
     {
         $this->exp_date = $exp_date;
 
@@ -180,6 +178,18 @@ class Item
                 $purchaseOrder->setItem(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUnit(): ?Unit
+    {
+        return $this->unit;
+    }
+
+    public function setUnit(?Unit $unit): static
+    {
+        $this->unit = $unit;
 
         return $this;
     }

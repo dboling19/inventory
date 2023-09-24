@@ -15,7 +15,15 @@ class Transaction
   #[ORM\Id]
   #[ORM\GeneratedValue]
   #[ORM\Column]
-  private ?int $id;
+  private ?int $transaction_num;
+
+  #[ORM\ManyToOne(targetEntity:Item::class, inversedBy:'transaction')]
+  #[ORM\JoinColumn(nullable:false, name:'name', referencedColumnName:'name')]
+  private ?Item $item;
+
+  #[ORM\ManyToOne(targetEntity:Location::class, inversedBy:'transaction')]
+  #[ORM\JoinColumn(nullable:false, name:'name', referencedColumnName:'name')]
+  private ?Location $location;
 
   #[ORM\Column(type:'string', nullable:false)]
   private ?string $quantity_change;
@@ -23,19 +31,7 @@ class Transaction
   #[ORM\Column(type:'datetime', nullable:false)]
   private ?DateTimeInterface $datetime;
 
-  #[ORM\ManyToOne(targetEntity:Item::class, inversedBy:'transaction')]
-  #[ORM\JoinColumn(nullable:false)]
-  private ?Item $item;
-
-  #[ORM\ManyToOne(targetEntity:Location::class, inversedBy:'transaction')]
-  #[ORM\JoinColumn(nullable:false)]
-  private ?Location $location;
-
-  public function getId(): ?int
-  {
-      return $this->id;
-  }
-
+  
   public function getQuantityChange(): ?string
   {
       return $this->quantity_change;

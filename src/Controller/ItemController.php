@@ -16,6 +16,7 @@ use App\Repository\ItemRepository;
 use App\Repository\LocationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ItemLocationRepository;
+use App\Repository\UnitRepository;
 use App\Service\TransactionService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Knp\Component\Pager\PaginatorInterface;
@@ -34,6 +35,7 @@ class ItemController extends AbstractController
     private LocationRepository $loc_repo,
     private TransactionRepository $trans_repo,
     private ItemLocationRepository $item_loc_repo,
+    private UnitRepository $unit_repo,
     private TransactionService $trans_service,
     private PaginatorInterface $paginator,
   ) { }
@@ -46,10 +48,17 @@ class ItemController extends AbstractController
   #[Route('/', name:'list_items')]
   public function list_items(Request $request): Response
   {
+    // setup page display
     $items_limit_cookie = $request->cookies->get('items_limit') ?? 25;
     $params = [
-      'item_name' => '',
       'limit' => $items_limit_cookie,
+      'item_id' => '',
+      'item_name' => '',
+      'item_desc' => '',
+      'item_exp_date' => null,
+      'item_unit' => '',
+      'item_quantity' => '',
+      'item_location' => '',
     ];
     $params = array_merge($params, $request->query->all());
     if ($items_limit_cookie !== $params['limit'])
@@ -64,13 +73,35 @@ class ItemController extends AbstractController
     // to autofill form fields, or leave them null.
     $params = array_merge($params, $request->query->all());
     $result = $this->item_loc_repo->filter($params);
-    $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
+    // $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
+
+    if (!$request->query->get('item_id')) {
+      return $this->render('item/list_items.html.twig', [
+        'locations' => $this->loc_repo->findAll(),
+        'units' => $this->unit_repo->findAll(),
+        'result' => $result,
+        'params' => $params,
+      ]);
+    }
+
+    $id = $request->query->get('item_id');
+    $item_loc = $this->item_loc_repo->find($id);
+    $item = $item_loc->getItem();
+    
+    $params = array_merge($params, [
+      'item_name' => $item->getName(),
+      'item_desc' => $item->getDescription(),
+      'item_exp_date' => null,
+      'item_quantity' => $item_loc->getQuantity(),
+      'item_unit' => $item->getUnit(),
+      'item_location' => $item_loc->getLocation()->getName(),
+    ]);
 
     return $this->render('item/list_items.html.twig', [
       'locations' => $this->loc_repo->findAll(),
       'result' => $result,
       'params' => $params,
-    ]);
+    ]); 
   }
 
 
@@ -117,13 +148,12 @@ class ItemController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/display_item/', name:'display_item')]
+  #[Route('/display_item/', name:'modify_item')]
   public function display_item(Request $request): Response
   {
     $id = $request->query->get('item_id');
     $item_loc = $this->item_loc_repo->find($id);
     $item = $item_loc->getItem();
-    $locations = $this->loc_repo->findAll();
 
     $params = [
       'item_id' => $item_loc->getId(),
@@ -136,15 +166,10 @@ class ItemController extends AbstractController
 
     if ($item->getExpDate()) { $params['item_exp_date'] = $item->getExpDate()->format('Y-m-d'); }
     
-    if(!$request->request->all())
-    {
-      return $this->render('item/display_item.html.twig', [
-        'locations' => $locations,
-        'params' => $params,
-        'item_loc' => $item,
-      ]);
-    }
+    if(!$request->request->all()) { return $this->redirectToRoute(('list_items')); }
+    // no form submission
 
+    // item modification stage
     $params = $request->request->all();
     $item->setName($params['item_name']);
     $item->setDescription($params['item_desc']);
@@ -158,7 +183,7 @@ class ItemController extends AbstractController
     $this->trans_service->create_transaction($item, $location, ((int)trim($params['quantity_change'], '+')));
     $this->em->flush();
     $this->addFlash('success', 'Item Updated');
-    return $this->redirectToRoute('display_item', ['item_id' => $item->getId()]);
+    return $this->redirectToRoute('list_items', ['item_id' => $item->getId()]);
   }
 
 

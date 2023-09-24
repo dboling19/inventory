@@ -23,7 +23,7 @@ class ProductOrderController extends AbstractController
   public function list_product_orders(Request $request): Response
   {
 
-    $product_orders_limit_cookie = $request->cookies->get('product_orders_limit') ?? 50;
+    $product_orders_limit_cookie = $request->cookies->get('product_orders_limit') ?? 100;
     $params = [
       'item_name' => '',
       'limit' => $product_orders_limit_cookie,

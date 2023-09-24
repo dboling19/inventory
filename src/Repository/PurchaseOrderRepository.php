@@ -29,7 +29,8 @@ class PurchaseOrderRepository extends ServiceEntityRepository
   {
     $qb = $this->createQueryBuilder('p')
       ->leftJoin('p.item', 'item')
-      ->leftJoin('item.location', 'location')
+      ->leftJoin('item.itemlocation', 'il')
+      ->leftJoin('il.location', 'location')
       ->addSelect('item', 'location')
     ;
     if (isset($params['item_name']))
