@@ -27,12 +27,7 @@ class PurchaseOrderRepository extends ServiceEntityRepository
    */
   public function filter(array $params)
   {
-    $qb = $this->createQueryBuilder('p')
-      ->leftJoin('p.item', 'item')
-      ->leftJoin('item.itemlocation', 'il')
-      ->leftJoin('il.location', 'location')
-      ->addSelect('item', 'location')
-    ;
+    $qb = $this->createQueryBuilder('p');
     if (isset($params['item_name']))
     {
       $qb

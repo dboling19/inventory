@@ -1,24 +1,31 @@
 {% extends 'base.html.twig' %}
 {% block title %}Locations{% endblock %}
 {% block content %}
-<div class="db-wrapper db-column db-half">
-  <form action="{{ path('new_location') }}" id="location_form" class="db-wrapper db-panel db-border" method="post">
-    <input type="text" class="db-input db-border db-auto" id="location_name" name="location_name" placeholder="Location Name" required>
-    <button type="submit" class="db-button db-border db-auto">Create Location</button>
-  </form>
-  <table>
-    <tr>
-      <th>{{ knp_pagination_sortable(result, 'Location', 'name') }}</th>
-      <th>Entries</th>
-      <th>Total Items</th>
-    </tr>
-    {% for row in result %}
+<div class="db-wrapper">
+  <div class="db-resize-horizontal">
+    <table>
       <tr>
-        <td><a href="{{ path('display_location', {location: row.id }) }}">{{ row.name }}</a></td>
-        <td>{{ row.Itemlocation|length }}</td>
-        <td>{{row.itemQuantity }}
+        <th>{{ knp_pagination_sortable(result, 'Location', 'loc_name') }}</th>
+        <th>Entries</th>
+        <th>Total Items</th>
       </tr>
-    {% endfor %}
-  </table>
+      {% for row in result %}
+        <tr>
+          <td><a href="{{ path('display_location', {location: row.locName }) }}">{{ row.locName }}</a></td>
+          <td>{{ row.Itemlocation|length }}</td>
+          <td>{{row.itemQuantity }}
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {{ include('location/loc_form.html.twig') }}
+</div>
+{% endblock %}
+{% block footer %}
+<div class="db-bar">
+  {{ include('widgets/limit_widget.html.twig') }}
+  <span class="db-right">
+    {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
+  </span>
 </div>
 {% endblock %}

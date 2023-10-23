@@ -34,70 +34,43 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
     $min = strtotime((new datetime('+1 week', new datetimezone('america/indiana/indianapolis')))->format('Y-m-d'));
     $max = strtotime((new datetime('+1 month', new datetimezone('america/indiana/indianapolis')))->format('Y-m-d'));
 
-    $loc = $this->loc_repo->findOneBy(['name' => 'Cupboard']);
-    $cupboard_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Chocolate', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime', 'Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Chocolate', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime', 'Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Chocolate', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime');
-    foreach ($cupboard_items as $i)
+    $loc_cupboard = $this->loc_repo->find('Cupboard');
+    $loc_shelf = $this->loc_repo->find('Shelf');
+    $warm_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime');
+    foreach ($warm_items as $i)
     {
       $item = new Item;
-      $item->setName($i);
-      $item->setDescription('cupboard test');
-      $item->setUnit($this->unit_repo->findOneBy(['code' => 'oz']));
-
-      $item_loc = new ItemLocation;
-      $item_loc->setItem($item);
-      $item_loc->setLocation($loc);
-
-      $this->em->persist($item_loc);
+      $item->setItemName($i);
+      $item->setItemDesc('cupboard test');
+      $item->setItemUnit($this->unit_repo->find('oz'));
+      $item->addLocation($loc_cupboard);
+      $item->addLocation($loc_shelf);
+      $this->em->persist($item);
     }
 
-    $loc = $this->loc_repo->findOneBy(['name' => 'Fridge']);
+    $loc = $this->loc_repo->find('Fridge');
     $fridge_items = array('Milk', 'Juice', 'Eggs', 'Cream');
     foreach ($fridge_items as $i)
     {
       $item = new Item;
-      $item->setName($i);
-      $item->setDescription('fridge test');
-      $item->setUnit($this->unit_repo->findOneBy(['code' => 'oz']));
-
-      $item_loc = new ItemLocation;
-      $item_loc->setItem($item);
-      $item_loc->setLocation($loc);
-
-      $this->em->persist($item_loc);
+      $item->setItemName($i);
+      $item->setItemDesc('fridge test');
+      $item->setItemUnit($this->unit_repo->find('oz'));
+      $item->addLocation($loc);
+      $this->em->persist($item);
     }
 
-    $loc = $this->loc_repo->findOneBy(['name' => 'Shelf']);
-    $shelf_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Chocolate', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime');
-    foreach ($shelf_items as $i)
-    {
-      $item = new Item;
-      $item->setName($i);
-      $item->setDescription('shelf test');
-      $item->setUnit($this->unit_repo->findOneBy(['code' => 'oz']));
-
-      $item_loc = new ItemLocation;
-      $item_loc->setItem($item);
-      $item_loc->setLocation($loc);
-
-      $this->em->persist($item_loc);
-    }
-
-    $loc = $this->loc_repo->findOneBy(['name' => 'Freezer']);
-    $freezer_items = array('Ice Cream', 'Ice', 'Chicken', 'Hamburger', 'Steak', 'Cake', 'Chocolate', 'Juice');
+    $loc = $this->loc_repo->find('Freezer');
+    $freezer_items = array('Ice Cream', 'Ice', 'Chicken', 'Hamburger', 'Steak', 'Cake');
     foreach ($freezer_items as $i)
     {
       $item = new Item;
-      $item->setName($i);
-      $item->setDescription('freezer test');
-      $item->setUnit($this->unit_repo->findOneBy(['code' => 'oz']));
-
-      $item_loc = new ItemLocation;
-      $item_loc->setItem($item);
-      $item_loc->setLocation($loc);
-
-      $this->em->persist($item_loc);
+      $item->setItemName($i);
+      $item->setItemDesc('freezer test');
+      $item->setItemUnit($this->unit_repo->find('oz'));
+      $item->addLocation($loc);
+      $this->em->persist($item);
     }
-
     $manager->flush();
   }
 

@@ -19,18 +19,18 @@ class UnitFixtures extends Fixture
       ['code' => 'ft', 'name' => 'Feet'],
       ['code' => 'in', 'name' => 'Inch'],
       ['code' => 'yd', 'name' => 'Yard'],
-      ['code' => 'mg', 'name' => 'Milligram'],
       ['code' => 'g', 'name' => 'Gram'],
-      ['code' => 'kg', 'name' => 'Kilogram'],
       ['code' => 'oz', 'name' => 'Ounce'],
       ['code' => 'lb', 'name' => 'Pound'],
+      ['code' => 'un', 'name' => 'Unit'],
+      ['code' => 'pkg', 'name' => 'Package'],
     ];
 
     foreach ($units_list as $list)
     {
       $unit = new Unit;
-      $unit->setCode($list['code']);
-      $unit->setName($list['name']);
+      $unit->setUnitCode($list['code']);
+      $unit->setUnitName($list['name']);
       $manager->persist($unit);
     }
 

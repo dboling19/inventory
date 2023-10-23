@@ -17,11 +17,11 @@ class PurchaseOrderLine
     private ?int $po_line;
 
     #[ORM\Column(type: 'string', length:1, nullable:false)]
-    private ?int $status;
+    private ?int $po_status;
 
-    #[ORM\ManyToOne(targetEntity:'item')]
-    #[ORM\JoinColumn(name:'item', referencedColumnName:'name')]
-    private ?string $item = null;
+    #[ORM\ManyToOne(targetEntity:Item::class)]
+    #[ORM\JoinColumn(name:'item', referencedColumnName:'item_name')]
+    private ?Item $item;
 
     #[ORM\Column(type: types::DECIMAL, precision:9, scale:2, nullable:true)]
     private ?string $qty_ordered = null;
@@ -36,25 +36,25 @@ class PurchaseOrderLine
     private ?string $qty_vouchered = null;
     
     #[ORM\Column(type: types::DECIMAL, precision:9, scale:2, nullable:true)]
-    private ?string $itemcost = null;
+    private ?string $item_cost = null;
     
     #[ORM\Column(type: 'datetime', nullable:false)]
-    private ?\datetime $due_date;
+    private ?\datetime $po_due_date;
 
     #[ORM\Column(type: 'datetime', nullable:true)]
-    private ?\datetime $received_date = null;
+    private ?\datetime $po_received_date = null;
 
     #[ORM\Column(type: 'string', length:3, nullable:true)]
-    private ?string $unit = null;
+    private ?string $item_unit = null;
 
     #[ORM\Column(type: types::SMALLINT, length:3, nullable:false)]
-    private ?int $received;
+    private ?int $po_received;
 
     #[ORM\Column(type: types::SMALLINT, length:3, nullable:false)]
-    private ?int $paid;
+    private ?int $po_paid;
 
     #[ORM\Column(type: 'integer', nullable:false)]
-    private ?int $quantity;
+    private ?int $item_quantity;
 
     public function getPoNum(): ?int
     {
@@ -66,14 +66,14 @@ class PurchaseOrderLine
         return $this->po_line;
     }
 
-    public function getStatus(): ?string
+    public function getPoStatus(): ?string
     {
-        return $this->status;
+        return $this->po_status;
     }
 
-    public function setStatus(string $status): static
+    public function setPoStatus(string $po_status): static
     {
-        $this->status = $status;
+        $this->po_status = $po_status;
 
         return $this;
     }
@@ -126,96 +126,96 @@ class PurchaseOrderLine
         return $this;
     }
 
-    public function getItemcost(): ?string
+    public function getItemCost(): ?string
     {
-        return $this->itemcost;
+        return $this->item_cost;
     }
 
-    public function setItemcost(?string $itemcost): static
+    public function setItemCost(?string $item_cost): static
     {
-        $this->itemcost = $itemcost;
+        $this->item_cost = $item_cost;
 
         return $this;
     }
 
-    public function getDueDate(): ?\DateTimeInterface
+    public function getPoDueDate(): ?\DateTimeInterface
     {
-        return $this->due_date;
+        return $this->po_due_date;
     }
 
-    public function setDueDate(\DateTimeInterface $due_date): static
+    public function setPoDueDate(\DateTimeInterface $po_due_date): static
     {
-        $this->due_date = $due_date;
+        $this->po_due_date = $po_due_date;
 
         return $this;
     }
 
-    public function getReceivedDate(): ?\DateTimeInterface
+    public function getPoReceivedDate(): ?\DateTimeInterface
     {
-        return $this->received_date;
+        return $this->po_received_date;
     }
 
-    public function setReceivedDate(?\DateTimeInterface $received_date): static
+    public function setPoReceivedDate(?\DateTimeInterface $po_received_date): static
     {
-        $this->received_date = $received_date;
+        $this->po_received_date = $po_received_date;
 
         return $this;
     }
 
-    public function getUnit(): ?string
+    public function getItemUnit(): ?string
     {
-        return $this->unit;
+        return $this->item_unit;
     }
 
-    public function setUnit(?string $unit): static
+    public function setItemUnit(?string $item_unit): static
     {
-        $this->unit = $unit;
+        $this->unit = $item_unit;
 
         return $this;
     }
 
-    public function getReceived(): ?int
+    public function getPoReceived(): ?int
     {
-        return $this->received;
+        return $this->po_received;
     }
 
-    public function setReceived(int $received): static
+    public function setPoReceived(int $po_received): static
     {
-        $this->received = $received;
+        $this->po_received = $po_received;
 
         return $this;
     }
 
-    public function getPaid(): ?int
+    public function getPoPaid(): ?int
     {
-        return $this->paid;
+        return $this->po_paid;
     }
 
-    public function setPaid(int $paid): static
+    public function setPoPaid(int $po_paid): static
     {
-        $this->paid = $paid;
+        $this->po_paid = $po_paid;
 
         return $this;
     }
 
-    public function getQuantity(): ?int
+    public function getItemQuantity(): ?int
     {
-        return $this->quantity;
+        return $this->item_quantity;
     }
 
-    public function setQuantity(int $quantity): static
+    public function setItemQuantity(int $item_quantity): static
     {
-        $this->quantity = $quantity;
+        $this->item_quantity = $item_quantity;
 
         return $this;
     }
 
-    public function getItem(): ?item
+    public function getItem(): ?Item
     {
         return $this->item;
     }
 
-    public function setItem(?item $item): static
+    public function setItem(?Item $item): static
     {
         $this->item = $item;
 

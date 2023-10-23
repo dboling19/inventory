@@ -6,14 +6,14 @@ use App\Repository\LocationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
+use JsonSerializable;
 
 #[ORM\Entity(repositoryClass:LocationRepository::class)]
-class Location
+class Location implements JsonSerializable
 {
   #[ORM\Id]
   #[ORM\Column(type:'string', length:255, nullable:false)]
-  private ?string $name;
+  private ?string $loc_name;
 
   #[ORM\OneToMany(targetEntity:ItemLocation::class, mappedBy:'location', orphanRemoval:true, cascade:['persist'])]
   #[ORM\InverseJoinColumn(name:'item', referencedColumnName:'item')]
@@ -30,20 +30,28 @@ class Location
 
   public function __construct()
   {      
-      $this->itemlocation = new ArrayCollection();
-      $this->transaction = new ArrayCollection();
+    $this->itemlocation = new ArrayCollection();
+    $this->transaction = new ArrayCollection();
   }
 
-  public function getName(): ?string
+  public function jsonSerialize()
   {
-      return $this->name;
+    return [
+      'loc_name' => $this->loc_name,
+      'item_quantity' => $this->item_quantity,
+    ];
   }
 
-  public function setName(string $name): static
+  public function getLocName(): ?string
   {
-      $this->name = $name;
+    return $this->loc_name;
+  }
 
-      return $this;
+  public function setLocName(string $loc_name): static
+  {
+    $this->loc_name = $loc_name;
+
+    return $this;
   }
 
   /**
@@ -51,29 +59,29 @@ class Location
    */
   public function getItemlocation(): Collection
   {
-      return $this->itemlocation;
+    return $this->itemlocation;
   }
 
   public function addItemlocation(ItemLocation $itemlocation): static
   {
-      if (!$this->itemlocation->contains($itemlocation)) {
-          $this->itemlocation->add($itemlocation);
-          $itemlocation->setLocation($this);
-      }
+    if (!$this->itemlocation->contains($itemlocation)) {
+      $this->itemlocation->add($itemlocation);
+      $itemlocation->setLocation($this);
+    }
 
-      return $this;
+    return $this;
   }
 
   public function removeItemlocation(ItemLocation $itemlocation): static
   {
-      if ($this->itemlocation->removeElement($itemlocation)) {
-          // set the owning side to null (unless already changed)
-          if ($itemlocation->getLocation() === $this) {
-              $itemlocation->setLocation(null);
-          }
+    if ($this->itemlocation->removeElement($itemlocation)) {
+      // set the owning side to null (unless already changed)
+      if ($itemlocation->getLocation() === $this) {
+        $itemlocation->setLocation(null);
       }
+    }
 
-      return $this;
+    return $this;
   }
 
   /**
@@ -81,29 +89,29 @@ class Location
    */
   public function getTransaction(): Collection
   {
-      return $this->transaction;
+    return $this->transaction;
   }
 
   public function addTransaction(Transaction $transaction): static
   {
-      if (!$this->transaction->contains($transaction)) {
-          $this->transaction->add($transaction);
-          $transaction->setLocation($this);
-      }
+    if (!$this->transaction->contains($transaction)) {
+      $this->transaction->add($transaction);
+      $transaction->setLocation($this);
+    }
 
-      return $this;
+    return $this;
   }
 
   public function removeTransaction(Transaction $transaction): static
   {
-      if ($this->transaction->removeElement($transaction)) {
-          // set the owning side to null (unless already changed)
-          if ($transaction->getLocation() === $this) {
-              $transaction->setLocation(null);
-          }
+    if ($this->transaction->removeElement($transaction)) {
+      // set the owning side to null (unless already changed)
+      if ($transaction->getLocation() === $this) {
+        $transaction->setLocation(null);
       }
+    }
 
-      return $this;
+    return $this;
   }
 
   public function getItemQuantity(): ?int
@@ -111,7 +119,7 @@ class Location
     $item_quantity = 0;
     foreach ($this->itemlocation as $itemlocation)
     {
-        $item_quantity += $itemlocation->getQuantity();
+      $item_quantity += $itemlocation->getQuantity();
     }
     return $item_quantity;
   }

@@ -15,43 +15,43 @@ class Transaction
   #[ORM\Id]
   #[ORM\GeneratedValue]
   #[ORM\Column]
-  private ?int $transaction_num;
+  private ?int $trans_num;
 
   #[ORM\ManyToOne(targetEntity:Item::class, inversedBy:'transaction')]
-  #[ORM\JoinColumn(nullable:false, name:'name', referencedColumnName:'name')]
+  #[ORM\JoinColumn(nullable:false, name:'name', referencedColumnName:'item_name')]
   private ?Item $item;
 
   #[ORM\ManyToOne(targetEntity:Location::class, inversedBy:'transaction')]
-  #[ORM\JoinColumn(nullable:false, name:'name', referencedColumnName:'name')]
+  #[ORM\JoinColumn(nullable:false, name:'name', referencedColumnName:'loc_name')]
   private ?Location $location;
 
   #[ORM\Column(type:'string', nullable:false)]
-  private ?string $quantity_change;
+  private ?string $trans_quantity_change;
 
   #[ORM\Column(type:'datetime', nullable:false)]
-  private ?DateTimeInterface $datetime;
+  private ?DateTimeInterface $trans_datetime;
 
   
-  public function getQuantityChange(): ?string
+  public function getTransQuantityChange(): ?string
   {
-      return $this->quantity_change;
+      return $this->trans_quantity_change;
   }
 
-  public function setQuantityChange(string $quantity_change): static
+  public function setTransQuantityChange(string $trans_quantity_change): static
   {
-      $this->quantity_change = $quantity_change;
+      $this->trans_quantity_change = $trans_quantity_change;
 
       return $this;
   }
 
-  public function getDatetime(): ?\DateTimeInterface
+  public function getTransDatetime(): ?\DateTimeInterface
   {
-      return $this->datetime;
+      return $this->trans_datetime;
   }
 
-  public function setDatetime(\DateTimeInterface $datetime): static
+  public function setTransDatetime(\DateTimeInterface $trans_datetime): static
   {
-      $this->datetime = $datetime;
+      $this->trans_datetime = $trans_datetime;
 
       return $this;
   }

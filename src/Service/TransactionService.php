@@ -17,12 +17,11 @@ class TransactionService
   ) { }
 
 
-  public function create_transaction(?Item $item, ?Location $location, ?int $quantity_change): void
+  public function create_transaction(?Item $item, ?Location $location): void
   {
     $transaction = new Transaction;
     $transaction->setItem($item);
     $transaction->setLocation($location);
-    $transaction->setQuantityChange($quantity_change);
     $transaction->setDatetime(new datetime('now', new datetimezone('America/Indiana/Indianapolis')));
     $this->em->persist($transaction);
   }

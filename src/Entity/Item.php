@@ -6,17 +6,17 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ItemRepository;
-
+use PhpParser\Node\Expr\Cast\Array_;
 
 #[ORM\Entity(repositoryClass:ItemRepository::class)]
 class Item
 {
     #[ORM\Id]
     #[ORM\Column(type:'string', length:50, nullable:false)]
-    private ?string $name;
+    private ?string $item_name;
 
     #[ORM\Column(type:'text', nullable:true)]
-    private ?string $description;
+    private ?string $item_desc = null;
 
     #[ORM\OneToMany(targetEntity:Transaction::class, mappedBy:"item", cascade:["persist", "remove"])]
     #[ORM\InverseJoinColumn(nullable:false, name:'item', referencedColumnName:'item')]
@@ -29,14 +29,16 @@ class Item
     private $itemlocation;
 
     #[ORM\Column(type:'datetime', nullable:true)]
-    private $exp_date;
+    private $item_exp_date = null;
 
     #[ORM\OneToMany(mappedBy: 'item', targetEntity: PurchaseOrder::class)]
     private Collection $purchaseOrders;
 
     #[ORM\ManyToOne(inversedBy: 'items')]
-    #[ORM\JoinColumn(name: 'unit', referencedColumnName: 'code', nullable: false)]
-    private ?Unit $unit;
+    #[ORM\JoinColumn(name: 'unit', referencedColumnName: 'unit_code', nullable: false)]
+    private ?Unit $item_unit;
+
+    private $locations;
 
 
     public function __construct()
@@ -46,38 +48,38 @@ class Item
         $this->purchaseOrders = new ArrayCollection();
     }
 
-    public function getName(): ?string
+    public function getItemName(): ?string
     {
-        return $this->name;
+        return $this->item_name;
     }
 
-    public function setName(string $name): self
+    public function setItemName(string $item_name): self
     {
-        $this->name = $name;
+        $this->item_name = $item_name;
 
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getItemDesc(): ?string
     {
-        return $this->description;
+        return $this->item_desc;
     }
 
-    public function setDescription(?string $description): static
+    public function setItemDesc(?string $item_desc): static
     {
-        $this->description = $description;
+        $this->item_desc = $item_desc;
 
         return $this;
     }
 
-    public function getQuantity(): ?int
+    public function getItemQuantity(): ?int
     {
-        $quantity = 0;
+        $item_quantity = 0;
         foreach ($this->itemlocation as $itemlocation)
         {
-            $quantity += $itemlocation->getQuantity();
+            $item_quantity += $itemlocation->getQuantity();
         }
-        return $quantity;
+        return $item_quantity;
     }
 
     /**
@@ -140,14 +142,14 @@ class Item
         return $this;
     }
 
-    public function getExpDate(): ?\DateTimeInterface
+    public function getItemExpDate(): ?\DateTimeInterface
     {
-        return $this->exp_date;
+        return $this->item_exp_date;
     }
 
-    public function setExpDate(?\DateTimeInterface $exp_date): static
+    public function setItemExpDate(?\DateTimeInterface $item_exp_date): static
     {
-        $this->exp_date = $exp_date;
+        $this->item_exp_date = $item_exp_date;
 
         return $this;
     }
@@ -182,14 +184,40 @@ class Item
         return $this;
     }
 
-    public function getUnit(): ?Unit
+    public function getItemUnit(): ?Unit
     {
-        return $this->unit;
+        return $this->item_unit;
     }
 
-    public function setUnit(?Unit $unit): static
+    public function setItemUnit(?Unit $item_unit): static
     {
-        $this->unit = $unit;
+        $this->item_unit = $item_unit;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Location>
+     */
+    public function getLocations(): Collection
+    {
+        $this->locations = new ArrayCollection();
+        foreach ($this->itemlocation as $itemlocation) 
+        {
+            $this->locations->add($itemlocation->getLocation());
+        }
+
+        return $this->locations;
+    }
+
+    public function addLocation(Location $location): static
+    {
+        if (!$this->getLocations()->contains($location)) {
+            $itemlocation = new ItemLocation;
+            $itemlocation->setLocation($location);
+            $itemlocation->setItem($this);
+            $this->itemlocation->add($itemlocation);
+        }
 
         return $this;
     }

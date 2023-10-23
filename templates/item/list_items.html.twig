@@ -5,60 +5,32 @@
   <div class="db-resize-horizontal">
     <table>
       <tr>
-        {# <th>{{ knp_pagination_sortable(result, 'Item', 'item.name') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Item', 'item.item_name') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Quantity', 'i.item_quantity') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Unit', 'item.item_unit') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Exp. Date', 'item.item_exp_date') }}</th>
         <th>Description</th>
-        <th>{{ knp_pagination_sortable(result, 'Quantity', 'i.quantity') }}</th>
-        <th>{{ knp_pagination_sortable(result, 'Exp. Date', 'item.exp_date') }}</th>
-        <th>{{ knp_pagination_sortable(result, 'Location', 'location.name') }}</th> #}
-        <th>Item</th>
-        <th>Description</th>
-        <th>Quantity</th>
-        <th>Exp Date</th>
-        <th>Location</th>
       </tr>
       {% for row in result %} {# simple loop to output rows #}
         <tr>
-          <td><a href="{{ path('list_items', {item_id: row.id }) }}">{{ row.item.name }}</a></td>
-          <td>{{ row.item.description }}</td>
-          <td>{{ row.quantity }}</td>
-          <td>{% if row.item.expDate %}{{ row.item.expDate|format_datetime('short', 'none') }}{% endif %}</td>
-          <td><a href="{{ path('display_location', {location: row.location.id }) }}">{{ row.location.name }}</a></td>
+          <td><a href="{{ path('list_items', {item_id: row.itemName }) }}">{{ row.itemName }}</a></td>
+          <td>{{ row.itemQuantity }}</td>
+          <td>{{ row.itemUnit.unitCode }}</td>
+          <td>{% if row.itemExpDate %}{{ row.itemExpDate|format_datetime('short', 'none') }}{% endif %}</td>
+          <td>{{ row.itemDesc }}</td>
         </tr>
       {% endfor %}
     </table>
   </div>
-  {{ include('item/item_form.twig') }}
+  {{ include('item/item_form.html.twig') }}
 </div>
-
-
-<script>
-  window.onload = (event) => {
-    params = {{ params|json_encode()|raw }};
-    for (var parent_key in params)
-    {
-      for (var child_key in params[parent_key])
-      {
-        if (['item_name', 'limit'].includes(parent_key))
-        {
-          filter_form.elements[parent_key].value = params[parent_key];
-        } else {
-          field_name = parent_key.concat('_', params[parent_key][child_key]);
-          filter_form.elements[field_name].checked = typeof params[parent_key][child_key];
-        }
-      }
-    }
-
-    location_selector = document.getElementById('item_location');
-    location_selector.value = params['item_location'];
-  };
-</script>
 {% endblock %}
 
-{# {% block footer %}
+{% block footer %}
 <div class="db-bar">
   {{ include('widgets/limit_widget.html.twig') }}
   <span class="db-right">
     {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
   </span>
 </div>
-{% endblock %} #}
+{% endblock %}

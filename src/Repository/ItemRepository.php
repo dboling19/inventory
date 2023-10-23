@@ -24,6 +24,33 @@ class ItemRepository extends ServiceEntityRepository
   }
 
   /**
+   * @author Daniel Boling
+   * @return Item[] Returns an array of Item objects
+   */
+  public function filter(array $params)
+  {
+    $qb = $this->createQueryBuilder('i')
+      ->leftJoin('i.location', 'location')
+      ->addSelect('location')
+    ;
+    if (isset($params['item_name']))
+    {
+      $qb
+        ->setParameter('item_name', '%'.$params['item_name'].'%')
+        ->andWhere('item.name like :item_name')
+      ;
+    }
+    if (isset($params['location']) && $params['location'] !== '')
+    {
+      $qb
+        ->setParameter('loc_id', $params['location'])
+        ->andWhere('location.id in (:loc_id)')
+      ;
+    }
+    return $qb->getQuery();
+  }
+
+  /**
    * @throws ORMException
    * @throws OptimisticLockException
    */

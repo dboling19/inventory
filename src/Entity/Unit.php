@@ -13,16 +13,16 @@ class Unit
 {
     #[ORM\Id]
     #[ORM\Column(length: 10)]
-    private ?string $code;
+    private ?string $unit_code;
 
     #[ORM\Column(length: 50)]
-    private ?string $name = null;
+    private ?string $unit_name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $description = null;
+    private ?string $unit_desc = null;
 
-    #[ORM\Column]
-    private ?int $precision = 4;
+    #[ORM\Column(name: 'unit_precision')]
+    private ?int $unit_precision = 4;
 
     #[ORM\OneToMany(mappedBy: 'unit', targetEntity: Item::class)]
     private Collection $items;
@@ -33,50 +33,50 @@ class Unit
         $this->items = new ArrayCollection();
     }
   
-    public function getName(): ?string
+    public function getUnitName(): ?string
     {
-        return $this->name;
+        return $this->unit_name;
     }
 
-    public function setName(string $name): static
+    public function setUnitName(string $unit_name): static
     {
-        $this->name = $name;
+        $this->unit_name = $unit_name;
 
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getUnitDesc(): ?string
     {
-        return $this->description;
+        return $this->unit_desc;
     }
 
-    public function setDescription(?string $description): static
+    public function setUnitDesc(?string $unit_desc): static
     {
-        $this->description = $description;
+        $this->unit_desc = $unit_desc;
 
         return $this;
     }
 
-    public function getCode(): ?string
+    public function getUnitCode(): ?string
     {
-        return $this->code;
+        return $this->unit_code;
     }
 
-    public function setCode(string $code): static
+    public function setUnitCode(string $unit_code): static
     {
-        $this->code = $code;
+        $this->unit_code = $unit_code;
 
         return $this;
     }
 
-    public function getPrecision(): ?int
+    public function getUnitPrecision(): ?int
     {
-        return $this->precision;
+        return $this->unit_precision;
     }
 
-    public function setPrecision(int $precision): static
+    public function setUnitPrecision(int $unit_precision): static
     {
-        $this->precision = $precision;
+        $this->unit_precision = $unit_precision;
 
         return $this;
     }

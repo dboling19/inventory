@@ -14,37 +14,34 @@ class PurchaseOrder
     #[ORM\Column]
     private ?int $po_num;
 
-    #[ORM\ManyToOne(targetEntity:'vendor')]
-    #[ORM\JoinColumn(name:'vendor_num', referencedColumnName:'num')]
-    private ?string $vendor;
+    #[ORM\ManyToOne(targetEntity:Vendor::class)]
+    #[ORM\JoinColumn(name:'vendor_num', referencedColumnName:'vendor_num')]
+    private $vendor;
 
-    #[ORM\Column(type:'string', length:3, nullable:false)]
-    private ?string $terms;
+    #[ORM\ManyToOne(targetEntity:Terms::class)]
+    #[ORM\JoinColumn(nullable:false, name:'terms', referencedColumnName:'terms_code')]
+    private ?Terms $terms;
 
     #[ORM\Column(type:'string', length:6, nullable:false)]
-    private ?string $ship_code;
+    private ?string $po_ship_code;
 
     #[ORM\Column(type: 'string', length:1, nullable:false)]
-    private ?string $status;
+    private ?string $po_status;
 
     #[ORM\Column(type: types::DECIMAL, precision:9, scale:2, nullable:false)]
-    private ?string $freight;
+    private ?string $po_freight = '0';
 
     #[ORM\Column(type: types::SMALLINT, length:1, nullable:false)]
-    private ?int $received;
+    private ?int $po_received = 0;
 
     #[ORM\Column(type: types::SMALLINT, length:1, nullable:false)]
-    private ?int $paid;
+    private ?int $po_paid = 0;
 
     #[ORM\Column(type: 'datetime')]
-    private ?\Datetime $order_date;
+    private ?\Datetime $po_order_date;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $price;
-
-    #[ORM\ManyToOne(targetEntity: 'item')]
-    #[ORM\JoinColumn(nullable: false, name:'item', referencedColumnName:'name')]
-    private ?Item $item;
+    private ?string $po_price = '0';
 
 
     public function getPoNum(): ?string
@@ -52,122 +49,110 @@ class PurchaseOrder
         return $this->po_num;
     }
 
-    public function getPrice(): ?string
+    public function getPoPrice(): ?string
     {
-        return $this->price;
+        return $this->po_price;
     }
 
-    public function setPrice(string $price): static
+    public function setPoPrice(string $po_price): static
     {
-        $this->price = $price;
+        $this->po_price = $po_price;
 
         return $this;
     }
 
-    public function getTerms(): ?string
+    public function getTerms(): ?Terms
     {
         return $this->terms;
     }
 
-    public function setTerms(string $terms): static
+    public function setTerms(?Terms $terms): static
     {
         $this->terms = $terms;
 
         return $this;
     }
 
-    public function getShipCode(): ?string
+    public function getPoShipCode(): ?string
     {
-        return $this->ship_code;
+        return $this->po_ship_code;
     }
 
-    public function setShipCode(string $ship_code): static
+    public function setPoShipCode(string $po_ship_code): static
     {
-        $this->ship_code = $ship_code;
+        $this->po_ship_code = $po_ship_code;
 
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getPoStatus(): ?string
     {
-        return $this->status;
+        return $this->po_status;
     }
 
-    public function setStatus(string $status): static
+    public function setPoStatus(string $po_status): static
     {
-        $this->status = $status;
+        $this->po_status = $po_status;
 
         return $this;
     }
 
-    public function getFreight(): ?string
+    public function getPoFreight(): ?string
     {
-        return $this->freight;
+        return $this->po_freight;
     }
 
-    public function setFreight(string $freight): static
+    public function setPoFreight(string $po_freight): static
     {
-        $this->freight = $freight;
+        $this->po_freight = $po_freight;
 
         return $this;
     }
 
-    public function getReceived(): ?int
+    public function getPoReceived(): ?int
     {
-        return $this->received;
+        return $this->po_received;
     }
 
-    public function setReceived(int $received): static
+    public function setPoReceived(int $po_received): static
     {
-        $this->received = $received;
+        $this->po_received = $po_received;
 
         return $this;
     }
 
-    public function getPaid(): ?int
+    public function getPoPaid(): ?int
     {
-        return $this->paid;
+        return $this->po_paid;
     }
 
-    public function setPaid(int $paid): static
+    public function setPoPaid(int $po_paid): static
     {
-        $this->paid = $paid;
+        $this->po_paid = $po_paid;
 
         return $this;
     }
 
-    public function getOrderDate(): ?\DateTimeInterface
+    public function getPoOrderDate(): ?\DateTimeInterface
     {
-        return $this->order_date;
+        return $this->po_order_date;
     }
 
-    public function setOrderDate(\DateTimeInterface $order_date): static
+    public function setPoOrderDate(\DateTimeInterface $po_order_date): static
     {
-        $this->order_date = $order_date;
+        $this->po_order_date = $po_order_date;
 
         return $this;
     }
 
-    public function getVendor(): ?vendor
+    public function getVendor(): ?Vendor
     {
         return $this->vendor;
     }
 
-    public function setVendor(?vendor $vendor): static
+    public function setVendor(?Vendor $vendor): static
     {
         $this->vendor = $vendor;
-
-        return $this;
-    }
-
-    public function getItem(): ?purchaseOrder
-    {
-        return $this->item;
-    }
-
-    public function setItem(?purchaseOrder $item): static
-    {
-        $this->item = $item;
 
         return $this;
     }

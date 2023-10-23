@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+{% block title %}Vendors{% endblock %}
+{% block content %}
+<div class="db-wrapper">
+  <div class="db-resize-horizontal">
+    <table>
+      <tr>
+        <th>{{ knp_pagination_sortable(result, 'Vendor Num', 'num') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Vendor', 'vendor.name') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Terms', 'terms.code') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Received', 'received') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Paid', 'paid') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Order Date', 'order_date') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Price', 'price') }}</th>
+        <th>Description</th>
+      </tr>
+      {% for row in result %} {# simple loop to output rows #}
+        <tr>
+          <td><a href="{{ path('display_purchase_order', {po_num: row.poNum }) }}">{{ row.poNum }}</a></td>
+          <td><a href="{{ path('display_vendor', {vendor_num: row.vendor.num}) }}">{{row.vendor.num }}</td>
+          <td>{{ row.terms.code }}</td>
+          <td>{{ row.received }}</td>
+          <td>{{ row.paid }}</td>
+          <td>{{ row.order_date }}</td>
+          <td>{{ row.price }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {# <form action="{{ path('list_purchase_orders') }}" class="db-wrapper db-column db-panel db-border" id="filter_form" method="get">
+    <button type="submit" class="db-button db-border db-whole"><i class="fa-solid fa-filter"></i>Filter</button>
+    <label for="item_name">Item</label>
+    <input type="text" class="db-input db-border" id="item_name" name="item_name">
+    <div class="db-form-section">
+      <b>Locations</b>
+      {% for location in locations %}
+        <div class="db-wrapper">
+          <input type="checkbox" name="location[]" id="location_{{ location.name }}" value="{{ location.name }}">
+          <label for="location_{{ location.name }}">{{ location.name }}</label>
+        </div>
+      {% endfor %}
+    </div>
+  </form> #}
+</div>
+{% endblock %}
+
+{% block footer %}
+<div class="db-bar">
+  {{ include('widgets/limit_widget.html.twig') }}
+  <span class="db-right">
+    {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
+  </span>
+</div>
+{% endblock %}

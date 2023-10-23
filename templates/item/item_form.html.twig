@@ -1,0 +1,97 @@
+{% block form %}
+<div class="db-panel db-wrapper db-third">
+  <form class="db-wrapper db-fill db-column db-border" id="item_form" method="post">
+    <div class="db-form-section">
+      <label for="item_name">
+        Name
+        <input type="text" class="db-input db-border" id="item_name" name="item_name" value="{{ params.item_name }}">
+      </label>
+    </div>
+    <div class="db-form-section">
+      <label for="item_desc">Description (Optional)</label>
+      <textarea class="db-input db-border" id="item_desc" name="item_desc">{{ params.item_desc }}</textarea>
+    </div>
+    <div class="db-form-section">
+      <label for="date">Expiration date</label>
+      <div class="db-wrapper">
+        <input type="date" class="db-input db-border" id="item_exp_date" name="item_exp_date" value="{{ params.item_exp_date }}">
+        <button type="button" class="db-button db-border db-red" onclick="window.location.href='{{ path('clear_exp_date', {item_id: params.item_id}) }}';">Clear Exp Date</button>
+      </div>
+      <i style="font-size:12px">Use oldest item's expiration date</i>
+    </div>
+    <div class="db-form-section">
+      <label for="item_location">Location</label>
+      <div id="location_widget"></div>
+      <input id="item_locations_value" name="item_locations" hidden></input>
+    </div>
+    <div class="db-form-section">
+      <label for="item_unit">Unit of Measure</label>
+      <select class="db-input db-select db-border" id="item_unit" name="item_unit" value="{{ params.item_unit }}">
+        <option disabled selected value></option>
+        {% for unit in units %}
+          <option value="{{ unit.unitCode }}">{{ unit.unitName }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="db-form-section">
+      <label for="item_quantity">Quantity</label>
+      <input type="text" class="db-input db-border" id="item_quantity" value="{{ params.item_quantity }}" disabled>
+    </div>
+    <div class="db-wrapper db-form-section">
+      {% if item is defined %}
+        <button type="submit" class="db-button db-border" formaction="{{ path('modify_item', { item_name: item.name }) }}">Modify Item</button>
+        <button type="submit" class="db-button db-border" formaction="{{ path('list_items') }}">Search</button>
+        <button type="submit" class="db-button db-border db-red" formaction="{{ path('delete_item', { item_name: item.name }) }}">Delete Item</button>
+      {% else %}
+        <button type="submit" class="db-button db-border" formaction="{{ path('new_item') }}">Create Item</button>
+        <button type="submit" class="db-button db-border" formaction="{{ path('list_items') }}">Search</button>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<template id="location_template">
+  <select class="db-input db-select db-border">
+    <option selected value></option>
+    {% for key,location in locations %}
+      <option value="{{ location.locName }}">{{ location.locName }}</option>
+    {% endfor %}
+  </select>
+</template>
+
+<script>
+const object_params = {{ params|json_encode()|raw }};
+const location_widget = document.getElementById('location_widget');
+const location_template = document.getElementById('location_template');
+var locations_input = [];
+for (let i = 0; i < 5; i++)
+{
+  const clone = location_template.content.cloneNode(true);
+  location_widget.appendChild(clone);
+  location_widget.children[i].id = 'location_section_0' + (i + 1);
+  location_widget.children[i].addEventListener('change', update_values);
+}
+
+// filling values and input list from loaded entity, if exists
+if (object_params.item_location) {
+  object_params.item_location.forEach((value,index) => {
+    location_section = location_widget.children[index];
+    location_section.value = value;
+    locations_input[index] = value;
+  });
+}
+
+function update_values()
+{
+  var locations_input = [];
+  [].forEach.call(location_widget.children, (child, index) => {
+    if (![null, ''].includes(child.value))
+    {
+      locations_input.push(child.value);
+    }
+  });
+  document.getElementById('item_locations_value').value = locations_input;
+}
+
+</script>
+{% endblock %}

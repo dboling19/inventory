@@ -28,19 +28,19 @@ class LocationFixtures extends Fixture
   public function load(ObjectManager $manager): void
   {
     $loc = new Location();
-    $loc->setName('Freezer');
+    $loc->setLocName('Freezer');
     $this->em->persist($loc);
 
     $loc = new Location();
-    $loc->setName('Cupboard');
+    $loc->setLocName('Cupboard');
     $this->em->persist($loc);
 
     $loc = new Location();
-    $loc->setName('Fridge');
+    $loc->setLocName('Fridge');
     $this->em->persist($loc);
 
     $loc = new Location();
-    $loc->setName('Shelf');
+    $loc->setLocName('Shelf');
     $this->em->persist($loc);
 
     $this->em->flush();

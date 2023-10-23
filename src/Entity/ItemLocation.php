@@ -11,11 +11,12 @@ class ItemLocation
 {
   #[ORM\Id]
   #[ORM\ManyToOne(targetEntity:Item::class, inversedBy:"itemlocation", cascade:['persist'])]
-  #[ORM\JoinColumn(nullable:false, name:'item', referencedColumnName:'name')]
+  #[ORM\JoinColumn(nullable:false, name:'item', referencedColumnName:'item_name')]
   private ?Item $item;
 
+  #[ORM\Id]
   #[ORM\ManyToOne(targetEntity:Location::class, inversedBy:'itemlocation', cascade:['persist'])]
-  #[ORM\JoinColumn(nullable:false, name:'location', referencedColumnName:'name')]
+  #[ORM\JoinColumn(nullable:false, name:'location', referencedColumnName:'loc_name')]
   private ?Location $location;
 
   #[ORM\Column(type:'integer', nullable:false)]

@@ -13,25 +13,24 @@ class Vendor
 {
     #[ORM\Id]
     #[ORM\Column(type: 'string', length:10, nullable:false)]
-    private ?int $num;
+    private ?string $vendor_num;
 
-    #[ORM\Id]
     #[ORM\Column(type: 'string', length:50, nullable:false)]
-    private ?int $name;
+    private ?string $vendor_name;
 
     #[ORM\Column(type: types::TEXT, nullable:true)]
-    private ?string $desc;
+    private ?string $vendor_desc;
 
     #[ORM\Column(type: 'string', length:50, nullable:true)]
-    private ?string $address = null;
+    private ?string $vendor_addr = null;
 
     #[ORM\Column(type: 'string', length:20, nullable:true)]
-    private ?string $email = null;
+    private ?string $vendor_email = null;
 
     #[ORM\Column(type: 'string', length:20, nullable:true)]
-    private ?string $phone = null;
+    private ?string $vendor_phone = null;
 
-    #[ORM\OneToMany(targetEntity:'purchaseOrder', mappedBy:'vendor')]
+    #[ORM\OneToMany(targetEntity:PurchaseOrder::class, mappedBy:'vendor')]
     #[ORM\JoinColumn(name:'purchaseOrder', referencedColumnName:'po_num', nullable:true)]
     private Collection $purchaseOrders;
 
@@ -40,60 +39,74 @@ class Vendor
         $this->purchaseOrders = new ArrayCollection();
     }
 
-    public function getNum(): ?string
+    public function getVendorNum(): ?string
     {
-        return $this->num;
+        return $this->vendor_num;
     }
 
-    public function getName(): ?string
+    public function setVendorNum(?string $vendor_num): static
     {
-        return $this->name;
-    }
-
-    public function getDesc(): ?string
-    {
-        return $this->desc;
-    }
-
-    public function setDesc(?string $desc): static
-    {
-        $this->desc = $desc;
+        $this->vendor_num = $vendor_num;
 
         return $this;
     }
 
-    public function getAddress(): ?string
+    public function setVendorName(?string $vendor_name): static
     {
-        return $this->address;
-    }
-
-    public function setAddress(?string $address): static
-    {
-        $this->address = $address;
+        $this->vendor_name = $vendor_name;
 
         return $this;
     }
 
-    public function getEmail(): ?string
+    public function getVendorName(): ?string
     {
-        return $this->email;
+        return $this->vendor_name;
     }
 
-    public function setEmail(?string $email): static
+    public function getVendorDesc(): ?string
     {
-        $this->email = $email;
+        return $this->vendor_desc;
+    }
+
+    public function setVendorDesc(?string $vendor_desc): static
+    {
+        $this->vendor_desc = $vendor_desc;
 
         return $this;
     }
 
-    public function getPhone(): ?string
+    public function getVendorAddress(): ?string
     {
-        return $this->phone;
+        return $this->vendor_addr;
     }
 
-    public function setPhone(?string $phone): static
+    public function setVendorAddress(?string $vendor_addr): static
     {
-        $this->phone = $phone;
+        $this->vendor_addr = $vendor_addr;
+
+        return $this;
+    }
+
+    public function getVendorEmail(): ?string
+    {
+        return $this->vendor_email;
+    }
+
+    public function setVendorEmail(?string $vendor_email): static
+    {
+        $this->vendor_email = $vendor_email;
+
+        return $this;
+    }
+
+    public function getVendorPhone(): ?string
+    {
+        return $this->vendor_phone;
+    }
+
+    public function setVendorPhone(?string $vendor_phone): static
+    {
+        $this->vendor_phone = $vendor_phone;
 
         return $this;
     }

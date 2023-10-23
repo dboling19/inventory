@@ -14,40 +14,31 @@ class Terms
     private ?string $terms_code;
 
     #[ORM\Column(length: 40, nullable:true)]
-    private ?string $description = null;
+    private ?string $terms_desc = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $due_days = null;
+    private ?int $terms_due_days = null;
 
-    #[ORM\Column]
-    private ?int $disc_days = null;
+    #[ORM\Column(nullable:true)]
+    private ?int $terms_disc_days = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 6, scale: 3)]
-    private ?string $disc_pct = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 6, scale: 3, nullable:true)]
+    private ?string $terms_disc_pct = null;
 
-    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
-    private ?int $prox_day = null;
+    #[ORM\Column(type: Types::SMALLINT, nullable:true)]
+    private ?int $terms_prox_day = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 6, scale: 3, nullable: true)]
-    private ?string $tax_disc = null;
+    #[ORM\Column(type: Types::SMALLINT, length:2, nullable:true)]
+    private ?int $terms_prox_code = null;
 
-    #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $cash_only = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 6, scale: 3, nullable:true)]
+    private ?string $terms_tax_disc = null;
 
-    #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $note_exists_flag = null;
+    #[ORM\Column(type: Types::SMALLINT, length:1, nullable:false)]
+    private ?int $terms_cash_only = 0;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $record_date = null;
-
-    #[ORM\Column(length: 30)]
-    private ?string $created_by = null;
-
-    #[ORM\Column(length: 30)]
-    private ?string $updated_by = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $create_date = null;
+    #[ORM\Column(type: Types::SMALLINT, length:1, nullable:false)]
+    private ?int $terms_note_exists_flag = 0;
 
     public function getTermsCode(): ?string
     {
@@ -61,146 +52,110 @@ class Terms
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getTermsDesc(): ?string
     {
-        return $this->description;
+        return $this->terms_desc;
     }
 
-    public function setDescription(?string $description): static
+    public function setTermsDesc(?string $terms_desc): static
     {
-        $this->description = $description;
+        $this->terms_desc = $terms_desc;
 
         return $this;
     }
 
-    public function getDueDays(): ?int
+    public function getTermsDueDays(): ?int
     {
-        return $this->due_days;
+        return $this->terms_due_days;
     }
 
-    public function setDueDays(?int $due_days): static
+    public function setTermsDueDays(?int $terms_due_days): static
     {
-        $this->due_days = $due_days;
+        $this->terms_due_days = $terms_due_days;
 
         return $this;
     }
 
-    public function getDiscDays(): ?int
+    public function getTermsDiscDays(): ?int
     {
-        return $this->disc_days;
+        return $this->terms_disc_days;
     }
 
-    public function setDiscDays(int $disc_days): static
+    public function setTermsDiscDays(?int $terms_disc_days): static
     {
-        $this->disc_days = $disc_days;
+        $this->terms_disc_days = $terms_disc_days;
 
         return $this;
     }
 
-    public function getDiscPct(): ?string
+    public function getTermsDiscPct(): ?string
     {
-        return $this->disc_pct;
+        return $this->terms_disc_pct;
     }
 
-    public function setDiscPct(string $disc_pct): static
+    public function setTermsDiscPct(?string $terms_disc_pct): static
     {
-        $this->disc_pct = $disc_pct;
+        $this->terms_disc_pct = $terms_disc_pct;
 
         return $this;
     }
 
-    public function getProxDay(): ?int
+    public function getTermsProxDay(): ?int
     {
-        return $this->prox_day;
+        return $this->terms_prox_day;
     }
 
-    public function setProxDay(?int $prox_day): static
+    public function setTermsProxDay(?int $terms_prox_day): static
     {
-        $this->prox_day = $prox_day;
+        $this->terms_prox_day = $terms_prox_day;
 
         return $this;
     }
 
-    public function getTaxDisc(): ?string
+    public function getTermsTaxDisc(): ?string
     {
-        return $this->tax_disc;
+        return $this->terms_tax_disc;
     }
 
-    public function setTaxDisc(?string $tax_disc): static
+    public function setTermsTaxDisc(?string $terms_tax_disc): static
     {
-        $this->tax_disc = $tax_disc;
+        $this->terms_tax_disc = $terms_tax_disc;
 
         return $this;
     }
 
-    public function getCashOnly(): ?int
+    public function getTermsCashOnly(): ?int
     {
-        return $this->cash_only;
+        return $this->terms_cash_only;
     }
 
-    public function setCashOnly(int $cash_only): static
+    public function setTermsCashOnly(int $terms_cash_only): static
     {
-        $this->cash_only = $cash_only;
+        $this->terms_cash_only = $terms_cash_only;
 
         return $this;
     }
 
-    public function getNoteExistsFlag(): ?int
+    public function getTermsNoteExistsFlag(): ?int
     {
-        return $this->note_exists_flag;
+        return $this->terms_note_exists_flag;
     }
 
-    public function setNoteExistsFlag(int $note_exists_flag): static
+    public function setTermsNoteExistsFlag(int $terms_note_exists_flag): static
     {
-        $this->note_exists_flag = $note_exists_flag;
+        $this->terms_note_exists_flag = $terms_note_exists_flag;
 
         return $this;
     }
 
-    public function getRecordDate(): ?\DateTimeInterface
+    public function getTermsProxCode(): ?int
     {
-        return $this->record_date;
+        return $this->terms_prox_code;
     }
 
-    public function setRecordDate(\DateTimeInterface $record_date): static
+    public function setTermsProxCode(?int $terms_prox_code): static
     {
-        $this->record_date = $record_date;
-
-        return $this;
-    }
-
-    public function getCreatedBy(): ?string
-    {
-        return $this->created_by;
-    }
-
-    public function setCreatedBy(string $created_by): static
-    {
-        $this->created_by = $created_by;
-
-        return $this;
-    }
-
-    public function getUpdatedBy(): ?string
-    {
-        return $this->updated_by;
-    }
-
-    public function setUpdatedBy(string $updated_by): static
-    {
-        $this->updated_by = $updated_by;
-
-        return $this;
-    }
-
-    public function getCreateDate(): ?\DateTimeInterface
-    {
-        return $this->create_date;
-    }
-
-    public function setCreateDate(\DateTimeInterface $create_date): static
-    {
-        $this->create_date = $create_date;
+        $this->terms_prox_code = $terms_prox_code;
 
         return $this;
     }
