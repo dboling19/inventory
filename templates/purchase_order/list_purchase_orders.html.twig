@@ -15,9 +15,9 @@
       </tr>
       {% for row in result %} {# simple loop to output rows #}
         <tr>
-          <td><a href="{{ path('display_purchase_order', {po_num: row.poNum }) }}">{{ row.poNum }}</a></td>
-          <td><a href="{{ path('display_vendor', {vendor_num: row.vendor.vendorNum}) }}">{{row.vendor.vendorNum }}</td>
-          <td>{{ row.terms.termsCode }}</td>
+          <td><a href="{{ path('display_purchase_order', { po_num: row.poNum }) }}">{{ row.poNum }}</a></td>
+          <td><a href="{{ path('display_vendor', { vendor_num: row.poVendor.vendorCode }) }}">{{row.poVendor.vendorCode }}</td>
+          <td>{{ row.poTerms.termsCode }}</td>
           <td>{{ row.poReceived }}</td>
           <td>{{ row.poPaid }}</td>
           <td>{{ row.poOrderDate|format_datetime('short', 'none') }}</td>
@@ -26,20 +26,7 @@
       {% endfor %}
     </table>
   </div>
-  {# <form action="{{ path('list_purchase_orders') }}" class="db-wrapper db-column db-panel db-border" id="filter_form" method="get">
-    <button type="submit" class="db-button db-border db-whole"><i class="fa-solid fa-filter"></i>Filter</button>
-    <label for="item_name">Item</label>
-    <input type="text" class="db-input db-border" id="item_name" name="item_name">
-    <div class="db-form-section">
-      <b>Locations</b>
-      {% for location in locations %}
-        <div class="db-wrapper">
-          <input type="checkbox" name="location[]" id="location_{{ location.name }}" value="{{ location.name }}">
-          <label for="location_{{ location.name }}">{{ location.name }}</label>
-        </div>
-      {% endfor %}
-    </div>
-  </form> #}
+  {{ include('purchase_order/po_form.html.twig') }}
 </div>
 {% endblock %}
 

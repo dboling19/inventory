@@ -45,7 +45,7 @@ class PurchaseOrderFixtures extends Fixture implements DependentFixtureInterface
     {
       $po = new PurchaseOrder;
       $po->setPoOrderDate($this->random_date($min,$max));
-      $po->setVendor($this->vendor_repo->find('AMZ1'));
+      $po->setVendor($this->vendor_repo->find('AMA123'));
       $po_cost = 0;
 
       // get location_name for finding item_loc later
@@ -53,21 +53,26 @@ class PurchaseOrderFixtures extends Fixture implements DependentFixtureInterface
       switch ($key)
       {
         case 0:
-          $location_name = 'Cupboard';
+          $loc_code = 'CUP123';
+          $whs_code = 'WHSIN';
           break;
         case 1:
-          $location_name = 'Shelf';
+          $loc_code = 'SHE123';
+          $whs_code = 'WHSIL';
           break;
         case 2:
-          $location_name = 'Fridge';
+          $loc_code = 'FRI123';
+          $whs_code = 'WHSS';
           break;
         case 3:
-          $location_name = 'Freezer';
+          $loc_code = 'FRE123';
+          $whs_code = 'WHSOH';
           break;
       }
       foreach ($item_category as $item_name)
       {
-        $item = $this->item_repo->find($item_name);
+        
+        $item = $this->item_repo->find(substr($item_name, 0,4) . '123');
         $po_line = new PurchaseOrderLine;
         $po_line->setItem($item);
         $po_line->setPoStatus(1);
@@ -84,8 +89,8 @@ class PurchaseOrderFixtures extends Fixture implements DependentFixtureInterface
         $po_cost += $item_cost;
 
         // Handle receiving items for item quantities
-        $item_location = $this->item_loc_repo->findOneBy(['item' => $item->getItemName(), 'location' => $location_name]);
-        $item_location->setQuantity($po_line->getQtyReceived());
+        $item_loc = $this->item_loc_repo->findOneBy(['item' => $item->getItemCode(), 'location' => $loc_code, 'warehouse' => $whs_code]);
+        $item_loc->setQuantity($po_line->getQtyReceived());
 
       }
       $po->setPoPrice($po_cost);
@@ -115,6 +120,7 @@ class PurchaseOrderFixtures extends Fixture implements DependentFixtureInterface
       UnitFixtures::class,
       LocationFixtures::class,
       VendorFixtures::class,
+      WarehouseFixtures::class,
     ];
   }
 }

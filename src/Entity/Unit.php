@@ -32,7 +32,7 @@ class Unit
     {
         $this->items = new ArrayCollection();
     }
-  
+
     public function getUnitName(): ?string
     {
         return $this->unit_name;
@@ -93,7 +93,7 @@ class Unit
     {
         if (!$this->items->contains($item)) {
             $this->items->add($item);
-            $item->setUnit($this);
+            $item->setItemUnit($this);
         }
 
         return $this;
@@ -103,8 +103,8 @@ class Unit
     {
         if ($this->items->removeElement($item)) {
             // set the owning side to null (unless already changed)
-            if ($item->getUnit() === $this) {
-                $item->setUnit(null);
+            if ($item->getItemUnit() === $this) {
+                $item->setItemUnit(null);
             }
         }
 

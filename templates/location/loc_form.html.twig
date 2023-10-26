@@ -2,10 +2,51 @@
 <div class="db-panel db-wrapper db-third">
   <form id="location_form" class="db-wrapper db-fill db-column db-border" method="post">
     <div class="db-form-section">
+      <label for="loc_code">
+        Code
+        <input type="text" class="db-input db-border" id="loc_code" name="loc_code" list="loc_code_datalist" required>{{ params.loc_code }}</input>
+        <datalist id="loc_code_datalist">
+          {% for loc in result %}
+            <option value="{{ loc.locCode }}">{{ loc.locCode }}</option>
+          {% endfor %}
+        </datalist>
+      </label>
+    </div>
+    <div class="db-form-section">
       <label for="loc_name">
         Name
-        <input type="text" class="db-input db-border" id="loc_name" name="location_name" required></input>
+        <input type="text" class="db-input db-border" id="loc_name" napme="loc_name" required>{{ params.loc_name }}</input>
       </label>
+    </div>
+    <div class="db-form-section">
+      <label for="item_desc">Description (Optional)</label>
+      <textarea class="db-input db-border" id="loc_desc" name="loc_desc">{{ params.loc_desc }}</textarea>
+    </div>
+    <div class="db-form-section">
+      <label for="location_whs">Warehouse</label>
+      <div id="whs_widget"></div>
+      <template id="whs_template">
+        <input list="whs_datalist" class="db-input db-border" autocomplete="off"></input>
+      </template>
+      <datalist id="whs_datalist">
+        {% for key,whs in warehouses %}
+          <option value="{{ whs.whsCode }}">{{ whs.whsCode ~ ' | ' ~ whs.whsName }}</option>
+        {% endfor %}
+      </datalist>
+      <input id="loc_whs_value" name="loc_whs" hidden></input>
+    </div>
+    <div class="db-form-section">
+      <label for="location_item">Item</label>
+      <div id="item_widget"></div>
+      <template id="item_template">
+        <input list="item_datalist" class="db-input db-border" autocomplete="off"></input>
+      </template>
+      <datalist id="item_datalist">
+        {% for key,item in items %}
+          <option value="{{ item.itemCode }}">{{ item.itemCode ~ ' | ' ~ item.itemName }}</option>
+        {% endfor %}
+      </datalist>
+      <input id="loc_item_value" name="loc_item" hidden></input>
     </div>
     <div class="db-wrapper db-form-section">
       <button type="submit" class="db-button db-border" formaction="{{ path('new_location') }}">Create</button>
@@ -13,4 +54,72 @@
     </div>
   </form>
 </div>
+
+<script>
+const object_params = {{ params|json_encode()|raw }};
+const whs_widget = document.getElementById('whs_widget');
+const whs_template = document.getElementById('whs_template');
+var whs_input = [];
+for (let i = 0; i < 5; i++)
+{
+  const clone = whs_template.content.cloneNode(true);
+  whs_widget.appendChild(clone);
+  whs_widget.children[i].id = 'whs_section_0' + (i + 1);
+  whs_widget.children[i].addEventListener('change', update_whs_values);
+}
+
+// filling values and input list from loaded entity, if exists
+if (object_params.item_location) {
+  object_params.item_location.forEach((value,index) => {
+    whs_section = whs_widget.children[index];
+    whs_section.value = value;
+    whs_input[index] = value;
+  });
+}
+
+function update_whs_values()
+{
+  var whs_input = [];
+  [].forEach.call(whs_widget.children, (child, index) => {
+    if (![null, ''].includes(child.value))
+    {
+      whs_input.push(child.value);
+    }
+  });
+  document.getElementById('loc_whs_value').value = whs_input;
+}
+
+
+const item_widget = document.getElementById('item_widget');
+const item_template = document.getElementById('item_template');
+var item_input = [];
+for (let i = 0; i < 5; i++)
+{
+  const clone = item_template.content.cloneNode(true);
+  item_widget.appendChild(clone);
+  item_widget.children[i].id = 'whs_section_0' + (i + 1);
+  item_widget.children[i].addEventListener('change', update_item_values);
+}
+
+// filling values and input list from loaded entity, if exists
+if (object_params.item_location) {
+  object_params.item_location.forEach((value,index) => {
+    item_section = item_widget.children[index];
+    item_section.value = value;
+    item_input[index] = value;
+  });
+}
+
+function update_item_values()
+{
+  var item_input = [];
+  [].forEach.call(item_widget.children, (child, index) => {
+    if (![null, ''].includes(child.value))
+    {
+      item_input.push(child.value);
+    }
+  });
+  document.getElementById('loc_item_value').value = item_input;
+}
+</script>
 {% endblock %}

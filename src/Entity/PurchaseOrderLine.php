@@ -20,7 +20,7 @@ class PurchaseOrderLine
     private ?int $po_status;
 
     #[ORM\ManyToOne(targetEntity:Item::class)]
-    #[ORM\JoinColumn(name:'item', referencedColumnName:'item_name')]
+    #[ORM\JoinColumn(name:'item_code', referencedColumnName:'item_code')]
     private ?Item $item;
 
     #[ORM\Column(type: types::DECIMAL, precision:9, scale:2, nullable:true)]
@@ -64,6 +64,13 @@ class PurchaseOrderLine
     public function getPoLine(): ?int
     {
         return $this->po_line;
+    }
+
+    public function setPoLine(int $po_line): static
+    {
+        $this->po_line = $po_line;
+
+        return $this;
     }
 
     public function getPoStatus(): ?string
@@ -169,7 +176,7 @@ class PurchaseOrderLine
 
     public function setItemUnit(?string $item_unit): static
     {
-        $this->unit = $item_unit;
+        $this->item_unit = $item_unit;
 
         return $this;
     }

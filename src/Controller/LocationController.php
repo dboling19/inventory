@@ -8,21 +8,14 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\Item;
 use App\Entity\Location;
-use App\Entity\Transaction;
-use App\Entity\ItemLocation;
 use App\Repository\ItemRepository;
 use App\Repository\LocationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ItemLocationRepository;
-use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\WarehouseRepository;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Datetime;
-use Datetimezone;
 
 
 class LocationController extends AbstractController
@@ -33,6 +26,7 @@ class LocationController extends AbstractController
     private LocationRepository $loc_repo,
     private TransactionRepository $trans_repo,
     private ItemLocationRepository $item_loc_repo,
+    private WarehouseRepository $whs_repo,
     private PaginatorInterface $paginator,
     private RequestStack $request_stack
   ) { }
@@ -48,13 +42,15 @@ class LocationController extends AbstractController
   {
     $locations_limit_cookie = $request->cookies->get('location_items_limit') ?? 25;
 
-    $location = $this->loc_repo->find($request->query->get('loc_name'));
 
     $params = [
       'limit' => $locations_limit_cookie,
-      'item_name' => '',
+      'loc_code' => '',
+      'loc_name' => '',
+      'loc_desc' => '',
+      'loc_whs' => '',
+      'loc_item' => '',
     ];
-    $params = array_merge($params, $request->query->all());
     if ($locations_limit_cookie !== $params['limit'])
     // if form submitted limit != cookie limit then update the cookie
     {
@@ -65,13 +61,31 @@ class LocationController extends AbstractController
       $locations_limit_cookie = $params['limit'];
     }
     $params = array_merge($params, $request->query->all());
-    $result = $this->item_loc_repo->findAll();
+    $result = $this->loc_repo->findAll();
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
 
-    return $this->render('location/display_location.html.twig', [
+    if (!$request->request->get('loc_code')) {
+      return $this->render('location/list_locations.html.twig', [
+        'result' => $result,
+        'params' => $params,
+        'warehouses' => $this->whs_repo->findAll(),
+        'items' => $this->item_repo->findAll(),
+      ]);
+    }
+
+    $loc = $this->loc_repo->find($request->request->get('loc_code'));
+    $params = array_merge($params, [
+      'loc_code' => $loc->getLocCode(),
+      'loc_name' => $loc->getLocName(),
+      'loc_desc' => $loc->getLocDesc(),
+      'loc_whs' => $loc->getWarehouses(),
+      'loc_whs' => $loc->getItems(),
+    ]);
+
+    return $this->render('location/list_locations.html.twig', [
       'result' => $result,
       'params' => $params,
-      'location' => $location,
+      'loc' => $loc,
     ]);
   }
 

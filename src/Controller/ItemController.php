@@ -9,23 +9,13 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Item;
-use App\Entity\Location;
-use App\Entity\Transaction;
-use App\Entity\ItemLocation;
 use App\Repository\ItemRepository;
 use App\Repository\LocationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ItemLocationRepository;
 use App\Repository\UnitRepository;
 use App\Service\TransactionService;
-use Doctrine\Common\Collections\ArrayCollection;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 use Datetime;
 use Datetimezone;
 
@@ -64,7 +54,6 @@ class ItemController extends AbstractController
       'item_quantity' => '',
       'item_location' => '',
     ];
-    $params = array_merge($params, $request->query->all());
     if ($items_limit_cookie !== $params['limit'])
     // if form submitted limit != cookie limit then update the cookie
     {
@@ -78,7 +67,7 @@ class ItemController extends AbstractController
     $params = array_merge($params, $request->query->all());
     $result = $this->item_repo->findAll();
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
-    if (!$request->request->get('item_name')) {
+    if (!$request->request->get('item_code', 'item_name')) {
       return $this->render('item/list_items.html.twig', [
         'locations' => $this->loc_repo->findAll(),
         'units' => $this->unit_repo->findAll(),
@@ -91,7 +80,7 @@ class ItemController extends AbstractController
     $item_locations = [];
     foreach ($item->getLocations() as $location)
     {
-      $item_locations[] = $location->getName();
+      $item_locations[] = $location->getLocName();
     }
     $params = array_merge($params, [
       'item_name' => $item->getItemName(),

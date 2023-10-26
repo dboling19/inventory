@@ -7,12 +7,12 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Item;
-use App\Entity\ItemLocation;
 use App\Repository\ItemRepository;
 use App\Repository\LocationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ItemLocationRepository;
 use App\Repository\UnitRepository;
+use App\Repository\WarehouseRepository;
 use Datetime;
 use Datetimezone;
 
@@ -26,6 +26,7 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
     private TransactionRepository $trans_repo,
     private ItemLocationRepository $item_loc_repo,
     private UnitRepository $unit_repo,
+    private WarehouseRepository $whs_repo,
   ) { }
 
 
@@ -34,41 +35,55 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
     $min = strtotime((new datetime('+1 week', new datetimezone('america/indiana/indianapolis')))->format('Y-m-d'));
     $max = strtotime((new datetime('+1 month', new datetimezone('america/indiana/indianapolis')))->format('Y-m-d'));
 
-    $loc_cupboard = $this->loc_repo->find('Cupboard');
-    $loc_shelf = $this->loc_repo->find('Shelf');
+    $loc = $this->loc_repo->find('CUP123');
+    $whs = $this->whs_repo->find('WHSIN');
     $warm_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime');
     foreach ($warm_items as $i)
     {
       $item = new Item;
       $item->setItemName($i);
-      $item->setItemDesc('cupboard test');
+      $item->setItemCode(substr($i, 0,4) . '123');
+      $item->setItemDesc('warm items test');
       $item->setItemUnit($this->unit_repo->find('oz'));
-      $item->addLocation($loc_cupboard);
-      $item->addLocation($loc_shelf);
+      $item->addLocation($loc, $whs);
       $this->em->persist($item);
     }
 
-    $loc = $this->loc_repo->find('Fridge');
+    $loc = $this->loc_repo->find('SHE123');
+    $whs = $this->whs_repo->find('WHSIL');
+    $warm_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime');
+    foreach ($warm_items as $i)
+    {
+      $item = $this->item_repo->find(strtoupper(substr($i, 0,4) . '123'));
+      $item->addLocation($loc, $whs);
+      $this->em->persist($item);
+    }
+
+    $loc = $this->loc_repo->find('FRI123');
+    $whs = $this->whs_repo->find('WHSS');
     $fridge_items = array('Milk', 'Juice', 'Eggs', 'Cream');
     foreach ($fridge_items as $i)
     {
       $item = new Item;
       $item->setItemName($i);
+      $item->setItemCode(substr($i, 0,4) . '123');
       $item->setItemDesc('fridge test');
       $item->setItemUnit($this->unit_repo->find('oz'));
-      $item->addLocation($loc);
+      $item->addLocation($loc, $whs);
       $this->em->persist($item);
     }
 
-    $loc = $this->loc_repo->find('Freezer');
+    $loc = $this->loc_repo->find('FRE123');
+    $whs = $this->whs_repo->find('WHSOH');
     $freezer_items = array('Ice Cream', 'Ice', 'Chicken', 'Hamburger', 'Steak', 'Cake');
     foreach ($freezer_items as $i)
     {
       $item = new Item;
       $item->setItemName($i);
+      $item->setItemCode(substr($i, 0,4) . '123');
       $item->setItemDesc('freezer test');
-      $item->setItemUnit($this->unit_repo->find('oz'));
-      $item->addLocation($loc);
+      $item->setItemUnit($this->unit_repo->find('lb'));
+      $item->addLocation($loc, $whs);
       $this->em->persist($item);
     }
     $manager->flush();
@@ -86,6 +101,7 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
     return [
       UnitFixtures::class,
       LocationFixtures::class,
+      WarehouseFixtures::class,
     ];
   }
     

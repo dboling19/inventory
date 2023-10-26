@@ -15,11 +15,11 @@ class PurchaseOrder
     private ?int $po_num;
 
     #[ORM\ManyToOne(targetEntity:Vendor::class)]
-    #[ORM\JoinColumn(name:'vendor_num', referencedColumnName:'vendor_num')]
+    #[ORM\JoinColumn(name:'vendor_code', referencedColumnName:'vendor_code')]
     private $vendor;
 
     #[ORM\ManyToOne(targetEntity:Terms::class)]
-    #[ORM\JoinColumn(nullable:false, name:'terms', referencedColumnName:'terms_code')]
+    #[ORM\JoinColumn(nullable:false, name:'terms_code', referencedColumnName:'terms_code')]
     private ?Terms $terms;
 
     #[ORM\Column(type:'string', length:6, nullable:false)]
@@ -43,8 +43,7 @@ class PurchaseOrder
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $po_price = '0';
 
-
-    public function getPoNum(): ?string
+    public function getPoNum(): ?int
     {
         return $this->po_num;
     }
@@ -61,12 +60,12 @@ class PurchaseOrder
         return $this;
     }
 
-    public function getTerms(): ?Terms
+    public function getPoTerms(): ?Terms
     {
         return $this->terms;
     }
 
-    public function setTerms(?Terms $terms): static
+    public function setPoTerms(?Terms $terms): static
     {
         $this->terms = $terms;
 
@@ -145,12 +144,12 @@ class PurchaseOrder
         return $this;
     }
 
-    public function getVendor(): ?Vendor
+    public function getPoVendor(): ?Vendor
     {
         return $this->vendor;
     }
 
-    public function setVendor(?Vendor $vendor): static
+    public function setPoVendor(?Vendor $vendor): static
     {
         $this->vendor = $vendor;
 

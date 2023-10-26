@@ -5,15 +5,17 @@
   <div class="db-resize-horizontal">
     <table>
       <tr>
+        <th>{{ knp_pagination_sortable(result, 'Location Code', 'loc_code') }}</th>
         <th>{{ knp_pagination_sortable(result, 'Location', 'loc_name') }}</th>
         <th>Entries</th>
         <th>Total Items</th>
       </tr>
       {% for row in result %}
         <tr>
-          <td><a href="{{ path('display_location', {location: row.locName }) }}">{{ row.locName }}</a></td>
-          <td>{{ row.Itemlocation|length }}</td>
-          <td>{{row.itemQuantity }}
+          <td><a href="{{ path('list_locations', {loc_code: row.locCode }) }}">{{ row.locCode }}</a></td>
+          <td><a href="{{ path('list_locations', {loc_code: row.locCode }) }}">{{ row.locName }}</a></td>
+          <td>{{ row.itemLoc|length }}</td>
+          <td>{{row.itemQty }}
         </tr>
       {% endfor %}
     </table>

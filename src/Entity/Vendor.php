@@ -13,7 +13,7 @@ class Vendor
 {
     #[ORM\Id]
     #[ORM\Column(type: 'string', length:10, nullable:false)]
-    private ?string $vendor_num;
+    private ?string $vendor_code;
 
     #[ORM\Column(type: 'string', length:50, nullable:false)]
     private ?string $vendor_name;
@@ -31,22 +31,22 @@ class Vendor
     private ?string $vendor_phone = null;
 
     #[ORM\OneToMany(targetEntity:PurchaseOrder::class, mappedBy:'vendor')]
-    #[ORM\JoinColumn(name:'purchaseOrder', referencedColumnName:'po_num', nullable:true)]
-    private Collection $purchaseOrders;
+    #[ORM\JoinColumn(name:'po_num', referencedColumnName:'po_num', nullable:true)]
+    private Collection $vendor_pos;
 
     public function __construct()
     {
-        $this->purchaseOrders = new ArrayCollection();
+        $this->vendor_pos = new ArrayCollection();
     }
 
-    public function getVendorNum(): ?string
+    public function getVendorCode(): ?string
     {
-        return $this->vendor_num;
+        return $this->vendor_code;
     }
 
-    public function setVendorNum(?string $vendor_num): static
+    public function setVendorCode(?string $vendor_code): static
     {
-        $this->vendor_num = $vendor_num;
+        $this->vendor_code = strtoupper($vendor_code);
 
         return $this;
     }
@@ -114,27 +114,27 @@ class Vendor
     /**
      * @return Collection<int, purchaseOrder>
      */
-    public function getPurchaseOrders(): Collection
+    public function getVendorPOs(): Collection
     {
-        return $this->purchaseOrders;
+        return $this->vendor_pos;
     }
 
-    public function addPurchaseOrder(purchaseOrder $purchaseOrder): static
+    public function addVendorPO(purchaseOrder $vendor_po): static
     {
-        if (!$this->purchaseOrders->contains($purchaseOrder)) {
-            $this->purchaseOrders->add($purchaseOrder);
-            $purchaseOrder->setVendor($this);
+        if (!$this->vendor_pos->contains($vendor_po)) {
+            $this->vendor_pos->add($vendor_po);
+            $vendor_po->setVendor($this);
         }
 
         return $this;
     }
 
-    public function removePurchaseOrder(purchaseOrder $purchaseOrder): static
+    public function removeVendorPO(purchaseOrder $vendor_po): static
     {
-        if ($this->purchaseOrders->removeElement($purchaseOrder)) {
+        if ($this->vendor_pos->removeElement($vendor_po)) {
             // set the owning side to null (unless already changed)
-            if ($purchaseOrder->getVendor() === $this) {
-                $purchaseOrder->setVendor(null);
+            if ($vendor_po->getVendor() === $this) {
+                $vendor_po->setVendor(null);
             }
         }
 

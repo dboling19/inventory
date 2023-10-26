@@ -17,29 +17,29 @@ class Transaction
   #[ORM\Column]
   private ?int $trans_num;
 
-  #[ORM\ManyToOne(targetEntity:Item::class, inversedBy:'transaction')]
-  #[ORM\JoinColumn(nullable:false, name:'name', referencedColumnName:'item_name')]
+  #[ORM\ManyToOne(targetEntity:Item::class, inversedBy:'trans')]
+  #[ORM\JoinColumn(nullable:false, name:'name', referencedColumnName:'item_code')]
   private ?Item $item;
 
-  #[ORM\ManyToOne(targetEntity:Location::class, inversedBy:'transaction')]
-  #[ORM\JoinColumn(nullable:false, name:'name', referencedColumnName:'loc_name')]
-  private ?Location $location;
+  #[ORM\ManyToOne(targetEntity:Location::class, inversedBy:'trans')]
+  #[ORM\JoinColumn(nullable:false, name:'name', referencedColumnName:'loc_code')]
+  private ?Location $loc;
 
   #[ORM\Column(type:'string', nullable:false)]
-  private ?string $trans_quantity_change;
+  private ?string $trans_qty_change;
 
   #[ORM\Column(type:'datetime', nullable:false)]
   private ?DateTimeInterface $trans_datetime;
 
   
-  public function getTransQuantityChange(): ?string
+  public function getTransQtyChange(): ?string
   {
-      return $this->trans_quantity_change;
+      return $this->trans_qty_change;
   }
 
-  public function setTransQuantityChange(string $trans_quantity_change): static
+  public function setTransQtyChange(string $trans_qty_change): static
   {
-      $this->trans_quantity_change = $trans_quantity_change;
+      $this->trans_qty_change = $trans_qty_change;
 
       return $this;
   }
@@ -70,12 +70,12 @@ class Transaction
 
   public function getLocation(): ?Location
   {
-      return $this->location;
+      return $this->loc;
   }
 
-  public function setLocation(?Location $location): static
+  public function setLocation(?Location $loc): static
   {
-      $this->location = $location;
+      $this->loc = $loc;
 
       return $this;
   }

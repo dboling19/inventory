@@ -1,54 +1,50 @@
 {% block form %}
 <div class="db-panel db-wrapper db-third">
-  <form class="db-wrapper db-fill db-column db-border" id="item_form" method="post">
+  <form class="db-wrapper db-fill db-column db-border" id="po_form" method="post">
     <div class="db-form-section">
-      <label for="item_name">
-        Name
-        <input type="text" class="db-input db-border" list="items_datalist" id="item_name" name="item_name" value="{{ params.item_name }}" autocomplete="off">
-        <datalist id="items_datalist">
-          {% for item in result %}
-            <option value="{{ item.itemName }}">{{ item.itemName }}</option>
+      <label for="po_num">
+        PO Num
+        <input type="text" class="db-input db-border" list="po_datalist" id="po_num" name="po_num" value="{{ params.po_num }}" autocomplete="off">
+        <datalist id="po_datalist">
+          {% for po in result %}
+            <option value="{{ po.poNum }}">{{ po.poNum }}</option>
           {% endfor %}
         </datalist>
       </label>
     </div>
     <div class="db-form-section">
-      <label for="item_desc">Description (Optional)</label>
-      <textarea class="db-input db-border" id="item_desc" name="item_desc">{{ params.item_desc }}</textarea>
+      <label for="po_vendor">
+        Vendor
+        <input type="text" class="db-input db-border" list="vendor_datalist" id="po_vendor" name="po_vendor" value="{{ params.po_vendor }}" autocomplete="off">
+        <datalist id="vendor_datalist">
+          {% for vendor in vendors %}
+            <option value="{{ vendor.vendorCode }}">{{ vendor.vendorCode ~ ' | ' ~ vendor.vendorName }}</option>
+          {% endfor %}
+        </datalist>
+      </label>
     </div>
     <div class="db-form-section">
-      <label for="date">Expiration Date</label>
+      <label for="po_terms">
+        Terms
+        <input type="text" class="db-input db-border" list="terms_datalist" id="po_terms" name="po_terms" value="{{ params.po_terms }}" autocomplete="off">
+        <datalist id="terms_datalist">
+          {% for term in terms %}
+            <option value="{{ term.termsCode }}">{{ term.termsCode }}</option>
+          {% endfor %}
+        </datalist>
+      </label>
+    </div>
+    <div class="db-form-section">
+      <label for="po_price">
+        Price
+        <input type="text" class="db-input db-border" id="po_price" name="po_price" value="{{ params.po_price }}" autocomplete="off">
+      </label>
+    </div>
+    <div class="db-form-section">
+      <label for="date">PO Date</label>
       <div class="db-wrapper">
-        <input type="date" class="db-input db-border" id="item_exp_date" name="item_exp_date" value="{{ params.item_exp_date }}" autocomplete="off">
-        <button type="button" class="db-button db-border db-red" onclick="window.location.href='{{ path('clear_exp_date', {item_id: params.item_id}) }}';">Clear Exp Date</button>
+        <input type="date" class="db-input db-border" id="po_date" name="po_date" value="{{ params.po_date }}" autocomplete="off">
       </div>
-      <i style="font-size:12px">Use oldest item's expiration date</i>
-    </div>
-    <div class="db-form-section">
-      <label for="item_locations">Location</label>
-      <div id="loc_widget"></div>
-      <template id="loc_template">
-        <input list="loc_datalist" class="db-input db-border" autocomplete="off"></input>
-      </template>
-      <datalist id="loc_datalist">
-        {% for key,loc in locations %}
-          <option value="{{ loc.locName }}">{{ loc.locName }}</option>
-        {% endfor %}
-      </datalist>
-      <input id="item_loc_value" name="item_locations" hidden></input>
-    </div>
-    <div class="db-form-section">
-      <label for="item_unit">Unit of Measure</label>
-      <input list="unit_datalist" id="item_unit" class="db-input db-border" autocomplete="off"></input>
-      <datalist id="unit_datalist">
-        {% for unit in units %}
-          <option value="{{ unit.unitCode }}">{{ unit.unitName }}</option>
-        {% endfor %}
-      </datalist>
-    </div>
-    <div class="db-form-section">
-      <label for="item_quantity">Quantity</label>
-      <input type="text" class="db-input db-border" id="item_quantity" value="{{ params.item_quantity }}" disabled>
     </div>
     <div class="db-wrapper db-form-section">
       {% if item is defined %}
