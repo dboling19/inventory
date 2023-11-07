@@ -36,17 +36,17 @@ class PurchaseOrderFixtures extends Fixture implements DependentFixtureInterface
     $min = strtotime((new datetime('+1 week', new datetimezone('america/indiana/indianapolis')))->format('Y-m-d'));
     $max = strtotime((new datetime('+1 month', new datetimezone('america/indiana/indianapolis')))->format('Y-m-d'));
 
-    $cupboard_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime');
-    $shelf_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime');
-    $fridge_items = array('Milk', 'Juice', 'Eggs', 'Cream');
+    $cupboard_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime', 'description', 'politics', 'replacement', 'reception', 'discussion', 'driver', 'housing', 'payment', 'employer', 'customer', 'basket', 'cell', 'tongue');
+    $shelf_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime', 'description', 'politics', 'replacement', 'reception', 'discussion', 'driver', 'housing', 'payment', 'employer', 'customer', 'basket', 'cell', 'tongue');
+    $fridge_items = array('Milk', 'Juice', 'Eggs', 'Cream', 'selection', 'climate', 'variation', 'garbage', 'outcome', 'college', 'diamond', 'guidance', 'arrival', 'mom', 'recipe', 'construction', 'appointment', 'sir', 'leadership', 'blood', 'inspection', 'paper', 'grocery', 'person', 'explanation', 'refrigerator', 'marketing', 'unit', 'perception', 'dirt', 'disaster', 'breath', 'media', 'buyer', 'penalty', 'satisfaction', 'writing', 'people', 'health', 'currency', 'complaint');
     $freezer_items = array('Ice Cream', 'Ice', 'Chicken', 'Hamburger', 'Steak', 'Cake');
     $item_categories = [$cupboard_items, $shelf_items, $fridge_items, $freezer_items];
     foreach ($item_categories as $key=>$item_category)
     {
       $po = new PurchaseOrder;
       $po->setPoOrderDate($this->random_date($min,$max));
-      $po->setVendor($this->vendor_repo->find('AMA123'));
-      $po_cost = 0;
+      $po->setPoVendor($this->vendor_repo->find('AMA123'));
+      $po_total_cost = 0;
 
       // get location_name for finding item_loc later
       // put here to reduce cycles
@@ -76,9 +76,10 @@ class PurchaseOrderFixtures extends Fixture implements DependentFixtureInterface
         $po_line = new PurchaseOrderLine;
         $po_line->setItem($item);
         $po_line->setPoStatus(1);
-        $po_line->setQtyOrdered(mt_rand(1,10));
-        $po_line->setQtyReceived(mt_rand(1,30));
-        $po_line->setQtyRejected($po_line->getQtyOrdered() - $po_line->getQtyReceived());
+        $qty_ordered = mt_rand(1,30);
+        $po_line->setQtyOrdered($qty_ordered);
+        $po_line->setQtyReceived($qty_ordered - mt_rand(0,$qty_ordered));
+        $po_line->setQtyRejected($qty_ordered - $po_line->getQtyReceived());
         $po_line->setPoDueDate(new datetime('+4 weeks', new datetimezone('america/indiana/indianapolis')));
         $po_line->setPoReceivedDate(new datetime('now', new datetimezone('america/indiana/indianapolis')));
         $po_line->setPoReceived(1);
@@ -86,20 +87,22 @@ class PurchaseOrderFixtures extends Fixture implements DependentFixtureInterface
         $po_line->setItemQuantity($po_line->getQtyReceived());
         $item_cost = mt_rand(10,100)/10;
         $po_line->setItemCost($item_cost);
-        $po_cost += $item_cost;
+        $po_total_cost += $item_cost;
+        $po_line->setPo($po);
+        $manager->persist($po_line);
 
         // Handle receiving items for item quantities
         $item_loc = $this->item_loc_repo->findOneBy(['item' => $item->getItemCode(), 'location' => $loc_code, 'warehouse' => $whs_code]);
-        $item_loc->setQuantity($po_line->getQtyReceived());
+        $item_loc->setItemQty($po_line->getQtyReceived());
 
       }
-      $po->setPoPrice($po_cost);
+      $po->setPoTotalCost($po_total_cost);
       $po->setPoReceived(1);
       $po->setPoPaid(1);
       $po->setPoFreight(mt_rand(10,100)/10);
       $po->setPoStatus(1);
       $po->setPoShipCode('ASD123');
-      $po->setTerms($this->terms_repo->find('D02'));
+      $po->setPoTerms($this->terms_repo->find('D02'));
       $manager->persist($po);
     }
 

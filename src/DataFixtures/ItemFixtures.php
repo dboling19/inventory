@@ -37,11 +37,11 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
 
     $loc = $this->loc_repo->find('CUP123');
     $whs = $this->whs_repo->find('WHSIN');
-    $warm_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime');
+    $warm_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime', 'description', 'politics', 'replacement', 'reception', 'discussion', 'driver', 'housing', 'payment', 'employer', 'customer', 'basket', 'cell', 'tongue');
     foreach ($warm_items as $i)
     {
       $item = new Item;
-      $item->setItemName($i);
+      $item->setItemDesc($i);
       $item->setItemCode(substr($i, 0,4) . '123');
       $item->setItemDesc('warm items test');
       $item->setItemUnit($this->unit_repo->find('oz'));
@@ -51,7 +51,7 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
 
     $loc = $this->loc_repo->find('SHE123');
     $whs = $this->whs_repo->find('WHSIL');
-    $warm_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime');
+    $warm_items = array('Coffee', 'Sugar', 'Chocolate', 'Salt', 'Ketchup', 'Cookies', 'Crackers', 'Chips', 'Mustard', 'Candy', 'Apple', 'Orange', 'Lemon', 'Lime', 'description', 'politics', 'replacement', 'reception', 'discussion', 'driver', 'housing', 'payment', 'employer', 'customer', 'basket', 'cell', 'tongue');
     foreach ($warm_items as $i)
     {
       $item = $this->item_repo->find(strtoupper(substr($i, 0,4) . '123'));
@@ -61,11 +61,11 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
 
     $loc = $this->loc_repo->find('FRI123');
     $whs = $this->whs_repo->find('WHSS');
-    $fridge_items = array('Milk', 'Juice', 'Eggs', 'Cream');
+    $fridge_items = array('Milk', 'Juice', 'Eggs', 'Cream', 'selection', 'climate', 'variation', 'garbage', 'outcome', 'college', 'diamond', 'guidance', 'arrival', 'mom', 'recipe', 'construction', 'appointment', 'sir', 'leadership', 'blood', 'inspection', 'paper', 'grocery', 'person', 'explanation', 'refrigerator', 'marketing', 'unit', 'perception', 'dirt', 'disaster', 'breath', 'media', 'buyer', 'penalty', 'satisfaction', 'writing', 'people', 'health', 'currency', 'complaint');
     foreach ($fridge_items as $i)
     {
       $item = new Item;
-      $item->setItemName($i);
+      $item->setItemDesc($i);
       $item->setItemCode(substr($i, 0,4) . '123');
       $item->setItemDesc('fridge test');
       $item->setItemUnit($this->unit_repo->find('oz'));
@@ -79,7 +79,7 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
     foreach ($freezer_items as $i)
     {
       $item = new Item;
-      $item->setItemName($i);
+      $item->setItemDesc($i);
       $item->setItemCode(substr($i, 0,4) . '123');
       $item->setItemDesc('freezer test');
       $item->setItemUnit($this->unit_repo->find('lb'));

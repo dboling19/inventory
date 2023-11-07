@@ -19,7 +19,7 @@ class VendorController extends AbstractController
   }
 
 
-  #[Route('/display_vendor/', name: 'display_vendor')]
+  #[Route('/display_vendor/', name: 'vendor_details')]
   public function display_vendor(): Response
   {
     

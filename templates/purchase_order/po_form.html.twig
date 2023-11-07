@@ -18,7 +18,7 @@
         <input type="text" class="db-input db-border" list="vendor_datalist" id="po_vendor" name="po_vendor" value="{{ params.po_vendor }}" autocomplete="off">
         <datalist id="vendor_datalist">
           {% for vendor in vendors %}
-            <option value="{{ vendor.vendorCode }}">{{ vendor.vendorCode ~ ' | ' ~ vendor.vendorName }}</option>
+            <option value="{{ vendor.vendorCode }}">{{ vendor.vendorCode ~ ' | ' ~ vendor.vendorDesc }}</option>
           {% endfor %}
         </datalist>
       </label>
@@ -35,9 +35,9 @@
       </label>
     </div>
     <div class="db-form-section">
-      <label for="po_price">
-        Price
-        <input type="text" class="db-input db-border" id="po_price" name="po_price" value="{{ params.po_price }}" autocomplete="off">
+      <label for="po_total_cost">
+        Total Cost
+        <input type="text" class="db-input db-border" id="po_total_cost" name="po_total_cost" value="{{ params.po_total_cost }}" autocomplete="off">
       </label>
     </div>
     <div class="db-form-section">
@@ -48,12 +48,12 @@
     </div>
     <div class="db-wrapper db-form-section">
       {% if item is defined %}
-        <button type="submit" class="db-button db-border" formaction="{{ path('modify_item', { item_name: item.name }) }}">Modify Item</button>
-        <button type="submit" class="db-button db-border" formaction="{{ path('list_items') }}">Search</button>
-        <button type="submit" class="db-button db-border db-red" formaction="{{ path('delete_item', { item_name: item.name }) }}">Delete Item</button>
+        <button type="submit" class="db-button db-border" formaction="{{ path('modify_po', { po_num: po.poNum }) }}">Modify PO</button>
+        <button type="submit" class="db-button db-border" formaction="{{ path('list_pos') }}">Search</button>
+        <button type="submit" class="db-button db-border db-red" formaction="{{ path('delete_po', { po_num: po.poNum }) }}">Delete PO</button>
       {% else %}
-        <button type="submit" class="db-button db-border" formaction="{{ path('new_item') }}">Create Item</button>
-        <button type="submit" class="db-button db-border" formaction="{{ path('list_items') }}">Search</button>
+        <button type="submit" class="db-button db-border" formaction="{{ path('new_po') }}">Create PO</button>
+        <button type="submit" class="db-button db-border" formaction="{{ path('list_pos') }}">Search</button>
       {% endif %}
     </div>
   </form>

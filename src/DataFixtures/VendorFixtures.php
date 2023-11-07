@@ -13,8 +13,8 @@ class VendorFixtures extends Fixture
   public function load(ObjectManager $manager): void
   {
     $vendor = new Vendor();
-    $vendor->setVendorName('Amazon');
-    $vendor->setVendorCode(substr($vendor->getVendorName(), 0,3) . '123');
+    $vendor->setVendorDesc('Amazon');
+    $vendor->setVendorCode(substr($vendor->getVendorDesc(), 0,3) . '123');
     $vendor->setVendorEmail('example@domain.com');
     $vendor->setVendorAddress('123 Sample Street');
     $vendor->setVendorPhone('(555)-123-4567');

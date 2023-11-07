@@ -5,24 +5,33 @@
   <div class="db-resize-horizontal">
     <table>
       <tr>
-        <th>{{ knp_pagination_sortable(result, 'Item', 'item.item_name') }}</th>
-        <th>{{ knp_pagination_sortable(result, 'Quantity', 'i.item_quantity') }}</th>
-        <th>{{ knp_pagination_sortable(result, 'Unit', 'item.item_unit') }}</th>
-        <th>{{ knp_pagination_sortable(result, 'Exp. Date', 'item.item_exp_date') }}</th>
-        <th>Description</th>
+        <th>{{ knp_pagination_sortable(result, 'Item Code', 'item.item_code') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Item Desc', 'item.item_desc') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Item Qty', 'i.item_quantity') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Item Unit', 'item.item_unit') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Item Exp. Date', 'item.item_exp_date') }}</th>
+        <th>Item Notes</th>
       </tr>
       {% for row in result %} {# simple loop to output rows #}
         <tr>
-          <td><a href="{{ path('list_items', {item_id: row.itemName }) }}">{{ row.itemName }}</a></td>
-          <td>{{ row.itemQuantity }}</td>
+          <td><a href="{{ path('list_items', {item_code: row.itemCode }) }}">{{ row.itemCode }}</a></td>
+          <td>{{ row.itemDesc }}</td>
+          <td>{{ row.itemQty }}</td>
           <td>{{ row.itemUnit.unitCode }}</td>
           <td>{% if row.itemExpDate %}{{ row.itemExpDate|format_datetime('short', 'none') }}{% endif %}</td>
-          <td>{{ row.itemDesc }}</td>
+          <td>{{ row.itemNotes }}</td>
         </tr>
       {% endfor %}
     </table>
   </div>
-  {{ include('item/item_form.html.twig') }}
+  <div>
+    {{ include('item/item_form.html.twig') }}
+  </div>
+  <div class="db-panel">
+    <div class="db-wrapper db-column db-panel db-border">
+      <a class="db-button db-border" href="{{ path('item_location_details', {item_code: params.item_code}) }}">Item Location</a>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

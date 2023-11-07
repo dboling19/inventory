@@ -13,24 +13,24 @@ class UnitFixtures extends Fixture
   public function load(ObjectManager $manager): void
   {
     $units_list = [
-      ['code' => 'm', 'name' => 'Meter'],
-      ['code' => 'cm', 'name' => 'Centimeter'],
-      ['code' => 'mm', 'name' => 'Millimeter'],
-      ['code' => 'ft', 'name' => 'Feet'],
-      ['code' => 'in', 'name' => 'Inch'],
-      ['code' => 'yd', 'name' => 'Yard'],
-      ['code' => 'g', 'name' => 'Gram'],
-      ['code' => 'oz', 'name' => 'Ounce'],
-      ['code' => 'lb', 'name' => 'Pound'],
-      ['code' => 'un', 'name' => 'Unit'],
-      ['code' => 'pkg', 'name' => 'Package'],
+      ['code' => 'm', 'desc' => 'Meter'],
+      ['code' => 'cm', 'desc' => 'Centimeter'],
+      ['code' => 'mm', 'desc' => 'Millimeter'],
+      ['code' => 'ft', 'desc' => 'Feet'],
+      ['code' => 'in', 'desc' => 'Inch'],
+      ['code' => 'yd', 'desc' => 'Yard'],
+      ['code' => 'g', 'desc' => 'Gram'],
+      ['code' => 'oz', 'desc' => 'Ounce'],
+      ['code' => 'lb', 'desc' => 'Pound'],
+      ['code' => 'un', 'desc' => 'Unit'],
+      ['code' => 'pkg', 'desc' => 'Package'],
     ];
 
     foreach ($units_list as $list)
     {
       $unit = new Unit;
       $unit->setUnitCode($list['code']);
-      $unit->setUnitName($list['name']);
+      $unit->setUnitDesc($list['desc']);
       $manager->persist($unit);
     }
 

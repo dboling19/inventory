@@ -16,10 +16,10 @@ class Unit
     private ?string $unit_code;
 
     #[ORM\Column(length: 50)]
-    private ?string $unit_name = null;
+    private ?string $unit_desc = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $unit_desc = null;
+    private ?string $unit_notes = null;
 
     #[ORM\Column(name: 'unit_precision')]
     private ?int $unit_precision = 4;
@@ -33,26 +33,26 @@ class Unit
         $this->items = new ArrayCollection();
     }
 
-    public function getUnitName(): ?string
-    {
-        return $this->unit_name;
-    }
-
-    public function setUnitName(string $unit_name): static
-    {
-        $this->unit_name = $unit_name;
-
-        return $this;
-    }
-
     public function getUnitDesc(): ?string
     {
         return $this->unit_desc;
     }
 
-    public function setUnitDesc(?string $unit_desc): static
+    public function setUnitDesc(string $unit_desc): static
     {
         $this->unit_desc = $unit_desc;
+
+        return $this;
+    }
+
+    public function getUnitNotes(): ?string
+    {
+        return $this->unit_notes;
+    }
+
+    public function setUnitNotes(?string $unit_notes): static
+    {
+        $this->unit_notes = $unit_notes;
 
         return $this;
     }

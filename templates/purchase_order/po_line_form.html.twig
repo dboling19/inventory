@@ -1,0 +1,37 @@
+{% block form %}
+<div class="db-panel db-wrapper db-third">
+  <form class="db-wrapper db-fill db-column db-border" id="po_form" method="post">
+    <div class="db-form-section">
+      <label for="po_num">
+        PO Num
+        <input type="text" class="db-input db-border" id="po_num" name="po_num" value="{{ params_num }}" autocomplete="off">
+        <datalist id="po_datalist">
+          {% for po in pos %}
+            <option value="{{ po.poNum }}">{{ po.poNum }}</option>
+          {% endfor %}
+        </datalist>
+      </label>
+    </div>
+    <div class="db-form-section">
+      <label for="po_vendor">
+        Vendor
+        <input type="text" class="db-input db-border" list="vendor_datalist" id="po_vendor" name="po_vendor" value="{{ params.po_vendor }}" autocomplete="off">
+      </label>
+    </div>
+    <div class="db-form-section">
+      <label for="po_price">
+        Price
+        <input type="text" class="db-input db-border" id="po_price" name="po_price" value="{{ params.po_total_cost }}" autocomplete="off">
+      </label>
+    </div>
+    <div class="db-wrapper db-form-section">
+      {% if item is defined %}
+        <button type="submit" class="db-button db-border" formaction="{{ path('modify_po', { po_num: params.poLineNum }) }}">Modify Line</button>
+        <button type="submit" class="db-button db-border" formaction="{{ path('list_pos') }}">Search</button>
+      {% else %}
+        <button type="submit" class="db-button db-border" formaction="{{ path('list_pos') }}">Search</button>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -45,11 +45,11 @@ class LocationController extends AbstractController
 
     $params = [
       'limit' => $locations_limit_cookie,
-      'loc_code' => '',
-      'loc_name' => '',
-      'loc_desc' => '',
-      'loc_whs' => '',
-      'loc_item' => '',
+      'loc_code' => null,
+      'loc_desc' => null,
+      'loc_notes' => null,
+      'loc_whs' => null,
+      'loc_item' => null,
     ];
     if ($locations_limit_cookie !== $params['limit'])
     // if form submitted limit != cookie limit then update the cookie
@@ -64,7 +64,7 @@ class LocationController extends AbstractController
     $result = $this->loc_repo->findAll();
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
 
-    if (!$request->request->get('loc_code')) {
+    if (!$request->request->get('loc_code') && !$request->query->get('loc_code')) {
       return $this->render('location/list_locations.html.twig', [
         'result' => $result,
         'params' => $params,
@@ -73,11 +73,21 @@ class LocationController extends AbstractController
       ]);
     }
 
-    $loc = $this->loc_repo->find($request->request->get('loc_code'));
+    switch ($request->getMethod())
+    {
+      case 'POST':
+        // response coming from form
+        $loc = $this->loc_repo->find($request->request->get('loc_code'));
+        break;
+      case 'GET':
+        // response coming from link
+        $loc = $this->loc_repo->find($request->query->get('loc_code'));
+        break;
+    }
     $params = array_merge($params, [
       'loc_code' => $loc->getLocCode(),
-      'loc_name' => $loc->getLocName(),
       'loc_desc' => $loc->getLocDesc(),
+      'loc_notes' => $loc->getLocNotes(),
       'loc_whs' => $loc->getWarehouses(),
       'loc_whs' => $loc->getItems(),
     ]);
@@ -85,7 +95,8 @@ class LocationController extends AbstractController
     return $this->render('location/list_locations.html.twig', [
       'result' => $result,
       'params' => $params,
-      'loc' => $loc,
+      'items' => $this->item_repo->findAll(),
+      'warehouses' => $this->whs_repo->findAll(),
     ]);
   }
 
@@ -102,7 +113,7 @@ class LocationController extends AbstractController
     {
       $params = $request->request->all();
       $loc = new Location;
-      $loc->setLocName($params['loc_name']);
+      $loc->setLocDesc($params['loc_desc']);
       $this->em->persist($loc);
       $this->em->flush();
       $this->addFlash('success', 'Location Added');
@@ -119,16 +130,16 @@ class LocationController extends AbstractController
   #[Route('/modify/location/', name:'modify_location')]
   public function modify_location(Request $request): Response
   {
-    $id = $request->request->get('location_id');
+    $loc_code = $request->request->get('loc_code');
     if($request->request->all()) {
       $params = $request->request->all();
-      $loc = $this->loc_repo->find($id);
-      $loc->setLocName($params['location_name']);
+      $loc = $this->loc_repo->find($loc_code);
+      $loc->setLocDesc($params['loc_desc']);
       $this->em->persist($loc);
       $this->em->flush();
-      $this->addFlash('success', 'Location name updated.');
+      $this->addFlash('success', 'Location updated.');
     }
-    return $this->redirectToRoute('display_location', ['location_id' => $id]);
+    return $this->redirectToRoute('display_location', ['loc_code' => $loc_code]);
   }
 
 
@@ -140,9 +151,9 @@ class LocationController extends AbstractController
   #[Route('/delete/location/', name:'delete_location')]
   public function delete_location(Request $request): Response
   {
-    $id = $request->query->get('location_id');
-    $loc = $this->loc_repo->find($id);
-    $loc_qty = $this->item_loc_repo->getLocQty($id)[0]['quantity'];
+    $loc_code = $request->query->get('loc_code');
+    $loc = $this->loc_repo->find($loc_code);
+    $loc_qty = $this->item_loc_repo->getLocQty($loc_code)[0]['quantity'];
     if($loc_qty == 0 or $loc_qty == NULL)
     {
       $this->em->remove($loc);
@@ -151,7 +162,7 @@ class LocationController extends AbstractController
       $this->addFlash('success', 'Location removed.');
     } else {
       $this->addFlash('error', 'Location cannot be deleted.  Contains items.');
-      return $this->redirectToRoute('display_location', ['location_id' => $id]);
+      return $this->redirectToRoute('display_location', ['loc_code' => $loc_code]);
     }
   }
 

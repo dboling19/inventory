@@ -16,10 +16,10 @@ class Vendor
     private ?string $vendor_code;
 
     #[ORM\Column(type: 'string', length:50, nullable:false)]
-    private ?string $vendor_name;
+    private ?string $vendor_desc;
 
     #[ORM\Column(type: types::TEXT, nullable:true)]
-    private ?string $vendor_desc;
+    private ?string $vendor_notes;
 
     #[ORM\Column(type: 'string', length:50, nullable:true)]
     private ?string $vendor_addr = null;
@@ -51,16 +51,11 @@ class Vendor
         return $this;
     }
 
-    public function setVendorName(?string $vendor_name): static
+    public function setVendorDesc(?string $vendor_desc): static
     {
-        $this->vendor_name = $vendor_name;
+        $this->vendor_desc = $vendor_desc;
 
         return $this;
-    }
-
-    public function getVendorName(): ?string
-    {
-        return $this->vendor_name;
     }
 
     public function getVendorDesc(): ?string
@@ -68,9 +63,14 @@ class Vendor
         return $this->vendor_desc;
     }
 
-    public function setVendorDesc(?string $vendor_desc): static
+    public function getVendorNotes(): ?string
     {
-        $this->vendor_desc = $vendor_desc;
+        return $this->vendor_notes;
+    }
+
+    public function setVendorNotes(?string $vendor_notes): static
+    {
+        $this->vendor_notes = $vendor_notes;
 
         return $this;
     }

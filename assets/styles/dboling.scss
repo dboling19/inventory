@@ -71,6 +71,7 @@ table {
   border-collapse:collapse;
   border-top:1px solid #ccc;
   border-bottom:1px solid #ccc;
+  overflow: scroll;
 }
 
 th {
@@ -164,7 +165,7 @@ tr:hover, tr:active {
   cursor:pointer;
   text-decoration:none;
   display:inline;
-  border:none;
+  font-size:0.75em;
 }
 
 .db-button:hover {
@@ -174,6 +175,11 @@ tr:hover, tr:active {
 .db-select {
   padding:3px 10px;
   background-color:#ededf2;
+}
+
+.db-filter {
+  background-color:yellow;
+  
 }
 
 .db-border {

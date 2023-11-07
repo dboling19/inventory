@@ -14,6 +14,7 @@ use App\Repository\LocationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ItemLocationRepository;
 use App\Repository\UnitRepository;
+use App\Repository\WarehouseRepository;
 use App\Service\TransactionService;
 use Knp\Component\Pager\PaginatorInterface;
 use Datetime;
@@ -29,6 +30,7 @@ class ItemController extends AbstractController
     private TransactionRepository $trans_repo,
     private ItemLocationRepository $item_loc_repo,
     private UnitRepository $unit_repo,
+    private WarehouseRepository $whs_repo,
     private TransactionService $trans_service,
     private PaginatorInterface $paginator,
   ) { }
@@ -46,13 +48,13 @@ class ItemController extends AbstractController
     $items_limit_cookie = $request->cookies->get('items_limit') ?? 25;
     $params = [
       'limit' => $items_limit_cookie,
-      'item_id' => '',
-      'item_name' => '',
-      'item_desc' => '',
+      'item_code' => null,
+      'item_desc' => null,
+      'item_notes' => null,
       'item_exp_date' => null,
-      'item_unit' => '',
-      'item_quantity' => '',
-      'item_location' => '',
+      'item_unit' => null,
+      'item_total_qty' => null,
+      'item_location' => null,
     ];
     if ($items_limit_cookie !== $params['limit'])
     // if form submitted limit != cookie limit then update the cookie
@@ -67,32 +69,45 @@ class ItemController extends AbstractController
     $params = array_merge($params, $request->query->all());
     $result = $this->item_repo->findAll();
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
-    if (!$request->request->get('item_code', 'item_name')) {
+    if (!$request->request->get('item_code') && !$request->query->get('item_code')) {
       return $this->render('item/list_items.html.twig', [
         'locations' => $this->loc_repo->findAll(),
+        'warehouses' => $this->whs_repo->findAll(),
         'units' => $this->unit_repo->findAll(),
         'result' => $result,
         'params' => $params,
       ]);
     }
 
-    $item = $this->item_repo->find($request->request->get('item_name'));
-    $item_locations = [];
-    foreach ($item->getLocations() as $location)
+    switch ($request->getMethod())
     {
-      $item_locations[] = $location->getLocName();
+      case 'POST':
+        // response coming from form
+        $item = $this->item_repo->find($request->request->get('item_code'));
+        break;
+      case 'GET':
+        // response coming from link
+        $item = $this->item_repo->find($request->query->get('item_code'));
+        break;
+    }
+    $item_locations = [];
+    foreach ($item->getItemLoc() as $item_loc)
+    {
+      $item_locations[] = ['loc_code' => $item_loc->getLocation()->getLocDesc(), 'whs_code' => $item_loc->getWarehouse()->getWhsCode(), 'item_qty' => $item_loc->getItemQty()];
     }
     $params = array_merge($params, [
-      'item_name' => $item->getItemName(),
+      'item_code' => $item->getItemCode(),
       'item_desc' => $item->getItemDesc(),
+      'item_notes' => $item->getItemNotes(),
       'item_exp_date' => $item->getItemExpDate(),
-      'item_quantity' => $item->getItemQuantity(),
+      'item_total_qty' => $item->getItemQty(),
       'item_unit' => $item->getItemUnit()->getUnitCode(),
       'item_location' => $item_locations,
     ]);
 
     return $this->render('item/list_items.html.twig', [
       'locations' => $this->loc_repo->findAll(),
+      'warehouses' => $this->whs_repo->findAll(),
       'units' => $this->unit_repo->findAll(),
       'result' => $result,
       'params' => $params,
@@ -108,21 +123,21 @@ class ItemController extends AbstractController
   #[Route('/new/item/', name:'new_item')]
   public function new_item(Request $request): Response
   {
-    
     if(!$request->request->all()) { return $this->redirectToRoute('list_items'); }
 
     $params = $request->request->all();
     $item = new Item;
-    $item->setItemName($params['item_name']);
     $item->setItemDesc($params['item_desc']);
+    $item->setItemNotes($params['item_notes']);
     $date = new datetime($params['item_exp_date'], new datetimezone('America/Indiana/Indianapolis'));
     $item->setItemExpDate($date);
-    $unit = $this->unit_repo->find($params['item_unit']);
-    $item->setItemUnit($unit);
-    foreach (explode(',', $params['item_locations']) as $location_name)
+    $item->setItemUnit($this->unit_repo->find($params['item_unit']));
+    dd($params);
+    foreach (explode(',', $params['item_locations']) as $loc_addr)
     {
-      $location = $this->loc_repo->find($location_name); 
-      $item->addLocation($location);
+      $loc = $this->loc_repo->find($loc_addr['loc_code']); 
+      $whs = $this->whs_repo->find($loc_addr['whs_code']);
+      $item->addLocation($loc, $whs);
     }
     $this->em->persist($item);
     // $this->trans_service->create_transaction($item, $location);
@@ -140,38 +155,43 @@ class ItemController extends AbstractController
   #[Route('/modify/item/', name:'modify_item')]
   public function display_item(Request $request): Response
   {
-    $id = $request->query->get('item_id');
-    $item_loc = $this->item_loc_repo->find($id);
-    $item = $item_loc->getItem();
-
-    $params = [
-      'item_name' => $item->getItemName(),
-      'item_desc' => $item->getItemDesc(),
-      'item_exp_date' => null,
-      'item_quantity' => $item->getItemQuantity(),
-      'item_location' => $item->getLocations(),
-    ];
-
-    if ($item->getItemExpDate()) { $params['item_exp_date'] = $item->getItemExpDate()->format('Y-m-d'); }
-    
     if(!$request->request->all()) { return $this->redirectToRoute(('list_items')); }
     // no form submission
+    // this should never happen, but prevents someone just entering the url.
+
+    $item_code = $request->query->get('item_code');
+    $item = $this->item_repo->find($item_code);
+
+    $params = [
+      'item_code' => $item->getItemCode(),
+      'item_desc' => $item->getItemDesc(),
+      'item_notes' => $item->getItemNotes(),
+      'item_exp_date' => null,
+      'item_qty' => $item->getItemQty(),
+    ];
+    // item_exp_date is null as it gets set below
+
+    if ($item->getItemExpDate()) { $params['item_exp_date'] = $item->getItemExpDate()->format('Y-m-d'); }
+    // setting this here because if the date is null, format draws an error.
+
 
     // item modification stage
     $params = $request->request->all();
-    $item->setItemName($params['item_name']);
     $item->setItemDesc($params['item_desc']);
+    $item->setItemNotes($params['item_notes']);
     $date = new datetime($params['item_exp_date'], new datetimezone('America/Indiana/Indianapolis'));
     $item->setItemExpDate($date);
-    $item_loc->setItem($item);
-    $item_loc->setQuantity($item_loc->getQuantity() + ((int)trim($params['quantity_change'], '+')));
-    $location = $this->loc_repo->find($params['item_location']);
-    $item_loc->setLocation($location);
-    $this->em->persist($item_loc);
+    foreach (explode(',', $params['item_locations']) as $loc_addr)
+    {
+      $loc = $this->loc_repo->find($loc_addr['loc_code']); 
+      $whs = $this->whs_repo->find($loc_addr['whs_code']);
+      $item->addLocation($loc, $whs);
+    }
+    $this->em->persist($item);
     // $this->trans_service->create_transaction($item, $location, ((int)trim($params['quantity_change'], '+')));
     $this->em->flush();
     $this->addFlash('success', 'Item Updated');
-    return $this->redirectToRoute('list_items', ['item_name' => $item->getItemName()]);
+    return $this->redirectToRoute('list_items', ['item_code' => $item->getItemCode()]);
   }
 
 
@@ -187,7 +207,7 @@ class ItemController extends AbstractController
     $item_loc = $this->item_loc_repo->find($id);
     $item = $item_loc->getItem();
 
-    if ($item_loc->getQuantity() == 0)
+    if ($item_loc->getItemQty() == 0)
     {
       $this->em->remove($item_loc);
       $this->em->flush();

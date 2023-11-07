@@ -10,11 +10,13 @@ use Doctrine\ORM\Mapping as ORM;
 class PurchaseOrderLine
 {
     #[ORM\Id]
+    #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer', nullable:false)]
-    private ?int $po_num;
-
-    #[ORM\Column(type: types::SMALLINT, nullable:false)]
     private ?int $po_line;
+
+    #[ORM\ManyToOne(targetEntity:PurchaseOrder::class, inversedBy:'po_lines')]
+    #[ORM\JoinColumn(name:'po_num', referencedColumnName:'po_num')]
+    private ?PurchaseOrder $po;
 
     #[ORM\Column(type: 'string', length:1, nullable:false)]
     private ?int $po_status;
@@ -56,9 +58,16 @@ class PurchaseOrderLine
     #[ORM\Column(type: 'integer', nullable:false)]
     private ?int $item_quantity;
 
-    public function getPoNum(): ?int
+    public function getPo(): ?PurchaseOrder
     {
-        return $this->po_num;
+        return $this->po;
+    }
+
+    public function setPo(?PurchaseOrder $po): static
+    {
+        $this->po = $po;
+
+        return $this;
     }
 
     public function getPoLine(): ?int

@@ -6,35 +6,29 @@
     <table>
       <tr>
         <th>{{ knp_pagination_sortable(result, 'PO Num', 'po_num') }}</th>
-        <th>{{ knp_pagination_sortable(result, 'Vendor', 'vendor.vendor_name') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Vendor', 'vendor.vendor_ode') }}</th>
         <th>{{ knp_pagination_sortable(result, 'Terms', 'terms.po_code') }}</th>
         <th>{{ knp_pagination_sortable(result, 'Received', 'po_received') }}</th>
         <th>{{ knp_pagination_sortable(result, 'Paid', 'paid') }}</th>
         <th>{{ knp_pagination_sortable(result, 'Order Date', 'order_date') }}</th>
-        <th>{{ knp_pagination_sortable(result, 'Price', 'price') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Total Cost', 'total_cost') }}</th>
       </tr>
-      {% for row in result %} {# simple loop to output rows #}
+      {% for row in result %}
         <tr>
-          <td><a href="{{ path('display_purchase_order', { po_num: row.poNum }) }}">{{ row.poNum }}</a></td>
-          <td><a href="{{ path('display_vendor', { vendor_num: row.poVendor.vendorCode }) }}">{{row.poVendor.vendorCode }}</td>
+          <td><a href="{{ path('list_pos', { po_num: row.poNum }) }}">{{ row.poNum }}</a></td>
+          <td><a href="{{ path('vendor_details', { vendor_num: row.poVendor.vendorCode }) }}">{{row.poVendor.vendorCode }}</td>
           <td>{{ row.poTerms.termsCode }}</td>
-          <td>{{ row.poReceived }}</td>
-          <td>{{ row.poPaid }}</td>
+          <td>{% if row.poReceived == 1 %}True{% else %}False{% endif %}</td>
+          <td>{% if row.poPaid == 1 %}True{% else %}False{% endif %}</td>
           <td>{{ row.poOrderDate|format_datetime('short', 'none') }}</td>
-          <td>{{ row.poPrice }}</td>
+          <td>${{ row.poTotalCost }}</td>
         </tr> 
       {% endfor %}
     </table>
   </div>
   {{ include('purchase_order/po_form.html.twig') }}
-</div>
-{% endblock %}
-
-{% block footer %}
-<div class="db-bar">
-  {{ include('widgets/limit_widget.html.twig') }}
-  <span class="db-right">
-    {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
-  </span>
+  <div class="db-wrapper db-column db-panel db-border">
+    <a class="db-button db-border" href="{{ path('po_details', {po_num: params.po_num}) }}">PO Details</a>
+  </div>
 </div>
 {% endblock %}

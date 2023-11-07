@@ -18,23 +18,23 @@ class LocationFixtures extends Fixture
   public function load(ObjectManager $manager): void
   {
     $loc = new Location();
-    $loc->setLocName('Freezer');
-    $loc->setLocCode(substr($loc->getLocName(),0,3) . '123');
+    $loc->setLocDesc('Freezer');
+    $loc->setLocCode(substr($loc->getLocDesc(),0,3) . '123');
     $this->em->persist($loc);
 
     $loc = new Location();
-    $loc->setLocName('Cupboard');
-    $loc->setLocCode(substr($loc->getLocName(),0,3) . '123');
+    $loc->setLocDesc('Cupboard');
+    $loc->setLocCode(substr($loc->getLocDesc(),0,3) . '123');
     $this->em->persist($loc);
 
     $loc = new Location();
-    $loc->setLocName('Fridge');
-    $loc->setLocCode(substr($loc->getLocName(),0,3) . '123');
+    $loc->setLocDesc('Fridge');
+    $loc->setLocCode(substr($loc->getLocDesc(),0,3) . '123');
     $this->em->persist($loc);
 
     $loc = new Location();
-    $loc->setLocName('Shelf');
-    $loc->setLocCode(substr($loc->getLocName(),0,3) . '123');
+    $loc->setLocDesc('Shelf');
+    $loc->setLocCode(substr($loc->getLocDesc(),0,3) . '123');
     $this->em->persist($loc);
 
     $this->em->flush();

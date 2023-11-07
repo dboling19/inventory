@@ -17,10 +17,10 @@ class Item
   private ?string $item_code;
 
   #[ORM\Column(type:'string', length:50, nullable:false)]
-  private ?string $item_name;
+  private ?string $item_desc;
 
   #[ORM\Column(type:'text', nullable:true)]
-  private ?string $item_desc = null;
+  private ?string $item_notes = null;
 
   #[ORM\OneToMany(targetEntity:Transaction::class, mappedBy:"item", cascade:["persist", "remove"])]
   #[ORM\InverseJoinColumn(nullable:false, name:'item_code', referencedColumnName:'item_code')]
@@ -31,7 +31,7 @@ class Item
   #[ORM\JoinColumn(name:'item_code', referencedColumnName:'item_code')]
   #[ORM\JoinColumn(name:'loc_code', referencedColumnName:'loc_code')]
   #[ORM\JoinColumn(name:'whs_code', referencedColumnName:'whs_code')]
-  private $item_loc;
+  private $item_loc = null;
 
   #[ORM\Column(type:'datetime', nullable:true)]
   private $item_exp_date = null;
@@ -63,36 +63,36 @@ class Item
     return $this;
   }
 
-  public function getItemName(): ?string
-  {
-    return $this->item_name;
-  }
-
-  public function setItemName(string $item_name): static
-  {
-    $this->item_name = $item_name;
-
-    return $this;
-  }
-
   public function getItemDesc(): ?string
   {
     return $this->item_desc;
   }
 
-  public function setItemDesc(?string $item_desc): static
+  public function setItemDesc(string $item_desc): static
   {
     $this->item_desc = $item_desc;
 
     return $this;
   }
 
-  public function getItemQuantity(): ?int
+  public function getItemNotes(): ?string
+  {
+    return $this->item_notes;
+  }
+
+  public function setItemNotes(?string $item_notes): static
+  {
+    $this->item_notes = $item_notes;
+
+    return $this;
+  }
+
+  public function getItemQty(): ?int
   {
     $item_qty = 0;
     foreach ($this->item_loc as $item_loc)
     {
-      $item_qty += $item_loc->getQuantity();
+      $item_qty += $item_loc->getItemQty();
     }
     return $item_qty;
   }

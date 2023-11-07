@@ -17,10 +17,10 @@ class Location implements JsonSerializable
   private string $loc_code;
 
   #[ORM\Column(type:'string', length:255, nullable:false)]
-  private string $loc_name;
+  private string $loc_desc;
 
   #[ORM\Column(type:Types::TEXT, nullable:true)]
-  private ?string $loc_desc;
+  private ?string $loc_notes;
 
   #[ORM\OneToMany(targetEntity:ItemLocation::class, mappedBy:'location', orphanRemoval:true, cascade:['persist'])]
   #[ORM\InverseJoinColumn(name:'item_code', referencedColumnName:'item_code')]
@@ -49,7 +49,7 @@ class Location implements JsonSerializable
   public function jsonSerialize()
   {
     return [
-      'loc_name' => $this->loc_name,
+      'loc_desc' => $this->loc_desc,
       'item_qty' => $this->item_qty,
     ];
   }
@@ -66,14 +66,14 @@ class Location implements JsonSerializable
     return $this;
   }
 
-  public function getLocName(): ?string
+  public function getLocDesc(): ?string
   {
-      return $this->loc_name;
+      return $this->loc_desc;
   }
 
-  public function setLocName(string $loc_name): static
+  public function setLocDesc(string $loc_desc): static
   {
-      $this->loc_name = $loc_name;
+      $this->loc_desc = $loc_desc;
 
       return $this;
   }
@@ -143,7 +143,7 @@ class Location implements JsonSerializable
     $item_qty = 0;
     foreach ($this->item_loc as $item_loc)
     {
-      $item_qty += $item_loc->getQuantity();
+      $item_qty += $item_loc->getItemQty();
     }
     return $item_qty;
   }
@@ -176,14 +176,14 @@ class Location implements JsonSerializable
     return $this->items;
   }
 
-  public function getLocDesc(): ?string
+  public function getLocNotes(): ?string
   {
-      return $this->loc_desc;
+      return $this->loc_notes;
   }
 
-  public function setLocDesc(string $loc_desc): static
+  public function setLocNotes(string $loc_notes): static
   {
-    $this->loc_desc = $loc_desc;
+    $this->loc_notes = $loc_notes;
 
     return $this;
   }

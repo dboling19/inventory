@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ params.item_code }} Location Details{% endblock %}
+{% block content %}
+<div class="db-wrapper">
+  <div class="db-resize-horizontal">
+    <table>
+      <tr>
+        <th>Loc Code</th>
+        <th>Whs Code</th>
+        <th>Item Qty</th>
+      </tr>
+      {% for row in item_loc %}
+        <tr>
+          <td>{{ row.location.locCode }}</td>
+          <td>{{ row.warehouse.whsCode }}</td>
+          <td>{{ row.itemQty }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="db-panel db-wrapper db-third">
+    <form class="db-wrapper db-fill db-column db-border" id="item_form" method="post">
+      <div class="db-form-section">
+        <label for="item_code">
+          Item Code
+          <input type="text" class="db-input db-border db-filter" list="item_code_datalist" id="item_code" name="item_code" value="{{ params.item_code }}" autocomplete="off">
+          <datalist id="item_code_datalist">
+            {% for i in items %}
+              <option value="{{ i.itemCode }}">{{ i.itemCode }}</option>
+            {% endfor %}
+          </datalist>
+        </label>
+      </div>
+      <div class="db-form-section">
+        <label for="item_desc">
+          Item Desc
+          <input type="text" class="db-input db-border" autocomplete="off" value="{{ params.item_desc }}" disabled>
+        </label>
+      </div>
+      <div class="db-form-section">
+        <label>Location</label>
+        <div id="loc_widget">
+          <!-- loc_template will build here-->
+        </div>
+        <template id="loc_template">
+          <div class="db-wrapper">
+            <input list="whs_datalist" class="db-input db-border" autocomplete="off"></input>
+            <input list="loc_datalist" class="db-input db-border" autocomplete="off"></input>
+            <input type="text" class="db-input db-border db-auto" disabled></input>
+          </div>
+        </template>
+        <div class="db-wrapper">
+          <input type="text" class="db-input db-border" autocomplete="off" disabled value="Total Quantity"></input>
+          <input type="text" class="db-input db-border db-auto" value="{{ params.item_total_qty }}" disabled></input>
+        </div>
+        <datalist id="loc_datalist">
+          {% for key,loc in locations %}
+            <option value="{{ loc.locCode }}">{{ loc.locCode }}</option>
+          {% endfor %}
+        </datalist>
+        <datalist id="whs_datalist">
+          {% for key,whs in warehouses %}
+            <option value="{{ whs.whsCode }}">{{ whs.whsCode }}</option>
+          {% endfor %}
+        </datalist>
+        <input id="item_loc_value" name="item_locations" hidden></input>
+      </div>
+      <div class="db-wrapper db-form-section">
+        {% if params.item_code != '' %}
+          <button type="submit" class="db-button db-border" formaction="{{ path('modify_item_location') }}">Save</button>
+        {% else %}
+          <button type="submit" class="db-button db-border" formaction="{{ path('new_item') }}">Create Item</button>
+        {% endif %}
+        <button type="submit" class="db-button db-border" formmethod="get" formaction="{{ path('item_location_details') }}">Search</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const object_params = {{ params|json_encode()|raw }};
+const loc_widget = document.getElementById('loc_widget');
+const loc_template = document.getElementById('loc_template');
+var loc_input = [];
+for (let i = 0; i < 5; i++)
+{
+  const clone = loc_template.content.cloneNode(true);
+  loc_widget.appendChild(clone);
+  loc_widget.children[i].id = 'location_section_0' + (i + 1);
+  loc_widget.children[i].addEventListener('change', update_loc_values);
+}
+
+// filling values and input list from loaded entity, if exists
+if (object_params.item_locations) {
+  object_params.item_locations.forEach((value,index) => {
+    loc_section = loc_widget.children[index];
+    whs_name = loc_section.children[0];
+    loc_name = loc_section.children[1];
+    loc_qty = loc_section.children[2];
+    loc_name.value = value.loc_code;
+    whs_name.value = value.whs_code;
+    loc_qty.value = value.item_qty;
+    loc_input[index] = value.loc_code;
+  });
+}
+
+function update_loc_values()
+{
+  var loc_input = [];
+  [].forEach.call(loc_widget.children, child => {
+    if (![null, ''].includes(child.children[0].value))
+    {
+      loc_input.push({loc_code: child.children[0].value, whs_code: child.children[1].value});
+    }
+  });
+  document.getElementById('item_loc_value').value = loc_input;
+}
+
+</script>
+{% endblock %}

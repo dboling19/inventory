@@ -5,15 +5,15 @@
   <div class="db-resize-horizontal">
     <table>
       <tr>
-        <th>{{ knp_pagination_sortable(result, 'Location Code', 'loc_code') }}</th>
-        <th>{{ knp_pagination_sortable(result, 'Location', 'loc_name') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Loc Code', 'loc_code') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Loc Name', 'loc_desc') }}</th>
         <th>Entries</th>
         <th>Total Items</th>
       </tr>
       {% for row in result %}
         <tr>
           <td><a href="{{ path('list_locations', {loc_code: row.locCode }) }}">{{ row.locCode }}</a></td>
-          <td><a href="{{ path('list_locations', {loc_code: row.locCode }) }}">{{ row.locName }}</a></td>
+          <td><a href="{{ path('list_locations', {loc_code: row.locCode }) }}">{{ row.locDesc }}</a></td>
           <td>{{ row.itemLoc|length }}</td>
           <td>{{row.itemQty }}
         </tr>

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PurchaseOrderRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -41,21 +43,30 @@ class PurchaseOrder
     private ?\Datetime $po_order_date;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $po_price = '0';
+    private ?string $po_total_cost = '0';
+
+    #[ORM\OneToMany(targetEntity: PurchaseOrderLine::class, mappedBy:'po')]
+    private $po_lines;
+
+
+    public function __construct()
+    {
+        $this->po_lines = new ArrayCollection();
+    }
 
     public function getPoNum(): ?int
     {
         return $this->po_num;
     }
 
-    public function getPoPrice(): ?string
+    public function getPoTotalCost(): ?string
     {
-        return $this->po_price;
+        return $this->po_total_cost;
     }
 
-    public function setPoPrice(string $po_price): static
+    public function setPoTotalCost(string $po_total_cost): static
     {
-        $this->po_price = $po_price;
+        $this->po_total_cost = $po_total_cost;
 
         return $this;
     }
@@ -152,6 +163,36 @@ class PurchaseOrder
     public function setPoVendor(?Vendor $vendor): static
     {
         $this->vendor = $vendor;
+
+        return $this;
+    }
+    
+    /**
+     * @return Collection<int, PurchaseOrderLine>
+     */
+    public function getPoLines(): Collection
+    {
+        return $this->po_lines;
+    }
+
+    public function addPoLine(PurchaseOrderLine $poLine): static
+    {
+        if (!$this->po_lines->contains($poLine)) {
+            $this->po_lines->add($poLine);
+            $poLine->setPo($this);
+        }
+
+        return $this;
+    }
+
+    public function removePoLine(PurchaseOrderLine $poLine): static
+    {
+        if ($this->po_lines->removeElement($poLine)) {
+            // set the owning side to null (unless already changed)
+            if ($poLine->getPo() === $this) {
+                $poLine->setPo(null);
+            }
+        }
 
         return $this;
     }

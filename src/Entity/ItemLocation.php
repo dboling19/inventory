@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ItemLocationRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
 #[ORM\Entity(repositoryClass:ItemLocationRepository::class)]
@@ -25,18 +26,19 @@ class ItemLocation
   private ?Warehouse $warehouse;
 
   #[ORM\Column(type:'integer', nullable:false)]
-  private ?int $quantity = 0;
+  #[Assert\PositiveOrZero]
+  private ?int $item_qty = 0;
 
   private $trans;
 
-  public function getQuantity(): ?int
+  public function getItemQty(): ?int
   {
-      return $this->quantity;
+      return $this->item_qty;
   }
 
-  public function setQuantity(int $quantity): static
+  public function setItemQty(int $item_qty): static
   {
-      $this->quantity = $quantity;
+      $this->item_qty = $item_qty;
 
       return $this;
   }

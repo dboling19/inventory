@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+{% block title %}Purchase Orders{% endblock %}
+{% block content %}
+<div class="db-wrapper">
+  <div class="db-resize-horizontal">
+    <table>
+      <tr>
+        <th>{{ knp_pagination_sortable(result, 'PO Line', 'po.po_line') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Item Code', 'item.item_code') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Qty Ordered', 'po.qty_ordered') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Qty Receieved', 'po.qty_received') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Qty Rejected', 'po.qty_rejected') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Item Cost', 'po.item_cost') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Item Unit', 'item.item_unit') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Due Date', 'po.po_due_date') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Received Date', 'po.po_received_date') }}</th>
+      </tr>
+      {% for row in result %}
+        <tr>
+          <td><a href="{{ path('display_purchase_order', { po_num: row.poNum }) }}">{{ row.poNum }}</a></td>
+          <td><a href="{{ path('display_vendor', { vendor_num: row.poVendor.vendorCode }) }}">{{row.poVendor.vendorCode }}</td>
+          <td>{{ row.poTerms.termsCode }}</td>
+          <td>{% if row.poReceived == 1 %}True{% else %}False{% endif %}</td>
+          <td>{% if row.poPaid == 1 %}True{% else %}False{% endif %}</td>
+          <td>{{ row.poOrderDate|format_datetime('short', 'none') }}</td>
+          <td>${{ row.poPrice }}</td>
+        </tr> 
+      {% endfor %}
+    </table>
+  </div>
+  {{ include('purchase_order/po_line_form.html.twig') }}
+</div>
+{% endblock %}

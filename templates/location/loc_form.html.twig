@@ -3,8 +3,8 @@
   <form id="location_form" class="db-wrapper db-fill db-column db-border" method="post">
     <div class="db-form-section">
       <label for="loc_code">
-        Code
-        <input type="text" class="db-input db-border" id="loc_code" name="loc_code" list="loc_code_datalist" required>{{ params.loc_code }}</input>
+        Location Code
+        <input type="text" class="db-input db-border" id="loc_code" name="loc_code" list="loc_code_datalist" value="{{ params.loc_code }}"></input>
         <datalist id="loc_code_datalist">
           {% for loc in result %}
             <option value="{{ loc.locCode }}">{{ loc.locCode }}</option>
@@ -13,14 +13,14 @@
       </label>
     </div>
     <div class="db-form-section">
-      <label for="loc_name">
-        Name
-        <input type="text" class="db-input db-border" id="loc_name" napme="loc_name" required>{{ params.loc_name }}</input>
+      <label for="loc_desc">
+        Location Desc
+        <textarea class="db-input db-border" id="loc_desc" napme="loc_desc" value="{{ params.loc_desc }}"></textarea>
       </label>
     </div>
     <div class="db-form-section">
-      <label for="item_desc">Description (Optional)</label>
-      <textarea class="db-input db-border" id="loc_desc" name="loc_desc">{{ params.loc_desc }}</textarea>
+      <label for="item_notes">Notes</label>
+      <textarea class="db-input db-border" id="loc_notes" name="loc_notes" value="{{ params.loc_notes }}"></textarea>
     </div>
     <div class="db-form-section">
       <label for="location_whs">Warehouse</label>
@@ -30,7 +30,7 @@
       </template>
       <datalist id="whs_datalist">
         {% for key,whs in warehouses %}
-          <option value="{{ whs.whsCode }}">{{ whs.whsCode ~ ' | ' ~ whs.whsName }}</option>
+          <option value="{{ whs.whsCode }}">{{ whs.whsCode ~ ' | ' ~ whs.whsDesc }}</option>
         {% endfor %}
       </datalist>
       <input id="loc_whs_value" name="loc_whs" hidden></input>
@@ -43,14 +43,20 @@
       </template>
       <datalist id="item_datalist">
         {% for key,item in items %}
-          <option value="{{ item.itemCode }}">{{ item.itemCode ~ ' | ' ~ item.itemName }}</option>
+          <option value="{{ item.itemCode }}">{{ item.itemCode ~ ' | ' ~ item.itemDesc }}</option>
         {% endfor %}
       </datalist>
       <input id="loc_item_value" name="loc_item" hidden></input>
     </div>
     <div class="db-wrapper db-form-section">
-      <button type="submit" class="db-button db-border" formaction="{{ path('new_location') }}">Create</button>
-      <button type="submit" class="db-button db-border" formaction="{{ path('list_locations') }}">Search</button>
+      {% if params.loc_code is not null %}
+        <button type="submit" class="db-button db-border" formaction="{{ path('modify_location', { loc_code: params.loc_code }) }}">Save</button>
+        <button type="submit" class="db-button db-border" formaction="{{ path('list_locations') }}">Search</button>
+        <button type="submit" class="db-button db-border db-red" formaction="{{ path('delete_location', { loc_code: params.loc_code }) }}">Delete</button>
+      {% else %}
+        <button type="submit" class="db-button db-border" formaction="{{ path('new_location') }}">Create</button>
+        <button type="submit" class="db-button db-border" formaction="{{ path('list_locations') }}">Search</button>
+      {% endif %}
     </div>
   </form>
 </div>
