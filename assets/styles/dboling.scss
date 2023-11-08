@@ -114,6 +114,7 @@ tr:hover, tr:active {
 
 .db-resize-horizontal {
   height:100%;
+  width:25%;
   min-width:10px;
   border-right:2px solid black;
   resize:horizontal;
@@ -373,6 +374,7 @@ tr:hover, tr:active {
   flex-flow:row nowrap;
   justify-content:flex-start;
   align-items:center;
+  border-bottom:1px solid $nord0;
 }
 
 .db-bar .db-button {

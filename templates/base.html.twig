@@ -18,7 +18,8 @@
   <body>
     {% block body %}
       <header>
-        {{ include('navbar.html.twig') }}
+        {{ include('widgets/navbar.html.twig') }}
+        {{ include('widgets/toolbar.html.twig') }}
       </header>
       <noscript>Please enable Javascript to use this page.  Most elements require JS to run correctly.</noscript>
       {% block content %}{% endblock %}

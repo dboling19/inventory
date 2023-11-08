@@ -52,7 +52,7 @@ class ItemLocationController extends AbstractController
 
     if (!$request->query->get('item_code'))
     {
-      return $this->render('item/item_location_details.html.twig', [
+      return $this->render('item_loc/item_loc_details.html.twig', [
         'locations' => $this->loc_repo->findAll(),
         'warehouses' => $this->whs_repo->findAll(),
         'items' => $this->item_repo->findAll(),
@@ -78,7 +78,7 @@ class ItemLocationController extends AbstractController
     ];
 
     if (!$request->request->all()) {
-      return $this->render('item/item_location_details.html.twig', [
+      return $this->render('item_loc/item_loc_details.html.twig', [
         'locations' => $this->loc_repo->findAll(),
         'warehouses' => $this->whs_repo->findAll(),
         'items' => $this->item_repo->findAll(),

@@ -1,0 +1,8 @@
+{% block toolbar %}
+<nav class="db-bar db-fixed-top" id="navbar">
+  <button type="submit" class="db-button" form="{{ entity_type ~ '_form' }}" formaction="{{ path(entity_type ~ '_new') }}">New</button>
+  <button type="submit" class="db-button" form="{{ entity_type ~ '_form' }}" formaction="{{ path(entity_type ~ '_search') }}">Search</button>
+  <button type="submit" class="db-button" form="{{ entity_type ~ '_form' }}" formaction="{{ path(entity_type ~ '_modify') }}">Save</button>
+  <button type="submit" class="db-button" form="{{ entity_type ~ '_form' }}" formaction="{{ path(entity_type ~ '_delete') }}">Delete</button>
+</nav>
+{% endblock %}

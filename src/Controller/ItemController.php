@@ -40,12 +40,11 @@ class ItemController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/', name:'list_items')]
+  #[Route('/', name:'item_list')]
   public function list_items(Request $request): Response
   {
-    // setup page display
-    // $params['submitted'] = $request->query->get('s') ?? false;
     $items_limit_cookie = $request->cookies->get('items_limit') ?? 25;
+    $entity_type = 'item';
     $params = [
       'limit' => $items_limit_cookie,
       'item_code' => null,
@@ -66,7 +65,16 @@ class ItemController extends AbstractController
       $items_limit_cookie = $params['limit'];
     }
     // to autofill form fields, or leave them null.
-    $params = array_merge($params, $request->query->all());
+    switch ($request->getMethod())
+    {
+      case 'POST':
+        $params = array_merge($request->request->all(), $params);
+        break;
+      case 'GET':
+        $params = array_merge($request->query->all(), $params);
+        break;
+    }
+    dd($params);
     $result = $this->item_repo->findAll();
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
     if (!$request->request->get('item_code') && !$request->query->get('item_code')) {
@@ -76,20 +84,12 @@ class ItemController extends AbstractController
         'units' => $this->unit_repo->findAll(),
         'result' => $result,
         'params' => $params,
+        'entity_type' => $entity_type,
       ]);
     }
 
-    switch ($request->getMethod())
-    {
-      case 'POST':
-        // response coming from form
-        $item = $this->item_repo->find($request->request->get('item_code'));
-        break;
-      case 'GET':
-        // response coming from link
-        $item = $this->item_repo->find($request->query->get('item_code'));
-        break;
-    }
+
+    $item = $this->item_repo->find($request->query->get('item_code'));
     $item_locations = [];
     foreach ($item->getItemLoc() as $item_loc)
     {
@@ -111,7 +111,23 @@ class ItemController extends AbstractController
       'units' => $this->unit_repo->findAll(),
       'result' => $result,
       'params' => $params,
+      'entity_type' => $entity_type,
     ]); 
+  }
+
+
+  /**
+   * 
+   */
+  #[Route('/item/search/', name:'item_search')]
+  public function item_search(Request $request): Response
+  {
+    if (!$request->query->get('item_code'))
+    {
+      return $this->redirectToRoute('item_list');
+    }
+
+    return $this->redirectToRoute('item_list', ['item_code' => $request->query->get('item_code')]);
   }
 
 
@@ -120,10 +136,10 @@ class ItemController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/new/item/', name:'new_item')]
-  public function new_item(Request $request): Response
+  #[Route('/item/new/', name:'item_new')]
+  public function item_new(Request $request): Response
   {
-    if(!$request->request->all()) { return $this->redirectToRoute('list_items'); }
+    if(!$request->request->all()) { return $this->redirectToRoute('item_list'); }
 
     $params = $request->request->all();
     $item = new Item;
@@ -132,7 +148,6 @@ class ItemController extends AbstractController
     $date = new datetime($params['item_exp_date'], new datetimezone('America/Indiana/Indianapolis'));
     $item->setItemExpDate($date);
     $item->setItemUnit($this->unit_repo->find($params['item_unit']));
-    dd($params);
     foreach (explode(',', $params['item_locations']) as $loc_addr)
     {
       $loc = $this->loc_repo->find($loc_addr['loc_code']); 
@@ -143,7 +158,7 @@ class ItemController extends AbstractController
     // $this->trans_service->create_transaction($item, $location);
     $this->em->flush();
     $this->addFlash('success', 'Item Created');
-    return $this->redirectToRoute('list_items', ['s' => true]);
+    return $this->redirectToRoute('item_list');
   }
 
   
@@ -152,10 +167,10 @@ class ItemController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/modify/item/', name:'modify_item')]
+  #[Route('/item/modify/', name:'item_modify')]
   public function display_item(Request $request): Response
   {
-    if(!$request->request->all()) { return $this->redirectToRoute(('list_items')); }
+    if(!$request->request->all()) { return $this->redirectToRoute(('item_list')); }
     // no form submission
     // this should never happen, but prevents someone just entering the url.
 
@@ -191,7 +206,7 @@ class ItemController extends AbstractController
     // $this->trans_service->create_transaction($item, $location, ((int)trim($params['quantity_change'], '+')));
     $this->em->flush();
     $this->addFlash('success', 'Item Updated');
-    return $this->redirectToRoute('list_items', ['item_code' => $item->getItemCode()]);
+    return $this->redirectToRoute('item_search', ['item_code' => $item->getItemCode()]);
   }
 
 
@@ -200,22 +215,22 @@ class ItemController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/delete_item/', name:'delete_item')]
+  #[Route('/item/delete/', name:'item_delete')]
   public function delete_item(Request $request)
   {
-    $id = $request->query->get('item_id');
-    $item_loc = $this->item_loc_repo->find($id);
+    $item_code = $request->query->get('item_code');
+    $item_loc = $this->item_loc_repo->find($item_code);
     $item = $item_loc->getItem();
 
-    if ($item_loc->getItemQty() == 0)
+    if ($item_loc->getItemQty() !== 0)
     {
-      $this->em->remove($item_loc);
-      $this->em->flush();
-      $this->addFlash('success', 'Removed Item Entry');
-      return $this->redirectToRoute('list_items');
-    } else {
-      return $this->redirectToRoute('display_item', ['item_id' => $id]);
+      return $this->redirectToRoute('item_search', ['item_code' => $item_code]);
     }
+
+    $this->em->remove($item_loc);
+    $this->em->flush();
+    $this->addFlash('success', 'Removed Item Entry');
+    return $this->redirectToRoute('item_list');
   }
 
 
@@ -224,17 +239,20 @@ class ItemController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/clear_exp_date/', name:'clear_exp_date')]
+  #[Route('/item/clear_exp_date/', name:'item_clear_exp_date')]
   public function clear_exp_date(Request $request): Response
   {
-    $id = $request->query->get('item_id');
-    $item_loc = $this->item_loc_repo->find($id);
-    $item = $item_loc->getItem();
+    if (!request->query->get('item_code'))
+    {
+      return $this->redirectToRoute('item_list');
+    }
+    $item_code = $request->query->get('item_code');
+    $item = $this->item_repo->find($item_code);
     $item->setExpDate(null);
     $this->em->persist($item);
     $this->em->flush();
     $this->addFlash('success', 'Cleared item expiration date');
-    return $this->redirectToRoute('display_item', ['item_id' => $id]);
+    return $this->redirectToRoute('item_search', ['item_code' => $item_code]);
   }
 
 }

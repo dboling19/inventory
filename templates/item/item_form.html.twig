@@ -26,7 +26,7 @@
       <label for="date">Expiration Date</label>
       <div class="db-wrapper">
         <input type="date" class="db-input db-border" id="item_exp_date" name="item_exp_date" value="{{ params.item_exp_date }}" autocomplete="off">
-        <button type="button" class="db-button db-border db-red db-quarter" onclick="window.location.href='{{ path('clear_exp_date', {item_code: params.item_code}) }}';">Clear Exp Date</button>
+        <button type="button" class="db-button db-border db-red db-quarter" onclick="window.location.href='{{ path('item_clear_exp_date', {item_code: params.item_code}) }}';">Clear Exp Date</button>
       </div>
     </div>
     <div class="db-form-section">
@@ -65,16 +65,6 @@
           <option value="{{ unit.unitCode }}">{{ unit.unitDesc }}</option>
         {% endfor %}
       </datalist>
-    </div>
-    <div class="db-wrapper db-form-section">
-      {% if params.item_code is not null %}
-        <button type="submit" class="db-button db-border" formaction="{{ path('modify_item', { item_code: params.item_code }) }}">Save</button>
-        <button type="submit" class="db-button db-border" formaction="{{ path('list_items') }}">Search</button>
-        <button type="submit" class="db-button db-border db-red" formaction="{{ path('delete_item', { item_code: params.item_code }) }}">Delete</button>
-      {% else %}
-        <button type="submit" class="db-button db-border" formaction="{{ path('new_item') }}">Create Item</button>
-        <button type="submit" class="db-button db-border" formaction="{{ path('list_items') }}">Search</button>
-      {% endif %}
     </div>
   </form>
 </div>

@@ -14,7 +14,7 @@
       </tr>
       {% for row in result %} {# simple loop to output rows #}
         <tr>
-          <td><a href="{{ path('list_items', {item_code: row.itemCode }) }}">{{ row.itemCode }}</a></td>
+          <td><a href="{{ path('item_search', {item_code: row.itemCode }) }}">{{ row.itemCode }}</a></td>
           <td>{{ row.itemDesc }}</td>
           <td>{{ row.itemQty }}</td>
           <td>{{ row.itemUnit.unitCode }}</td>
