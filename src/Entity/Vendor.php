@@ -75,12 +75,12 @@ class Vendor
         return $this;
     }
 
-    public function getVendorAddress(): ?string
+    public function getVendorAddr(): ?string
     {
         return $this->vendor_addr;
     }
 
-    public function setVendorAddress(?string $vendor_addr): static
+    public function setVendorAddr(?string $vendor_addr): static
     {
         $this->vendor_addr = $vendor_addr;
 

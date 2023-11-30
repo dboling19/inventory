@@ -1,0 +1,98 @@
+{% block form %}
+<table>
+  <thead>
+    <tr>
+      <th>Item Code</th>
+      <th>Quantity</th>
+      <th>Warehouse</th>
+    </tr>
+  </thead>
+  <tbody id="item_table"></tbody>
+  <tfoot>
+    <tr>
+      <td>Total Quantity</td>
+      <td>{{ params.item_total_qty }}</td>
+    </tr>
+  </tfoot>
+  <template id="item_row_template">
+    <tr>
+      <td id="item_code"></td>
+      <td id="item_qty"></td>
+      <td id="whs_code"></td>
+    </tr>
+  </template>
+</table>
+
+<script>
+const item_table = document.getElementById('item_table');
+const item_row_template = document.getElementById('item_row_template');
+var whs_input = [];
+var rows = 20;
+for (let i = 0; i < rows; i++)
+{
+  const clone = item_row_template.content.cloneNode(true);
+  item_table.appendChild(clone);
+  item_table.children[i].id = 'item_row_0' + (i + 1);
+  item_table.children[i].addEventListener('change', update_item_values);
+}
+
+// filling values and input list from loaded entity, if exists
+if (params.item_location) {
+  params.item_location.forEach((value,index) => {
+    loc_section = loc_widget.children[index];
+    whs_code = loc_section.children[0];
+    item_code = loc_section.children[1];
+    loc_qty = loc_section.children[2];
+    item_name.value = value.item_code;
+    whs_name.value = value.whs_code;
+    loc_qty.value = value.item_qty;
+    loc_input[index] = value.loc_code;
+  });
+}
+
+function update_item_values()
+{
+  var whs_input = [];
+  [].forEach.call(whs_widget.children, (child, index) => {
+    if (![null, ''].includes(child.value))
+    {
+      whs_input.push(child.value);
+    }
+  });
+  document.getElementById('loc_whs_value').value = whs_input;
+}
+
+
+const item_widget = document.getElementById('item_widget');
+const item_template = document.getElementById('item_template');
+var item_input = [];
+for (let i = 0; i < 5; i++)
+{
+  const clone = item_template.content.cloneNode(true);
+  item_widget.appendChild(clone);
+  item_widget.children[i].id = 'whs_section_0' + (i + 1);
+  item_widget.children[i].addEventListener('change', update_item_values);
+}
+
+// filling values and input list from loaded entity, if exists
+if (params.item_location) {
+  params.item_location.forEach((value,index) => {
+    item_section = item_widget.children[index];
+    item_section.value = value;
+    item_input[index] = value;
+  });
+}
+
+function update_item_values()
+{
+  var item_input = [];
+  [].forEach.call(item_widget.children, (child, index) => {
+    if (![null, ''].includes(child.value))
+    {
+      item_input.push(child.value);
+    }
+  });
+  document.getElementById('loc_item_value').value = item_input;
+}
+</script>
+{% endblock %}

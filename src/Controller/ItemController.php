@@ -65,16 +65,7 @@ class ItemController extends AbstractController
       $items_limit_cookie = $params['limit'];
     }
     // to autofill form fields, or leave them null.
-    switch ($request->getMethod())
-    {
-      case 'POST':
-        $params = array_merge($request->request->all(), $params);
-        break;
-      case 'GET':
-        $params = array_merge($request->query->all(), $params);
-        break;
-    }
-    dd($params);
+    $params = array_merge($request->query->all(), $params);
     $result = $this->item_repo->findAll();
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
     if (!$request->request->get('item_code') && !$request->query->get('item_code')) {
@@ -117,7 +108,9 @@ class ItemController extends AbstractController
 
 
   /**
+   * Mainly a placeholder for the search functionality.
    * 
+   * @author Daniel Boling
    */
   #[Route('/item/search/', name:'item_search')]
   public function item_search(Request $request): Response
@@ -127,7 +120,9 @@ class ItemController extends AbstractController
       return $this->redirectToRoute('item_list');
     }
 
-    return $this->redirectToRoute('item_list', ['item_code' => $request->query->get('item_code')]);
+    $item_code = $request->query->get('item_code');
+
+    return $this->redirectToRoute('item_list', ['item_code' => $item_code]);
   }
 
 
@@ -145,8 +140,11 @@ class ItemController extends AbstractController
     $item = new Item;
     $item->setItemDesc($params['item_desc']);
     $item->setItemNotes($params['item_notes']);
-    $date = new datetime($params['item_exp_date'], new datetimezone('America/Indiana/Indianapolis'));
-    $item->setItemExpDate($date);
+    if ($params['item_exp_date'] !== '')
+    {
+      $date = new datetime($params['item_exp_date'], new datetimezone('America/Indiana/Indianapolis'));
+      $item->setItemExpDate($date);
+    }
     $item->setItemUnit($this->unit_repo->find($params['item_unit']));
     foreach (explode(',', $params['item_locations']) as $loc_addr)
     {
@@ -170,38 +168,29 @@ class ItemController extends AbstractController
   #[Route('/item/modify/', name:'item_modify')]
   public function display_item(Request $request): Response
   {
-    if(!$request->request->all()) { return $this->redirectToRoute(('item_list')); }
+    if(!$request->query->get('item_code')) { return $this->redirectToRoute(('item_list')); }
     // no form submission
     // this should never happen, but prevents someone just entering the url.
 
     $item_code = $request->query->get('item_code');
     $item = $this->item_repo->find($item_code);
 
-    $params = [
-      'item_code' => $item->getItemCode(),
-      'item_desc' => $item->getItemDesc(),
-      'item_notes' => $item->getItemNotes(),
-      'item_exp_date' => null,
-      'item_qty' => $item->getItemQty(),
-    ];
-    // item_exp_date is null as it gets set below
-
-    if ($item->getItemExpDate()) { $params['item_exp_date'] = $item->getItemExpDate()->format('Y-m-d'); }
-    // setting this here because if the date is null, format draws an error.
-
-
     // item modification stage
-    $params = $request->request->all();
+    $params = $request->query->all();
     $item->setItemDesc($params['item_desc']);
     $item->setItemNotes($params['item_notes']);
-    $date = new datetime($params['item_exp_date'], new datetimezone('America/Indiana/Indianapolis'));
-    $item->setItemExpDate($date);
-    foreach (explode(',', $params['item_locations']) as $loc_addr)
+    if ($params['item_exp_date'] !== '')
     {
-      $loc = $this->loc_repo->find($loc_addr['loc_code']); 
-      $whs = $this->whs_repo->find($loc_addr['whs_code']);
-      $item->addLocation($loc, $whs);
+      $date = new datetime($params['item_exp_date'], new datetimezone('America/Indiana/Indianapolis'));
+      $item->setItemExpDate($date);
     }
+    $item_unit = $this->unit_repo->find($params['item_unit_code']);
+    if ($item_unit == null)
+    {
+      $this->addFlash('error', 'Error: Invalid Unit - Item not updated');
+      return $this->redirectToRoute('item_search', ['item_code' => $item->getItemCode()]);
+    }
+    $item->setItemUnit($item_unit);
     $this->em->persist($item);
     // $this->trans_service->create_transaction($item, $location, ((int)trim($params['quantity_change'], '+')));
     $this->em->flush();
@@ -242,13 +231,13 @@ class ItemController extends AbstractController
   #[Route('/item/clear_exp_date/', name:'item_clear_exp_date')]
   public function clear_exp_date(Request $request): Response
   {
-    if (!request->query->get('item_code'))
+    if (!$request->query->get('item_code'))
     {
       return $this->redirectToRoute('item_list');
     }
     $item_code = $request->query->get('item_code');
     $item = $this->item_repo->find($item_code);
-    $item->setExpDate(null);
+    $item->setItemExpDate(null);
     $this->em->persist($item);
     $this->em->flush();
     $this->addFlash('success', 'Cleared item expiration date');

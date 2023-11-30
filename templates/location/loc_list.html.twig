@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+{% block title %}Locations{% endblock %}
+{% block content %}
+<div class="db-wrapper">
+  <div class="db-resize-horizontal db-quarter">
+    <table>
+      <tr>
+        <th>{{ knp_pagination_sortable(result, 'Loc Code', 'loc_code') }}</th>
+        <th>{{ knp_pagination_sortable(result, 'Loc Name', 'loc_desc') }}</th>
+        <th>Entries</th>
+        <th>Total Items</th>
+      </tr>
+      {% for row in result %}
+        <tr>
+          <td><a href="{{ path('loc_list', {loc_code: row.locCode }) }}">{{ row.locCode }}</a></td>
+          <td>{{ row.locDesc }}</td>
+          <td>{{ row.itemLoc|length }}</td>
+          <td>{{row.itemQty }}
+        </tr>
+      {% endfor %}
+    </table>
+    {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
+  </div>
+  <div class="db-wrapper db-column">
+    {{ include('location/loc_form.html.twig') }}
+    <div class="db-tab">
+      <button class="db-tablinks db-button" onclick="open_tab(event, 'items')">Items</button>
+      <button class="db-tablinks db-button" onclick="open_tab(event, 'vendor_details')">Log</button>
+    </div>
+    <div id="items" class="db-tabcontent db-resize-horizontal db-half">
+      {{ include('location/item_table.html.twig') }}
+    </div>
+    <div id="vendor_details" class="db-tabcontent db-quarter">
+      {# {{ include('vendor/vendor_details.html.twig') }} #}
+    </div>
+  </div>
+</div>
+
+<script>
+tab_content = document.getElementsByClassName('db-tabcontent');
+tab_links = document.getElementsByClassName('db-tablinks');
+tab_content[0].style.display = 'block';
+tab_links[0].className += ' active';
+function open_tab(event, tab_name)
+{
+  // declare variables
+  var i, tab_content, tab_links;
+
+  // get all elements with class="db-tabcontent" and hide them
+  tab_content = document.getElementsByClassName('db-tabcontent');
+  for (i=0; i < tab_content.length; i++)
+  {
+    tab_content[i].style.display = 'none';
+  }
+
+  // get all elements with class="db-tablinks" and remove the calss "active"
+  tab_links = document.getElementsByClassName('db-tablinks');
+  for (i = 0; i < tab_links.length; i++)
+  {
+    tab_links[i].className = tab_links[i].className.replace(' active', '');
+  }
+
+  // show the current tab, and add an 'active' class to the button that opened the tab
+  document.getElementById(tab_name).style.display = 'block';
+  event.currentTarget.className += ' active';
+}
+</script>
+{% endblock %}

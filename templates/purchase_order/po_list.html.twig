@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+{% block title %}Purchase Orders{% endblock %}
+{% block content %}
+<div class="db-wrapper">
+  <div class="db-resize-horizontal db-quarter">
+    <table>
+      <tr>
+        <th>{{ knp_pagination_sortable(po_result, 'PO Num', 'p.po_num') }}</th>
+        <th>{{ knp_pagination_sortable(po_result, 'Vendor', 'vendor.vendor_ode') }}</th>
+        <th>{{ knp_pagination_sortable(po_result, 'Terms', 'terms.po_code') }}</th>
+        <th>{{ knp_pagination_sortable(po_result, 'Received', 'p.po_received') }}</th>
+        <th>{{ knp_pagination_sortable(po_result, 'Paid', 'p.paid') }}</th>
+        <th>{{ knp_pagination_sortable(po_result, 'Order Date', 'p.order_date') }}</th>
+        <th>{{ knp_pagination_sortable(po_result, 'Total Cost', 'p.total_cost') }}</th>
+      </tr>
+      {% for row in po_result %}
+        <tr>
+          <td><a href="{{ path('po_search', { po_num: row.poNum }) }}">{{ row.poNum }}</a></td>
+          <td><a href="{{ path('vendor_details', { vendor_num: row.poVendor.vendorCode }) }}">{{row.poVendor.vendorCode }}</td>
+          <td>{{ row.poTerms.termsCode }}</td>
+          <td>{% if row.poReceived == 1 %}True{% else %}False{% endif %}</td>
+          <td>{% if row.poPaid == 1 %}True{% else %}False{% endif %}</td>
+          <td>{{ row.poOrderDate|format_datetime('short', 'none') }}</td>
+          <td>${{ row.poTotalCost }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="db-wrapper db-column">
+    {{ include('purchase_order/po_form.html.twig') }}
+    <div class="db-tab">
+      <button class="db-tablinks db-button" onclick="open_tab(event, 'po_lines')">PO Lines</button>
+      <button class="db-tablinks db-button" onclick="open_tab(event, 'vendor_details')">Vendor</button>
+    </div>
+    <div id="po_lines" class="db-tabcontent db-resize-horizontal db-half">
+      {{ include('purchase_order/po_lines.html.twig') }}
+    </div>
+    <div id="vendor_details" class="db-tabcontent db-quarter">
+      {{ include('vendor/vendor_details.html.twig') }}
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+tab_content = document.getElementsByClassName('db-tabcontent');
+tab_links = document.getElementsByClassName('db-tablinks');
+tab_content[0].style.display = 'block';
+tab_links[0].className += ' active';
+function open_tab(event, tab_name)
+{
+  // declare variables
+  var i, tab_content, tab_links;
+
+  // get all elements with class="db-tabcontent" and hide them
+  tab_content = document.getElementsByClassName('db-tabcontent');
+  for (i=0; i < tab_content.length; i++)
+  {
+    tab_content[i].style.display = 'none';
+  }
+
+  // get all elements with class="db-tablinks" and remove the calss "active"
+  tab_links = document.getElementsByClassName('db-tablinks');
+  for (i = 0; i < tab_links.length; i++)
+  {
+    tab_links[i].className = tab_links[i].className.replace(' active', '');
+  }
+
+  // show the current tab, and add an 'active' class to the button that opened the tab
+  document.getElementById(tab_name).style.display = 'block';
+  event.currentTarget.className += ' active';
+}
+</script>
+{% endblock %}

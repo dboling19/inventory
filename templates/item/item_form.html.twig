@@ -1,10 +1,10 @@
 {% block form %}
 <div class="db-panel db-wrapper db-third">
-  <form class="db-wrapper db-fill db-column db-border" id="item_form" method="post">
+  <form class="db-wrapper db-fill db-column db-border" id="item_form" method="get">
       <div class="db-form-section">
       <label for="item_code">
         Item Code
-        <input type="text" class="db-input db-border db-filter" list="item_code_datalist" id="item_code" name="item_code" value="{{ params.item_code }}" autocomplete="off">
+        <input type="text" class="db-input db-border db-filter" list="item_code_datalist" id="item_code" name="item_code" autocomplete="off">
         <datalist id="item_code_datalist">
           {% for item in result %}
             <option value="{{ item.itemCode }}">{{ item.itemCode }}</option>
@@ -15,19 +15,28 @@
     <div class="db-form-section">
       <label for="item_desc">
         Item Desc
-        <input type="text" class="db-input db-border" id="item_desc" name="item_desc" value="{{ params.item_desc }}" autocomplete="off">
+        <input type="text" class="db-input" id="item_desc" name="item_desc" autocomplete="off">
       </label>
     </div>
     <div class="db-form-section">
       <label for="item_desc">Notes</label>
-      <textarea class="db-input db-border" id="item_notes" name="item_notes">{{ params.item_notes }}</textarea>
+      <textarea class="db-input" id="item_notes" name="item_notes"></textarea>
     </div>
     <div class="db-form-section">
       <label for="date">Expiration Date</label>
       <div class="db-wrapper">
-        <input type="date" class="db-input db-border" id="item_exp_date" name="item_exp_date" value="{{ params.item_exp_date }}" autocomplete="off">
-        <button type="button" class="db-button db-border db-red db-quarter" onclick="window.location.href='{{ path('item_clear_exp_date', {item_code: params.item_code}) }}';">Clear Exp Date</button>
+        <input type="date" class="db-input" id="item_exp_date" name="item_exp_date" autocomplete="off">
+        <button type="button" class="db-button db-red db-quarter" onclick="window.location.href='{{ path('item_clear_exp_date', {item_code: params.item_code}) }}';">Clear Exp Date</button>
       </div>
+    </div>
+    <div class="db-form-section">
+      <label for="item_unit">Unit of Measure</label>
+      <input list="unit_datalist" id="item_unit" name="item_unit_code" class="db-input" autocomplete="off"></input>
+      <datalist id="unit_datalist">
+        {% for unit in units %}
+          <option value="{{ unit.unitCode }}">{{ unit.unitDesc }}</option>
+        {% endfor %}
+      </datalist>
     </div>
     <div class="db-form-section">
       <label>Location</label>
@@ -36,56 +45,41 @@
       </div>
       <template id="loc_template">
         <div class="db-wrapper">
-          <input list="whs_datalist" class="db-input db-border" autocomplete="off" disabled></input>
-          <input list="loc_datalist" class="db-input db-border" autocomplete="off" disabled></input>
-          <input type="text" class="db-input db-border db-auto" disabled></input>
+          <input list="whs_datalist" class="db-input" autocomplete="off" disabled></input>
+          <input list="loc_datalist" class="db-input" autocomplete="off" disabled></input>
+          <input type="text" class="db-input db-auto" disabled></input>
         </div>
       </template>
       <div class="db-wrapper">
-        <input type="text" class="db-input db-border" autocomplete="off" disabled value="Total Quantity"></input>
-        <input type="text" class="db-input db-border db-auto" value="{{ params.item_total_qty }}" disabled></input>
+        <input type="text" class="db-input" autocomplete="off" disabled value="Total Quantity"></input>
+        <input type="text" id="item_total_qty" class="db-input db-auto" disabled></input>
       </div>
-      <datalist id="loc_datalist">
-        {% for key,loc in locations %}
-          <option value="{{ loc.locCode }}">{{ loc.locCode }}</option>
-        {% endfor %}
-      </datalist>
-      <datalist id="whs_datalist">
-        {% for key,whs in warehouses %}
-          <option value="{{ whs.whsCode }}">{{ whs.whsCode }}</option>
-        {% endfor %}
-      </datalist>
-      <input id="item_loc_value" name="item_locations" hidden></input>
-    </div>
-    <div class="db-form-section">
-      <label for="item_unit">Unit of Measure</label>
-      <input list="unit_datalist" id="item_unit" name="item_unit" class="db-input db-border" autocomplete="off" value="{{ params.item_unit }}"></input>
-      <datalist id="unit_datalist">
-        {% for unit in units %}
-          <option value="{{ unit.unitCode }}">{{ unit.unitDesc }}</option>
-        {% endfor %}
-      </datalist>
     </div>
   </form>
 </div>
 
 
 <script>
-const object_params = {{ params|json_encode()|raw }};
+const params = {{ params|json_encode()|raw }};
 const loc_widget = document.getElementById('loc_widget');
 const loc_template = document.getElementById('loc_template');
 var loc_input = [];
-for (let i = 0; i < 5; i++)
+
+const input_fields = ['item_code', 'item_desc', 'item_notes', 'item_exp_date', 'item_unit', 'item_total_qty'];
+// must add all desired fields to above list, and ensure array keys coming from PHP match related IDs.
+input_fields.forEach(id => load_data(id));
+function load_data(id)
 {
-  const clone = loc_template.content.cloneNode(true);
-  loc_widget.appendChild(clone);
-  loc_widget.children[i].id = 'location_section_0' + (i + 1);
-  loc_widget.children[i].addEventListener('change', update_loc_values);
+  input = document.getElementById(id);
+  input.value = params[id];
 }
 
 // filling values and input list from loaded entity, if exists
-if (object_params.item_location) {
-  object_params.item_location.forEach((value,index) => {
+if (params.item_location) {
+  params.item_location.forEach((value,index) => {
+    const clone = loc_template.content.cloneNode(true);
+    loc_widget.appendChild(clone);
+    loc_widget.children[index].id = 'location_section_0' + (index + 1);
     loc_section = loc_widget.children[index];
     whs_name = loc_section.children[0];
     loc_name = loc_section.children[1];
@@ -97,17 +91,12 @@ if (object_params.item_location) {
   });
 }
 
-function update_loc_values()
-{
-  var loc_input = [];
-  [].forEach.call(loc_widget.children, child => {
-    if (![null, ''].includes(child.children[0].value))
-    {
-      loc_input.push({loc_code: child.children[0].value, whs_code: child.children[1].value});
-    }
-  });
-  document.getElementById('item_loc_value').value = loc_input;
-}
 
+new_items_list = [];
+item_form = document.getElementById('item_form');
+function new_line()
+{
+  item_form.reset()
+}
 </script>
 {% endblock %}

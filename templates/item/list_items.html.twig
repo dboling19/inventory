@@ -5,6 +5,7 @@
   <div class="db-resize-horizontal">
     <table>
       <tr>
+        <th></th>
         <th>{{ knp_pagination_sortable(result, 'Item Code', 'item.item_code') }}</th>
         <th>{{ knp_pagination_sortable(result, 'Item Desc', 'item.item_desc') }}</th>
         <th>{{ knp_pagination_sortable(result, 'Item Qty', 'i.item_quantity') }}</th>
@@ -14,6 +15,7 @@
       </tr>
       {% for row in result %} {# simple loop to output rows #}
         <tr>
+          <td></td>
           <td><a href="{{ path('item_search', {item_code: row.itemCode }) }}">{{ row.itemCode }}</a></td>
           <td>{{ row.itemDesc }}</td>
           <td>{{ row.itemQty }}</td>
@@ -23,23 +25,18 @@
         </tr>
       {% endfor %}
     </table>
-  </div>
+    <div class="db-bar">
+      <span class="db-right">
+        {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
+      </span>
+    </div>
   <div>
     {{ include('item/item_form.html.twig') }}
   </div>
   <div class="db-panel">
     <div class="db-wrapper db-column db-panel db-border">
-      <a class="db-button db-border" href="{{ path('item_location_details', {item_code: params.item_code}) }}">Item Location</a>
+      <a class="db-button db-border" href="{{ path('detail_item_loc', {item_code: params.item_code}) }}">Item Location</a>
     </div>
   </div>
-</div>
-{% endblock %}
-
-{% block footer %}
-<div class="db-bar">
-  {{ include('widgets/limit_widget.html.twig') }}
-  <span class="db-right">
-    {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
-  </span>
 </div>
 {% endblock %}

@@ -41,9 +41,9 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
     foreach ($warm_items as $i)
     {
       $item = new Item;
-      $item->setItemDesc($i);
       $item->setItemCode(substr($i, 0,4) . '123');
-      $item->setItemDesc('warm items test');
+      $item->setItemDesc($i);
+      $item->setItemNotes('warm items test');
       $item->setItemUnit($this->unit_repo->find('oz'));
       $item->addLocation($loc, $whs);
       $this->em->persist($item);
@@ -65,9 +65,9 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
     foreach ($fridge_items as $i)
     {
       $item = new Item;
-      $item->setItemDesc($i);
       $item->setItemCode(substr($i, 0,4) . '123');
-      $item->setItemDesc('fridge test');
+      $item->setItemDesc($i);
+      $item->setItemNotes('fridge test');
       $item->setItemUnit($this->unit_repo->find('oz'));
       $item->addLocation($loc, $whs);
       $this->em->persist($item);
@@ -79,9 +79,9 @@ class ItemFixtures extends Fixture implements DependentFixtureInterface
     foreach ($freezer_items as $i)
     {
       $item = new Item;
-      $item->setItemDesc($i);
       $item->setItemCode(substr($i, 0,4) . '123');
-      $item->setItemDesc('freezer test');
+      $item->setItemDesc($i);
+      $item->setItemNotes('freezer test');
       $item->setItemUnit($this->unit_repo->find('lb'));
       $item->addLocation($loc, $whs);
       $this->em->persist($item);

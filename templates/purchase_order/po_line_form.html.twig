@@ -1,10 +1,10 @@
 {% block form %}
 <div class="db-panel db-wrapper db-third">
-  <form class="db-wrapper db-fill db-column db-border" id="po_form" method="post">
+  <form class="db-wrapper db-fill db-column db-border" id="po_form" method="get">
     <div class="db-form-section">
       <label for="po_num">
         PO Num
-        <input type="text" class="db-input db-border" id="po_num" name="po_num" value="{{ params_num }}" autocomplete="off">
+        <input type="text" class="db-input db-border db-filter" id="po_num" name="po_num" value="{{ params.po_num }}" autocomplete="off">
         <datalist id="po_datalist">
           {% for po in pos %}
             <option value="{{ po.poNum }}">{{ po.poNum }}</option>
@@ -23,14 +23,6 @@
         Price
         <input type="text" class="db-input db-border" id="po_price" name="po_price" value="{{ params.po_total_cost }}" autocomplete="off">
       </label>
-    </div>
-    <div class="db-wrapper db-form-section">
-      {% if item is defined %}
-        <button type="submit" class="db-button db-border" formaction="{{ path('modify_po', { po_num: params.poLineNum }) }}">Modify Line</button>
-        <button type="submit" class="db-button db-border" formaction="{{ path('list_pos') }}">Search</button>
-      {% else %}
-        <button type="submit" class="db-button db-border" formaction="{{ path('list_pos') }}">Search</button>
-      {% endif %}
     </div>
   </form>
 </div>

@@ -46,9 +46,6 @@ class PurchaseOrderLine
     #[ORM\Column(type: 'datetime', nullable:true)]
     private ?\datetime $po_received_date = null;
 
-    #[ORM\Column(type: 'string', length:3, nullable:true)]
-    private ?string $item_unit = null;
-
     #[ORM\Column(type: types::SMALLINT, length:3, nullable:false)]
     private ?int $po_received;
 
@@ -174,18 +171,6 @@ class PurchaseOrderLine
     public function setPoReceivedDate(?\DateTimeInterface $po_received_date): static
     {
         $this->po_received_date = $po_received_date;
-
-        return $this;
-    }
-
-    public function getItemUnit(): ?string
-    {
-        return $this->item_unit;
-    }
-
-    public function setItemUnit(?string $item_unit): static
-    {
-        $this->item_unit = $item_unit;
 
         return $this;
     }

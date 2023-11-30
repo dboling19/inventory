@@ -37,10 +37,11 @@ class LocationController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/locations/', name:'list_locations')]
-  public function locations_list(Request $request): Response
+  #[Route('/location/list/', name:'loc_list')]
+  public function loc_list(Request $request): Response
   {
     $locations_limit_cookie = $request->cookies->get('location_items_limit') ?? 25;
+    $entity_type = 'loc';
 
 
     $params = [
@@ -48,8 +49,9 @@ class LocationController extends AbstractController
       'loc_code' => null,
       'loc_desc' => null,
       'loc_notes' => null,
-      'loc_whs' => null,
-      'loc_item' => null,
+      'item_total_qty' => null,
+      'item_locations' => null,
+
     ];
     if ($locations_limit_cookie !== $params['limit'])
     // if form submitted limit != cookie limit then update the cookie
@@ -65,39 +67,58 @@ class LocationController extends AbstractController
     $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
 
     if (!$request->request->get('loc_code') && !$request->query->get('loc_code')) {
-      return $this->render('location/list_locations.html.twig', [
+      return $this->render('location/loc_list.html.twig', [
         'result' => $result,
         'params' => $params,
         'warehouses' => $this->whs_repo->findAll(),
         'items' => $this->item_repo->findAll(),
+        'entity_type' => $entity_type,
       ]);
     }
 
-    switch ($request->getMethod())
+
+    $loc = $this->loc_repo->find($request->query->get('loc_code'));
+    $item_locations = [];
+    foreach ($loc->getItemLoc() as $item_loc)
     {
-      case 'POST':
-        // response coming from form
-        $loc = $this->loc_repo->find($request->request->get('loc_code'));
-        break;
-      case 'GET':
-        // response coming from link
-        $loc = $this->loc_repo->find($request->query->get('loc_code'));
-        break;
+      $item_locations[] = ['whs_code' => $item_loc->getWarehouse()->getWhsCode(), 'item_code' => $item_loc->getItem()->getItemCode(), 'item_qty' => $item_loc->getItemQty()];
     }
+    $loc = $this->loc_repo->find($request->query->get('loc_code'));
     $params = array_merge($params, [
       'loc_code' => $loc->getLocCode(),
       'loc_desc' => $loc->getLocDesc(),
       'loc_notes' => $loc->getLocNotes(),
-      'loc_whs' => $loc->getWarehouses(),
-      'loc_whs' => $loc->getItems(),
+      'item_total_qty' => $loc->getItemQty(),
+      'item_locations' => $item_locations,
     ]);
 
-    return $this->render('location/list_locations.html.twig', [
+    return $this->render('location/loc_list.html.twig', [
       'result' => $result,
       'params' => $params,
       'items' => $this->item_repo->findAll(),
       'warehouses' => $this->whs_repo->findAll(),
+      'entity_type' => $entity_type,
     ]);
+  }
+
+
+  /**
+   * Search for location using loc_code.
+   * Should be the standard route for querying for locations
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/location/search/', name:'loc_search')]
+  public function loc_search(Request $request): Response
+  {
+    if (!$request->query->get('loc_code'))
+    {
+      return $this->redirectToRoute('loc_list');
+    }
+
+    $loc_code = $request->query->get('loc_code');
+
+    return $this->redirectToRoute('loc_list', ['loc_code' => $loc_code]);
   }
 
 
@@ -106,8 +127,8 @@ class LocationController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/create/location', name:'new_location')]
-  public function create_location(Request $request): Response
+  #[Route('/location/new/', name:'loc_new')]
+  public function loc_create(Request $request): Response
   {
     if ($request->request->all())
     {
@@ -118,7 +139,7 @@ class LocationController extends AbstractController
       $this->em->flush();
       $this->addFlash('success', 'Location Added');
     }
-    return $this->redirectToRoute('list_locations');
+    return $this->redirectToRoute('loc_list');
   }
 
 
@@ -127,8 +148,8 @@ class LocationController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/modify/location/', name:'modify_location')]
-  public function modify_location(Request $request): Response
+  #[Route('/location/modify/', name:'loc_modify')]
+  public function loc_modify(Request $request): Response
   {
     $loc_code = $request->request->get('loc_code');
     if($request->request->all()) {
@@ -139,7 +160,7 @@ class LocationController extends AbstractController
       $this->em->flush();
       $this->addFlash('success', 'Location updated.');
     }
-    return $this->redirectToRoute('display_location', ['loc_code' => $loc_code]);
+    return $this->redirectToRoute('loc_search', ['loc_code' => $loc_code]);
   }
 
 
@@ -148,8 +169,8 @@ class LocationController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/delete/location/', name:'delete_location')]
-  public function delete_location(Request $request): Response
+  #[Route('/location/delete/', name:'loc_delete')]
+  public function loc_delete(Request $request): Response
   {
     $loc_code = $request->query->get('loc_code');
     $loc = $this->loc_repo->find($loc_code);
@@ -162,7 +183,7 @@ class LocationController extends AbstractController
       $this->addFlash('success', 'Location removed.');
     } else {
       $this->addFlash('error', 'Location cannot be deleted.  Contains items.');
-      return $this->redirectToRoute('display_location', ['loc_code' => $loc_code]);
+      return $this->redirectToRoute('loc_search', ['loc_code' => $loc_code]);
     }
   }
 

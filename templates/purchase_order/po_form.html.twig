@@ -1,12 +1,12 @@
 {% block form %}
-<div class="db-panel db-wrapper db-third">
-  <form class="db-wrapper db-fill db-column db-border" id="po_form" method="post">
+<div class="db-quarter">
+  <form class="db-wrapper db-fill db-column db-border" id="po_form" method="get">
     <div class="db-form-section">
       <label for="po_num">
         PO Num
-        <input type="text" class="db-input db-border" list="po_datalist" id="po_num" name="po_num" value="{{ params.po_num }}" autocomplete="off">
+        <input type="text" class="db-input db-filter" list="po_datalist" id="po_num" name="po_num" value="{{ params.po_num }}" autocomplete="off">
         <datalist id="po_datalist">
-          {% for po in result %}
+          {% for po in po_result %}
             <option value="{{ po.poNum }}">{{ po.poNum }}</option>
           {% endfor %}
         </datalist>
@@ -15,7 +15,7 @@
     <div class="db-form-section">
       <label for="po_vendor">
         Vendor
-        <input type="text" class="db-input db-border" list="vendor_datalist" id="po_vendor" name="po_vendor" value="{{ params.po_vendor }}" autocomplete="off">
+        <input type="text" class="db-input db-filter" list="vendor_datalist" id="po_vendor" name="po_vendor" value="{{ params.po_vendor }}" required autocomplete="off">
         <datalist id="vendor_datalist">
           {% for vendor in vendors %}
             <option value="{{ vendor.vendorCode }}">{{ vendor.vendorCode ~ ' | ' ~ vendor.vendorDesc }}</option>
@@ -26,7 +26,7 @@
     <div class="db-form-section">
       <label for="po_terms">
         Terms
-        <input type="text" class="db-input db-border" list="terms_datalist" id="po_terms" name="po_terms" value="{{ params.po_terms }}" autocomplete="off">
+        <input type="text" class="db-input" list="terms_datalist" id="po_terms" name="po_terms" value="{{ params.po_terms }}" required autocomplete="off">
         <datalist id="terms_datalist">
           {% for term in terms %}
             <option value="{{ term.termsCode }}">{{ term.termsCode }}</option>
@@ -37,31 +37,21 @@
     <div class="db-form-section">
       <label for="po_total_cost">
         Total Cost
-        <input type="text" class="db-input db-border" id="po_total_cost" name="po_total_cost" value="{{ params.po_total_cost }}" autocomplete="off">
+        <input type="text" class="db-input" id="po_total_cost" name="po_total_cost" value="{{ params.po_total_cost }}" disabled autocomplete="off">
       </label>
     </div>
     <div class="db-form-section">
       <label for="date">PO Date</label>
       <div class="db-wrapper">
-        <input type="date" class="db-input db-border" id="po_date" name="po_date" value="{{ params.po_date }}" autocomplete="off">
+        <input type="date" class="db-input" id="po_date" name="po_date" value="{{ params.po_date|format_datetime('short', 'none') }}" required autocomplete="off">
       </div>
-    </div>
-    <div class="db-wrapper db-form-section">
-      {% if item is defined %}
-        <button type="submit" class="db-button db-border" formaction="{{ path('modify_po', { po_num: po.poNum }) }}">Modify PO</button>
-        <button type="submit" class="db-button db-border" formaction="{{ path('list_pos') }}">Search</button>
-        <button type="submit" class="db-button db-border db-red" formaction="{{ path('delete_po', { po_num: po.poNum }) }}">Delete PO</button>
-      {% else %}
-        <button type="submit" class="db-button db-border" formaction="{{ path('new_po') }}">Create PO</button>
-        <button type="submit" class="db-button db-border" formaction="{{ path('list_pos') }}">Search</button>
-      {% endif %}
     </div>
   </form>
 </div>
 
 
 <script>
-const object_params = {{ params|json_encode()|raw }};
+const params = {{ params|json_encode()|raw }};
 const loc_widget = document.getElementById('loc_widget');
 const loc_template = document.getElementById('loc_template');
 var loc_input = [];
@@ -74,8 +64,8 @@ for (let i = 0; i < 5; i++)
 }
 
 // filling values and input list from loaded entity, if exists
-if (object_params.item_location) {
-  object_params.item_location.forEach((value,index) => {
+if (params.item_location) {
+  params.item_location.forEach((value,index) => {
     loc_section = loc_widget.children[index];
     loc_section.value = value;
     loc_input[index] = value;

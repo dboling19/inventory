@@ -1,10 +1,10 @@
 {% block form %}
 <div class="db-panel db-wrapper db-third">
-  <form id="location_form" class="db-wrapper db-fill db-column db-border" method="post">
+  <form id="loc_form" class="db-wrapper db-fill db-column db-border" method="post">
     <div class="db-form-section">
       <label for="loc_code">
-        Location Code
-        <input type="text" class="db-input db-border" id="loc_code" name="loc_code" list="loc_code_datalist" value="{{ params.loc_code }}"></input>
+        Loc Code
+        <input type="text" class="db-input db-border db-filter" id="loc_code" name="loc_code" list="loc_code_datalist"></input>
         <datalist id="loc_code_datalist">
           {% for loc in result %}
             <option value="{{ loc.locCode }}">{{ loc.locCode }}</option>
@@ -14,118 +14,42 @@
     </div>
     <div class="db-form-section">
       <label for="loc_desc">
-        Location Desc
-        <textarea class="db-input db-border" id="loc_desc" napme="loc_desc" value="{{ params.loc_desc }}"></textarea>
+        Loc Desc
+        <input class="db-input db-border" id="loc_desc" name="loc_desc"></input>
       </label>
     </div>
     <div class="db-form-section">
-      <label for="item_notes">Notes</label>
-      <textarea class="db-input db-border" id="loc_notes" name="loc_notes" value="{{ params.loc_notes }}"></textarea>
-    </div>
-    <div class="db-form-section">
-      <label for="location_whs">Warehouse</label>
-      <div id="whs_widget"></div>
-      <template id="whs_template">
-        <input list="whs_datalist" class="db-input db-border" autocomplete="off"></input>
-      </template>
-      <datalist id="whs_datalist">
-        {% for key,whs in warehouses %}
-          <option value="{{ whs.whsCode }}">{{ whs.whsCode ~ ' | ' ~ whs.whsDesc }}</option>
-        {% endfor %}
-      </datalist>
-      <input id="loc_whs_value" name="loc_whs" hidden></input>
-    </div>
-    <div class="db-form-section">
-      <label for="location_item">Item</label>
-      <div id="item_widget"></div>
-      <template id="item_template">
-        <input list="item_datalist" class="db-input db-border" autocomplete="off"></input>
-      </template>
-      <datalist id="item_datalist">
-        {% for key,item in items %}
-          <option value="{{ item.itemCode }}">{{ item.itemCode ~ ' | ' ~ item.itemDesc }}</option>
-        {% endfor %}
-      </datalist>
-      <input id="loc_item_value" name="loc_item" hidden></input>
-    </div>
-    <div class="db-wrapper db-form-section">
-      {% if params.loc_code is not null %}
-        <button type="submit" class="db-button db-border" formaction="{{ path('modify_location', { loc_code: params.loc_code }) }}">Save</button>
-        <button type="submit" class="db-button db-border" formaction="{{ path('list_locations') }}">Search</button>
-        <button type="submit" class="db-button db-border db-red" formaction="{{ path('delete_location', { loc_code: params.loc_code }) }}">Delete</button>
-      {% else %}
-        <button type="submit" class="db-button db-border" formaction="{{ path('new_location') }}">Create</button>
-        <button type="submit" class="db-button db-border" formaction="{{ path('list_locations') }}">Search</button>
-      {% endif %}
+      <label for="loc_notes">Notes</label>
+      <textarea class="db-input db-border" id="loc_notes" name="loc_notes"></textarea>
     </div>
   </form>
 </div>
 
 <script>
-const object_params = {{ params|json_encode()|raw }};
-const whs_widget = document.getElementById('whs_widget');
-const whs_template = document.getElementById('whs_template');
-var whs_input = [];
-for (let i = 0; i < 5; i++)
+const params = {{ params|json_encode()|raw }};
+const input_fields = ['loc_code', 'loc_desc', 'loc_notes'];
+// must add all desired fields to above list, and ensure array keys coming from PHP match related IDs.
+input_fields.forEach(id => load_data(id));
+function load_data(id)
 {
-  const clone = whs_template.content.cloneNode(true);
-  whs_widget.appendChild(clone);
-  whs_widget.children[i].id = 'whs_section_0' + (i + 1);
-  whs_widget.children[i].addEventListener('change', update_whs_values);
+  input = document.getElementById(id);
+  input.value = params[id];
 }
 
-// filling values and input list from loaded entity, if exists
-if (object_params.item_location) {
-  object_params.item_location.forEach((value,index) => {
-    whs_section = whs_widget.children[index];
-    whs_section.value = value;
-    whs_input[index] = value;
-  });
-}
+loc_form.addEventListener('input', (event) => add_unload_handler());
 
-function update_whs_values()
+function add_unload_handler(event)
 {
-  var whs_input = [];
-  [].forEach.call(whs_widget.children, (child, index) => {
-    if (![null, ''].includes(child.value))
-    {
-      whs_input.push(child.value);
-    }
-  });
-  document.getElementById('loc_whs_value').value = whs_input;
+  if (event.target.value !== "") {
+    window.addEventListener("beforeunload", beforeUnloadHandler);
+  } else {
+    window.removeEventListener("beforeunload", beforeUnloadHandler);
+  }
 }
 
-
-const item_widget = document.getElementById('item_widget');
-const item_template = document.getElementById('item_template');
-var item_input = [];
-for (let i = 0; i < 5; i++)
+function clear_form()
 {
-  const clone = item_template.content.cloneNode(true);
-  item_widget.appendChild(clone);
-  item_widget.children[i].id = 'whs_section_0' + (i + 1);
-  item_widget.children[i].addEventListener('change', update_item_values);
-}
-
-// filling values and input list from loaded entity, if exists
-if (object_params.item_location) {
-  object_params.item_location.forEach((value,index) => {
-    item_section = item_widget.children[index];
-    item_section.value = value;
-    item_input[index] = value;
-  });
-}
-
-function update_item_values()
-{
-  var item_input = [];
-  [].forEach.call(item_widget.children, (child, index) => {
-    if (![null, ''].includes(child.value))
-    {
-      item_input.push(child.value);
-    }
-  });
-  document.getElementById('loc_item_value').value = item_input;
+  loc_form.reset();
 }
 </script>
 {% endblock %}

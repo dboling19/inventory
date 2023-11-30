@@ -1,8 +1,8 @@
 {% block navbar %}
 <nav class="db-bar db-fixed-top" id="navbar">
   <a class="db-button" id="item_list" href="{{ path('item_list') }}">Items</a>
-  <a class="db-button" id="list_locations" href="{{ path('list_locations') }}">Locations</a>
-  <a class="db-button" id="list_pos" href="{{ path('list_pos') }}">Purchase Orders</a>
+  <a class="db-button" id="list_locations" href="{{ path('loc_list') }}">Locations</a>
+  <a class="db-button" id="po_list" href="{{ path('po_list') }}">Purchase Orders</a>
   {# <a class="db-button" id="list_transactions" href="{{ path('list_transactions') }}">Transactions</a> #}
 </nav>
 
@@ -16,7 +16,7 @@
     // necessary as some routes will not have a navbar button, such as modify_item
     {
       const button = document.getElementById({{ route_name|json_encode()|raw }});
-      button.classList.add('db-selected');
+      button.classList.add('active');
     }
   }
 </script>

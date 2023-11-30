@@ -41,14 +41,15 @@ class ItemLocationController extends AbstractController
    * 
    * @author Daniel Boling
    */
-  #[Route('/item_location/details/', 'item_location_details')]
-  public function item_location_details(Request $request): Response
+  #[Route('/item_loc/details/', 'detail_item_loc')]
+  public function detail_item_loc(Request $request): Response
   {
     $params = [
       'item_code' => '',
       'item_desc' => '',
       'item_total_qty' => '',
     ];
+    $entity_type = 'item_loc';
 
     if (!$request->query->get('item_code'))
     {
@@ -58,6 +59,7 @@ class ItemLocationController extends AbstractController
         'items' => $this->item_repo->findAll(),
         'item_loc' => null,
         'params' => $params,
+        'entity_type' => $entity_type,
       ]);
     }
     // no item_code
@@ -84,6 +86,7 @@ class ItemLocationController extends AbstractController
         'items' => $this->item_repo->findAll(),
         'item_loc' => $item->getItemLoc(),
         'params' => $params,
+        'entity_type' => $entity_type,
       ]);
     }
 
@@ -91,16 +94,16 @@ class ItemLocationController extends AbstractController
 
 
   /**
-   * Modify item location relationships.
+   * Create item location relationships
    * 
    * @author Daniel Boling
    */
-  #[Route('/item_location_details/modify/', 'modify_item_location')]
-  public function modify_item_location(Request $request): Response
+  #[Route('/item_loc/new/', '')]
+  public function new_item_loc(Request $request): Response
   {
     if (!$request->query->get('item_code'))
     {
-      return $this->redirectToRoute('item_location_details', ['item_code' => $request->query->get('item_code')]);
+      return $this->redirectToRoute('list_item');
     }
     $params = $request->request->all();
     $item = $this->item_repo->find($params['item_code']);
@@ -113,7 +116,66 @@ class ItemLocationController extends AbstractController
     $this->em->persist($item);
     // $this->trans_service->create_transaction($item, $location, ((int)trim($params['quantity_change'], '+')));
     $this->em->flush();
-    $this->addFlash('success', 'Item Updated');
+    $this->addFlash('success', 'Location Relationship Updated');
+    return $this->redirectToRoute('detail_item_loc', ['item_code' => $request->query->get('item_code')]);
+  }
+
+
+  /**
+   * Modify item location relationships.
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/item_loc/modify/', 'item_loc_modify')]
+  public function modify_item_loc(Request $request): Response
+  {
+    if (!$request->query->get('item_code'))
+    {
+      return $this->redirectToRoute('list_item');
+    }
+    $params = $request->request->all();
+    $item = $this->item_repo->find($params['item_code']);
+    foreach (explode(',', $params['item_locations']) as $loc_addr)
+    {
+      $loc = $this->loc_repo->find($loc_addr['loc_code']); 
+      $whs = $this->whs_repo->find($loc_addr['whs_code']);
+      $item->addLocation($loc, $whs);
+    }
+    $this->em->persist($item);
+    // $this->trans_service->create_transaction($item, $location, ((int)trim($params['quantity_change'], '+')));
+    $this->em->flush();
+    $this->addFlash('success', 'Location Relationship Updated');
+    return $this->redirectToRoute('item_location_details', ['item_code' => $request->query->get('item_code')]);
+  }
+
+
+  /**
+   * Delete item location relationship.
+   * This does not delete the item, just removes the item association.
+   * This may never be called, but the option is available.
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/item_loc/delete/', 'item_loc_delete')]
+  public function delete_item_loc(Request $request): Response
+  {
+    if (!$request->query->get('item_code'))
+    {
+      return $this->redirectToRoute('list_item');
+    }
+    $params = $request->request->all();
+    $item = $this->item_repo->find($params['item_code']);
+    foreach (explode(',', $params['item_locations']) as $loc_addr)
+    {
+      $loc = $this->loc_repo->find($loc_addr['loc_code']); 
+      $whs = $this->whs_repo->find($loc_addr['whs_code']);
+      $item->addLocation($loc, $whs);
+    }
+    $this->em->persist($item);
+    // $this->trans_service->create_transaction($item, $location, ((int)trim($params['quantity_change'], '+')));
+    $this->em->flush();
+    $this->addFlash('success', 'Location Relationship Updated');
+
     return $this->redirectToRoute('item_location_details', ['item_code' => $request->query->get('item_code')]);
   }
 

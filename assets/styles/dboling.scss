@@ -17,9 +17,9 @@ html, body, header, footer, label, table, a, .db-input, .db-background, .db-bar,
   clear:both;
   display:block;
   line-height:normal;
-  overflow-y:visible;
-  overflow-x:hidden;
+  overflow:auto;
   box-sizing:border-box;
+  font-size:12px;
 }
 
 body {
@@ -27,7 +27,6 @@ body {
   margin:0;
   padding:0;
   height:100%;
-  min-height:100%;
 }
 
 label a {
@@ -58,8 +57,7 @@ textarea {
   text-align:justify;
   width:100%;
   padding-bottom:20px;
-  max-width:100%;
-  min-width:100%;
+  width:100%;
 }
 
 input {
@@ -71,18 +69,23 @@ table {
   border-collapse:collapse;
   border-top:1px solid #ccc;
   border-bottom:1px solid #ccc;
-  overflow: scroll;
 }
 
 th {
-  padding: 4px;
+  padding: 3px;
   border-bottom:2px solid #ccc;
 }
 
 tr, td {
-  padding:4px;
+  padding:3px;
   border-left: 1px solid #ccc;
   border-right: 1px solid #ccc;
+  min-height: 50px;
+}
+
+// prevents empty rows from "collapsing"
+td:empty::after{
+  content: "\00a0";
 }
 
 tr:nth-child(odd) {
@@ -103,36 +106,6 @@ tr.db-disabled-row:nth-child(even) {
 
 tr:hover, tr:active {
   background-color: white;
-}
-
-.db-wrapper {
-  height:100%;
-  display:flex;
-  flex-direction:row;
-  align-items:flex-start;
-}
-
-.db-resize-horizontal {
-  height:100%;
-  width:25%;
-  min-width:10px;
-  border-right:2px solid black;
-  resize:horizontal;
-  overflow:auto;
-}
-
-.db-wrapper.db-fill {
-  align-items:normal;
-}
-
-.db-form-section .db-wrapper {
-  align-items:center;
-}
-
-.db-wrapper.db-column {
-  display:flex;
-  flex-direction:column;
-  flex:1 0 auto;
 }
 
 .db-header, .db-footer {
@@ -166,11 +139,26 @@ tr:hover, tr:active {
   cursor:pointer;
   text-decoration:none;
   display:inline;
-  font-size:0.75em;
 }
 
 .db-button:hover {
   background-color:lightgrey!important;
+}
+
+.db-button.active {
+  background:$nord2;
+  color:white;
+}
+
+.db-tab .db-button {
+  border-radius:5px 5px 0px 0px;
+  // padding:6px 0px;
+  border:1px solid white;
+  border-top:2px solid $nord0;
+}
+
+.db-input {
+  border:1px solid lightgrey;
 }
 
 .db-select {
@@ -378,14 +366,14 @@ tr:hover, tr:active {
 }
 
 .db-bar .db-button {
-  background-color:inherit;
   display:flex;
   width:auto;
+  background-color:inherit;
 }
 
-.db-button.db-selected {
+.db-bar .db-button.active {
   background-color:$nord2;
-  color:$nord6;
+  color:white;
 }
 
 .db-bar .db-right {
@@ -412,6 +400,41 @@ tr:hover, tr:active {
   flex-direction:column;
   width:auto;
   justify-content:right;
+}
+
+.db-tabcontent {
+  display:none;
+  padding:6px 12px;
+  border:1px solid #ccc;
+}
+
+.db-wrapper {
+  height:100%;
+  display:flex;
+  flex-direction:row;
+  align-items:flex-start;
+}
+
+.db-resize-horizontal {
+  max-height:94vh;
+  min-width:3%;
+  border-right:2px solid black;
+  resize:horizontal;
+  overflow:auto;
+}
+
+.db-wrapper.db-fill {
+  align-items:normal;
+}
+
+.db-form-section .db-wrapper {
+  align-items:center;
+}
+
+.db-wrapper.db-column {
+  display:flex;
+  flex-direction:column;
+  flex:1 0 auto;
 }
 
 :disabled {
