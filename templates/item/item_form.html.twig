@@ -6,8 +6,8 @@
         Item Code
         <input type="text" class="db-input db-border db-filter" list="item_code_datalist" id="item_code" name="item_code" autocomplete="off">
         <datalist id="item_code_datalist">
-          {% for item in result %}
-            <option value="{{ item.itemCode }}">{{ item.itemCode }}</option>
+          {% for item in items %}
+            <option value="{{ item.item_code }}">{{ item.item_code }}</option>
           {% endfor %}
         </datalist>
       </label>
@@ -26,7 +26,7 @@
       <label for="date">Expiration Date</label>
       <div class="db-wrapper">
         <input type="date" class="db-input" id="item_exp_date" name="item_exp_date" autocomplete="off">
-        <button type="button" class="db-button db-red db-quarter" onclick="window.location.href='{{ path('item_clear_exp_date', {item_code: params.item_code}) }}';">Clear Exp Date</button>
+        <button type="button" class="db-button db-red" onclick="window.location.href='{{ path('item_clear_exp_date') }}';">Clear Exp Date</button>
       </div>
     </div>
     <div class="db-form-section">
@@ -58,9 +58,7 @@
   </form>
 </div>
 
-
 <script>
-const params = {{ params|json_encode()|raw }};
 const loc_widget = document.getElementById('loc_widget');
 const loc_template = document.getElementById('loc_template');
 var loc_input = [];

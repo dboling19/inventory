@@ -1,12 +1,10 @@
-@import "./../../node_modules/nord/src/sass/nord.scss";
-
 html * {
   box-sizing:border-box;
   font-family: Helvetica, sans-serif;
 }*,*:before,*:after{box-sizing:inherit}
 
 html, body, header, footer, label, table, a, .db-input, .db-background, .db-bar, .db-bar-block .db-dropdown, .db-button, .db-bar-block .db-bar-item, .db-bar-block .db-dropdown .db-button {
-  color:$nord0;
+  color:var(--nord0);
   width:100%;
   text-align:left;
   white-space:nowrap;
@@ -20,6 +18,7 @@ html, body, header, footer, label, table, a, .db-input, .db-background, .db-bar,
   overflow:auto;
   box-sizing:border-box;
   font-size:12px;
+  font-family:'Inter Variable', sans-serif;
 }
 
 body {
@@ -83,13 +82,13 @@ tr, td {
   min-height: 50px;
 }
 
-// prevents empty rows from "collapsing"
+/* prevents empty rows from "collapsing" */
 td:empty::after{
   content: "\00a0";
 }
 
 tr:nth-child(odd) {
-  background-color: $nord5;
+  background-color: var(--nord5);
 }
 
 tr:nth-child(even) {
@@ -132,9 +131,9 @@ tr:hover, tr:active {
 }
 
 .db-button, a.db-button {
-  background-color:$nord5;
+  background-color:var(--nord5);
   padding:4px 12px;
-  color:$nord0;
+  color:var(--nord0);
   text-align:center;
   cursor:pointer;
   text-decoration:none;
@@ -146,15 +145,14 @@ tr:hover, tr:active {
 }
 
 .db-button.active {
-  background:$nord2;
+  background:var(--nord2);
   color:white;
 }
 
 .db-tab .db-button {
   border-radius:5px 5px 0px 0px;
-  // padding:6px 0px;
   border:1px solid white;
-  border-top:2px solid $nord0;
+  border-top:2px solid var(--nord0);
 }
 
 .db-input {
@@ -240,13 +238,13 @@ tr:hover, tr:active {
 }
 
 .db-list:nth-child(even) {
-  background-color:$nord5;
-  color:$nord0;
+  background-color:var(--nord5);
+  color:var(--nord0);
 }
 
 .db-list:nth-child(odd) {
-  background-color:$nord4;
-  color:$nord0;
+  background-color:var(--nord4);
+  color:var(--nord0);
 }
 
 .db-card {
@@ -336,20 +334,20 @@ tr:hover, tr:active {
   left:0;
   display:none;
   z-index:2;
-  background-color:$nord1;
+  background-color:var(--nord1);
   opacity:0.4;
 }
 
 .db-error {
-  background-color:$nord11;
-  color:$nord6;
+  background-color:var(--nord11);
+  color:var(--nord6);
   padding:10px 8px;
   width:fit-content;
 }
 
 .db-flash-message {
-  background-color:$nord11;
-  color:$nord6;
+  background-color:var(--nord11);
+  color:var(--nord6);
   width:fit-content;
   position:absolute;
   top:40px;
@@ -357,12 +355,12 @@ tr:hover, tr:active {
 }
 
 .db-bar {
-  background-color:$nord6;
+  background-color:var(--nord6);
   display:flex;
   flex-flow:row nowrap;
   justify-content:flex-start;
   align-items:center;
-  border-bottom:1px solid $nord0;
+  border-bottom:1px solid var(--nord0);
 }
 
 .db-bar .db-button {
@@ -372,7 +370,7 @@ tr:hover, tr:active {
 }
 
 .db-bar .db-button.active {
-  background-color:$nord2;
+  background-color:var(--nord2);
   color:white;
 }
 
@@ -386,7 +384,7 @@ tr:hover, tr:active {
 }
 
 .db-dropdown-content {
-  background-color:$nord5;
+  background-color:var(--nord5);
   display:none;
   position:absolute;
   width:200px;

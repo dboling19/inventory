@@ -18,6 +18,7 @@
         "phpdocumentor/reflection-docblock": "^5.3",
         "symfony/apache-pack": "^1.0",
         "symfony/asset": "6.*",
+        "symfony/asset-mapper": "6.*",
         "symfony/console": "6.*",
         "symfony/dotenv": "6.*",
         "symfony/error-handler": "6.*",
@@ -40,6 +41,7 @@
         "symfony/runtime": "6.*",
         "symfony/security-bundle": "6.*",
         "symfony/serializer": "6.*",
+        "symfony/stimulus-bundle": "^2.13",
         "symfony/string": "6.*",
         "symfony/translation": "6.*",
         "symfony/twig-bundle": "6.*",
@@ -47,6 +49,7 @@
         "symfony/web-link": "6.*",
         "symfony/webpack-encore-bundle": "^1.16",
         "symfony/yaml": "6.*",
+        "symfonycasts/sass-bundle": "^0.3.0",
         "twig/extra-bundle": "^3.7",
         "twig/intl-extra": "^3.7",
         "twig/twig": "^2.12|^3.0"

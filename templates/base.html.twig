@@ -2,15 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/svg" href="{{ asset('build/images/favicon.light.svg') }}"></link>
-    <script src="https://kit.fontawesome.com/88e8e8d392.js" crossorigin="anonymous"></script>
+    <link rel="icon" type="image/svg" href="{{ asset('images/favicon.svg') }}">
     {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
     {% set route_name = app.request.attributes.get('_route')%}
     {% block stylesheets %}
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/inter@5.0.3/index.min.css">
+      <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
       {{ encore_entry_link_tags('app') }}
     {% endblock %}
 
     {% block javascripts %}
+      {{ importmap('app') }}
+      <script src="https://kit.fontawesome.com/88e8e8d392.js" crossorigin="anonymous"></script>
       {{ encore_entry_script_tags('app') }}
     {% endblock %}
     <title>{% block title %}{% endblock %}</title>
@@ -21,7 +24,7 @@
         {{ include('widgets/navbar.html.twig') }}
         {{ include('widgets/toolbar.html.twig') }}
       </header>
-      <noscript>Please enable Javascript to use this page.  Most elements require JS to run correctly.</noscript>
+      <noscript>Please enable Javascript for this application.  Most elements require JS to run correctly.</noscript>
       {% block content %}{% endblock %}
       {% for label, messages in app.flashes %}
         {% for message in messages %}

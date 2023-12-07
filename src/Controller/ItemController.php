@@ -43,38 +43,38 @@ class ItemController extends AbstractController
   #[Route('/', name:'item_list')]
   public function list_items(Request $request): Response
   {
-    $items_limit_cookie = $request->cookies->get('items_limit') ?? 25;
     $entity_type = 'item';
-    $params = [
-      'limit' => $items_limit_cookie,
-      'item_code' => null,
-      'item_desc' => null,
-      'item_notes' => null,
-      'item_exp_date' => null,
-      'item_unit' => null,
-      'item_total_qty' => null,
-      'item_location' => null,
+    $items_thead = [
+      'item_desc' => 'Item Desc',
+      'item_unit' => 'Item Unit',
+      'item_notes' => 'Item Notes',
+      'item_exp_date' => 'Item Exp. Date',
+      'item_code' => 'Item Code',
+      'item_total_qty' => 'Item Total Qty.',
     ];
-    if ($items_limit_cookie !== $params['limit'])
-    // if form submitted limit != cookie limit then update the cookie
-    {
-      $cookie = new Cookie('items_limit', $params['limit']);
-      $response = new Response();
-      $response->headers->setCookie($cookie);
-      $response->send();
-      $items_limit_cookie = $params['limit'];
-    }
     // to autofill form fields, or leave them null.
-    $params = array_merge($request->query->all(), $params);
-    $result = $this->item_repo->findAll();
-    $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $params['limit']);
+    $params = $request->query->all();
+    $items = $this->item_repo->findBy([], ['item_code' => 'asc'], 20, 0);
+    $normalized_items = [];
+    foreach ($items as $item)
+    {
+      $normalized_items[] = [
+        'item_code' => $item->getItemCode(),
+        'item_desc' => $item->getItemDesc(),
+        'item_notes' => $item->getItemNotes(),
+        'item_exp_date' => $item->getItemExpDate(),
+        'item_total_qty' => $item->getItemQty(),
+        'item_unit' => $item->getItemUnit()->getUnitCode(),
+      ];
+    }
+    // $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 100);
     if (!$request->request->get('item_code') && !$request->query->get('item_code')) {
       return $this->render('item/list_items.html.twig', [
         'locations' => $this->loc_repo->findAll(),
         'warehouses' => $this->whs_repo->findAll(),
         'units' => $this->unit_repo->findAll(),
-        'result' => $result,
-        'params' => $params,
+        'items' => $normalized_items,
+        'items_thead' => $items_thead,
         'entity_type' => $entity_type,
       ]);
     }
@@ -100,8 +100,8 @@ class ItemController extends AbstractController
       'locations' => $this->loc_repo->findAll(),
       'warehouses' => $this->whs_repo->findAll(),
       'units' => $this->unit_repo->findAll(),
-      'result' => $result,
-      'params' => $params,
+      'items' => $normalized_items,
+      'items_thead' => $items_thead,
       'entity_type' => $entity_type,
     ]); 
   }
