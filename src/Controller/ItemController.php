@@ -17,6 +17,7 @@ use App\Repository\UnitRepository;
 use App\Repository\WarehouseRepository;
 use App\Service\TransactionService;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Form\ItemType;
 use Datetime;
 use Datetimezone;
 
@@ -45,11 +46,11 @@ class ItemController extends AbstractController
   {
     $entity_type = 'item';
     $items_thead = [
+      'item_code' => 'Item Code',
       'item_desc' => 'Item Desc',
       'item_unit' => 'Item Unit',
       'item_notes' => 'Item Notes',
       'item_exp_date' => 'Item Exp. Date',
-      'item_code' => 'Item Code',
       'item_total_qty' => 'Item Total Qty.',
     ];
     // to autofill form fields, or leave them null.
@@ -67,17 +68,19 @@ class ItemController extends AbstractController
         'item_unit' => $item->getItemUnit()->getUnitCode(),
       ];
     }
+    $item = new Item;
+    $item_form = $this->createForm(ItemType::class, $item);
     // $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 100);
     if (!$request->request->get('item_code') && !$request->query->get('item_code')) {
       return $this->render('item/list_items.html.twig', [
-        'locations' => $this->loc_repo->findAll(),
-        'warehouses' => $this->whs_repo->findAll(),
-        'units' => $this->unit_repo->findAll(),
         'items' => $normalized_items,
         'items_thead' => $items_thead,
         'entity_type' => $entity_type,
+        'item_form' => $item_form,
+        'item' => $item,
       ]);
     }
+
 
 
     $item = $this->item_repo->find($request->query->get('item_code'));
@@ -97,12 +100,11 @@ class ItemController extends AbstractController
     ]);
 
     return $this->render('item/list_items.html.twig', [
-      'locations' => $this->loc_repo->findAll(),
-      'warehouses' => $this->whs_repo->findAll(),
-      'units' => $this->unit_repo->findAll(),
       'items' => $normalized_items,
       'items_thead' => $items_thead,
       'entity_type' => $entity_type,
+      'item_form' => $item_form,
+      'item' => $item,
     ]); 
   }
 

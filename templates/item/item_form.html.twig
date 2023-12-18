@@ -1,61 +1,29 @@
 {% block form %}
 <div class="db-panel db-wrapper db-third">
-  <form class="db-wrapper db-fill db-column db-border" id="item_form" method="get">
-      <div class="db-form-section">
-      <label for="item_code">
-        Item Code
-        <input type="text" class="db-input db-border db-filter" list="item_code_datalist" id="item_code" name="item_code" autocomplete="off">
-        <datalist id="item_code_datalist">
-          {% for item in items %}
-            <option value="{{ item.item_code }}">{{ item.item_code }}</option>
-          {% endfor %}
-        </datalist>
-      </label>
+  {{ form_start(item_form, {'attr': {'class':'db-wrapper db-fill db-column db-border'}}) }}
+    {{ form_errors (item_form, {'class':'db-error'}) }}
+    <div class="db-form-section">
+      {{ form_row (item_form.item_code, {'attr': {'class':'db-input db-filter'}}) }}
     </div>
     <div class="db-form-section">
-      <label for="item_desc">
-        Item Desc
-        <input type="text" class="db-input" id="item_desc" name="item_desc" autocomplete="off">
-      </label>
+      {{ form_row (item_form.item_desc, {'attr': {'class':'db-input'}}) }}
     </div>
     <div class="db-form-section">
-      <label for="item_desc">Notes</label>
-      <textarea class="db-input" id="item_notes" name="item_notes"></textarea>
+      {{ form_row (item_form.item_notes, {'attr': {'class':'db-input'}}) }}
     </div>
     <div class="db-form-section">
-      <label for="date">Expiration Date</label>
       <div class="db-wrapper">
-        <input type="date" class="db-input" id="item_exp_date" name="item_exp_date" autocomplete="off">
-        <button type="button" class="db-button db-red" onclick="window.location.href='{{ path('item_clear_exp_date') }}';">Clear Exp Date</button>
+        {{ form_row (item_form.item_exp_date, {'attr': {'class':'db-input'}}) }}
+        <button type="button" class="db-button db-red" onclick="window.location.href='{{ path('item_clear_exp_date', {item_code: item.itemCode}) }}';">Clear Exp Date</button>
       </div>
     </div>
     <div class="db-form-section">
-      <label for="item_unit">Unit of Measure</label>
-      <input list="unit_datalist" id="item_unit" name="item_unit_code" class="db-input" autocomplete="off"></input>
-      <datalist id="unit_datalist">
-        {% for unit in units %}
-          <option value="{{ unit.unitCode }}">{{ unit.unitDesc }}</option>
-        {% endfor %}
-      </datalist>
+      {{ form_row (item_form.item_unit, {'attr': {'class':'db-input'}}) }}
     </div>
     <div class="db-form-section">
-      <label>Location</label>
-      <div id="loc_widget">
-        <!-- loc_template will build here-->
-      </div>
-      <template id="loc_template">
-        <div class="db-wrapper">
-          <input list="whs_datalist" class="db-input" autocomplete="off" disabled></input>
-          <input list="loc_datalist" class="db-input" autocomplete="off" disabled></input>
-          <input type="text" class="db-input db-auto" disabled></input>
-        </div>
-      </template>
-      <div class="db-wrapper">
-        <input type="text" class="db-input" autocomplete="off" disabled value="Total Quantity"></input>
-        <input type="text" id="item_total_qty" class="db-input db-auto" disabled></input>
-      </div>
+      {{ form_row (item_form.item_qty, {'attr': {'class':'db-input'}}) }}
     </div>
-  </form>
+  {{ form_end (item_form) }}
 </div>
 
 <script>

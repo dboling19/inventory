@@ -5,6 +5,7 @@ export default class extends Controller {
   static values = { thead: Object, tdata: Array }
 
   connect() {
+    console.log(JSON.stringify(this.tdataValue));
     this.element.innerHTML = `<table><thead><tr>${this.createTHead()}</tr></thead><tbody>${this.createTBody()}</tbody></table>`;
   }
 
