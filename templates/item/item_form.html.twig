@@ -1,29 +1,29 @@
 {% block form %}
 <div class="db-panel db-wrapper db-third">
-  {{ form_start(item_form, {'attr': {'class':'db-wrapper db-fill db-column db-border'}}) }}
-    {{ form_errors (item_form, {'class':'db-error'}) }}
+  {{ form_start(form, {'attr': {'class':'db-wrapper db-fill db-column db-border'}}) }}
+    {{ form_errors (form, {'class':'db-error'}) }}
     <div class="db-form-section">
-      {{ form_row (item_form.item_code, {'attr': {'class':'db-input db-filter'}}) }}
+      {{ form_row (form.item_code, {'attr': {'class':'db-input db-filter'}}) }}
     </div>
     <div class="db-form-section">
-      {{ form_row (item_form.item_desc, {'attr': {'class':'db-input'}}) }}
+      {{ form_row (form.item_desc, {'attr': {'class':'db-input'}}) }}
     </div>
     <div class="db-form-section">
-      {{ form_row (item_form.item_notes, {'attr': {'class':'db-input'}}) }}
+      {{ form_row (form.item_notes, {'attr': {'class':'db-input'}}) }}
     </div>
     <div class="db-form-section">
       <div class="db-wrapper">
-        {{ form_row (item_form.item_exp_date, {'attr': {'class':'db-input'}}) }}
-        <button type="button" class="db-button db-red" onclick="window.location.href='{{ path('item_clear_exp_date', {item_code: item.itemCode}) }}';">Clear Exp Date</button>
+        {{ form_row (form.item_exp_date, {'attr': {'class':'db-input'}}) }}
+        {# <button type="button" class="db-button db-red" onclick="window.location.href='{{ path('item_clear_exp_date', {item_code: item.itemCode}) }}';">Clear Exp Date</button> #}
       </div>
     </div>
     <div class="db-form-section">
-      {{ form_row (item_form.item_unit, {'attr': {'class':'db-input'}}) }}
+      {{ form_row (form.item_unit, {'attr': {'class':'db-input'}}) }}
     </div>
     <div class="db-form-section">
-      {{ form_row (item_form.item_qty, {'attr': {'class':'db-input'}}) }}
+      {{ form_row (form.item_qty, {'attr': {'class':'db-input'}}) }}
     </div>
-  {{ form_end (item_form) }}
+  {{ form_end (form) }}
 </div>
 
 <script>

@@ -44,7 +44,13 @@ class ItemController extends AbstractController
   #[Route('/', name:'item_list')]
   public function list_items(Request $request): Response
   {
-    $entity_type = 'item';
+    if (isset($request->query->all()['item_code']))
+    {
+      $item = $this->item_repo->find($request->query->all()['item_code']);
+    } else {
+      $item = new Item;
+    }
+    $item_form = $this->createForm(ItemType::class, $item);
     $items_thead = [
       'item_code' => 'Item Code',
       'item_desc' => 'Item Desc',
@@ -54,7 +60,6 @@ class ItemController extends AbstractController
       'item_total_qty' => 'Item Total Qty.',
     ];
     // to autofill form fields, or leave them null.
-    $params = $request->query->all();
     $items = $this->item_repo->findBy([], ['item_code' => 'asc'], 20, 0);
     $normalized_items = [];
     foreach ($items as $item)
@@ -68,44 +73,12 @@ class ItemController extends AbstractController
         'item_unit' => $item->getItemUnit()->getUnitCode(),
       ];
     }
-    $item = new Item;
-    $item_form = $this->createForm(ItemType::class, $item);
     // $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 100);
-    if (!$request->request->get('item_code') && !$request->query->get('item_code')) {
-      return $this->render('item/list_items.html.twig', [
-        'items' => $normalized_items,
-        'items_thead' => $items_thead,
-        'entity_type' => $entity_type,
-        'item_form' => $item_form,
-        'item' => $item,
-      ]);
-    }
-
-
-
-    $item = $this->item_repo->find($request->query->get('item_code'));
-    $item_locations = [];
-    foreach ($item->getItemLoc() as $item_loc)
-    {
-      $item_locations[] = ['loc_code' => $item_loc->getLocation()->getLocDesc(), 'whs_code' => $item_loc->getWarehouse()->getWhsCode(), 'item_qty' => $item_loc->getItemQty()];
-    }
-    $params = array_merge($params, [
-      'item_code' => $item->getItemCode(),
-      'item_desc' => $item->getItemDesc(),
-      'item_notes' => $item->getItemNotes(),
-      'item_exp_date' => $item->getItemExpDate(),
-      'item_total_qty' => $item->getItemQty(),
-      'item_unit' => $item->getItemUnit()->getUnitCode(),
-      'item_location' => $item_locations,
-    ]);
-
     return $this->render('item/list_items.html.twig', [
       'items' => $normalized_items,
       'items_thead' => $items_thead,
-      'entity_type' => $entity_type,
-      'item_form' => $item_form,
-      'item' => $item,
-    ]); 
+      'form' => $item_form,
+    ]);
   }
 
 
@@ -117,87 +90,76 @@ class ItemController extends AbstractController
   #[Route('/item/search/', name:'item_search')]
   public function item_search(Request $request): Response
   {
-    if (!$request->query->get('item_code'))
-    {
-      return $this->redirectToRoute('item_list');
-    }
+    $item_form = $this->createForm(ItemType::class);
+    $item_form->handleRequest($request);
+    $item = $item_form->getData();
+    if (!$item->getItemCode()) { return $this->redirectToRoute('item_list'); }
 
-    $item_code = $request->query->get('item_code');
-
-    return $this->redirectToRoute('item_list', ['item_code' => $item_code]);
-  }
-
-
-  /**
-   * Function to display and handle new item forms
-   * 
-   * @author Daniel Boling
-   */
-  #[Route('/item/new/', name:'item_new')]
-  public function item_new(Request $request): Response
-  {
-    if(!$request->request->all()) { return $this->redirectToRoute('item_list'); }
-
-    $params = $request->request->all();
-    $item = new Item;
-    $item->setItemDesc($params['item_desc']);
-    $item->setItemNotes($params['item_notes']);
-    if ($params['item_exp_date'] !== '')
-    {
-      $date = new datetime($params['item_exp_date'], new datetimezone('America/Indiana/Indianapolis'));
-      $item->setItemExpDate($date);
-    }
-    $item->setItemUnit($this->unit_repo->find($params['item_unit']));
-    foreach (explode(',', $params['item_locations']) as $loc_addr)
-    {
-      $loc = $this->loc_repo->find($loc_addr['loc_code']); 
-      $whs = $this->whs_repo->find($loc_addr['whs_code']);
-      $item->addLocation($loc, $whs);
-    }
-    $this->em->persist($item);
-    // $this->trans_service->create_transaction($item, $location);
-    $this->em->flush();
-    $this->addFlash('success', 'Item Created');
-    return $this->redirectToRoute('item_list');
+    return $this->redirectToRoute('item_list', [
+      'item_code' => $item->getItemCode(),
+    ]); 
   }
 
   
   /**
-   * Function to display and handle item modification forms
+   * Handle item form submission.
+   * Redirect to creation or modification fuctions
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/item/save/', name:'item_save')]
+  public function item_save(Request $request): Response
+  {
+    // dd($request);
+    $item_form = $this->createForm(ItemType::class);
+    $item_form->handleRequest($request);
+    $item = $item_form->getData();
+    if (!$item_form->isValid())
+    {
+      $this->addFlash('error', 'Error: Invalid Submission - Item not updated');
+      return $this->redirectToRoute('item_search', ['item_code' => $item->getItemCode()]);
+    }
+    if ($this->item_repo->find($item->getItemCode())) {
+      return $this->redirectToRoute('item_modify', ['item' => $item], 307);
+    } else {
+      return $this->redirectToRoute('item_create', ['item' => $item], 307);
+    }
+  }
+
+
+  /**
+   * Handle item modification
    * 
    * @author Daniel Boling
    */
   #[Route('/item/modify/', name:'item_modify')]
-  public function display_item(Request $request): Response
+  public function item_modify(Request $request): Response
   {
-    if(!$request->query->get('item_code')) { return $this->redirectToRoute(('item_list')); }
-    // no form submission
-    // this should never happen, but prevents someone just entering the url.
-
-    $item_code = $request->query->get('item_code');
-    $item = $this->item_repo->find($item_code);
-
-    // item modification stage
-    $params = $request->query->all();
-    $item->setItemDesc($params['item_desc']);
-    $item->setItemNotes($params['item_notes']);
-    if ($params['item_exp_date'] !== '')
-    {
-      $date = new datetime($params['item_exp_date'], new datetimezone('America/Indiana/Indianapolis'));
-      $item->setItemExpDate($date);
-    }
-    $item_unit = $this->unit_repo->find($params['item_unit_code']);
-    if ($item_unit == null)
-    {
-      $this->addFlash('error', 'Error: Invalid Unit - Item not updated');
-      return $this->redirectToRoute('item_search', ['item_code' => $item->getItemCode()]);
-    }
-    $item->setItemUnit($item_unit);
-    $this->em->persist($item);
-    // $this->trans_service->create_transaction($item, $location, ((int)trim($params['quantity_change'], '+')));
+    $item_form = $this->createForm(ItemType::class);
+    $item_form->handleRequest($request);
+    $item = $item_form->getData();
+    $this->em->merge($item);
     $this->em->flush();
     $this->addFlash('success', 'Item Updated');
-    return $this->redirectToRoute('item_search', ['item_code' => $item->getItemCode()]);
+    return $this->redirectToRoute('item_list', ['item_code' => $item->getItemCode()]);
+  }
+
+
+  /**
+   * Handle item creation
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/item/create/', name:'item_create')]
+  public function item_create(Request $request): Response
+  {
+    $item_form = $this->createForm(ItemType::class);
+    $item_form->handleRequest($request);
+    $item = $item_form->getData();
+    $this->em->persist($item);
+    $this->em->flush();
+    $this->addFlash('success', 'Item Updated');
+    return $this->redirectToRoute('item_list', ['item_code' => $item->getItemCode()]);
   }
 
 
@@ -209,41 +171,20 @@ class ItemController extends AbstractController
   #[Route('/item/delete/', name:'item_delete')]
   public function delete_item(Request $request)
   {
-    $item_code = $request->query->get('item_code');
-    $item_loc = $this->item_loc_repo->find($item_code);
-    $item = $item_loc->getItem();
+    $item_form = $this->createForm(ItemType::class);
+    $item_form->handleRequest($request);
+    $item = $item_form->getData();
+    $item = $this->item_repo->find($item->getItemCode());
 
-    if ($item_loc->getItemQty() !== 0)
+    if ($item->getItemQty() !== 0)
     {
-      return $this->redirectToRoute('item_search', ['item_code' => $item_code]);
+      return $this->redirectToRoute('item_list', ['item_code' => $item->getItemCode()]);
     }
 
-    $this->em->remove($item_loc);
+    $this->em->remove($item);
     $this->em->flush();
     $this->addFlash('success', 'Removed Item Entry');
     return $this->redirectToRoute('item_list');
-  }
-
-
-  /**
-   * Clear item exp_date from display_item form
-   * 
-   * @author Daniel Boling
-   */
-  #[Route('/item/clear_exp_date/', name:'item_clear_exp_date')]
-  public function clear_exp_date(Request $request): Response
-  {
-    if (!$request->query->get('item_code'))
-    {
-      return $this->redirectToRoute('item_list');
-    }
-    $item_code = $request->query->get('item_code');
-    $item = $this->item_repo->find($item_code);
-    $item->setItemExpDate(null);
-    $this->em->persist($item);
-    $this->em->flush();
-    $this->addFlash('success', 'Cleared item expiration date');
-    return $this->redirectToRoute('item_search', ['item_code' => $item_code]);
   }
 
 }

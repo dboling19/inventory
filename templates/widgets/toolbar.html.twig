@@ -1,9 +1,13 @@
 {% block toolbar %}
 <nav class="db-bar db-fixed-top" id="navbar">
-  <button type="button" class="db-button" onclick="clear_form()">New</button>
+  {{ form_row (form.new, {'attr': {'class':'db-button'}}) }}
+  {{ form_row (form.search, {'attr': {'class':'db-button'}}) }}
+  {{ form_row (form.save, {'attr': {'class':'db-button'}}) }}
+  {{ form_row (form.delete, {'attr': {'class':'db-button'}}) }}
+  {# <button type="button" class="db-button" onclick="clear_form()">New</button> #}
   {# new_line function is defined custom in each entity page #}
-  <button type="submit" class="db-button" form="{{ entity_type ~ '_form' }}" formaction="{{ path(entity_type ~ '_search') }}">Search</button>
-  <button type="submit" class="db-button" form="{{ entity_type ~ '_form' }}" formaction="{{ path(entity_type ~ '_modify') }}">Save</button>
-  <button type="submit" class="db-button" form="{{ entity_type ~ '_form' }}" formaction="{{ path(entity_type ~ '_delete') }}">Delete</button>
+  {# <button type="submit" class="db-button" form="{{ entity_type ~ '_form' }}" formaction="{{ path(entity_type ~ '_search') }}">Search</button> #}
+  {# <button type="submit" class="db-button" form="{{ entity_type ~ '_form' }}" formaction="{{ path(entity_type ~ '_modify') }}">Save</button> #}
+  {# <button type="submit" class="db-button" form="{{ entity_type ~ '_form' }}" formaction="{{ path(entity_type ~ '_delete') }}">Delete</button> #}
 </nav>
 {% endblock %}
