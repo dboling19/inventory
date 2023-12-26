@@ -3,13 +3,14 @@
 {% block content %}
 <div class="db-wrapper">
   <div class="db-resize-horizontal">
-    <div {{ stimulus_controller('item_widget', {'thead': items_thead, 'tdata': items}) }}></div>
+    <div {{ stimulus_controller('table_widget', {'thead': items_thead, 'tdata': items.items}) }}></div>
+    {{ knp_pagination_render(items, 'pagination/dboling_pagination.html.twig') }}
   </div>
   {{ include('item/item_form.html.twig') }}
-  <div class="db-panel">
+  {# <div class="db-panel">
     <div class="db-wrapper db-column db-panel db-border">
-      {# <a class="db-button db-border" href="{{ path('detail_item_loc', {item_code: params.item_code}) }}">Item Location</a> #}
+      <a class="db-button db-border" href="{{ path('detail_item_loc', {item_code: params.item_code}) }}">Item Location</a>
     </div>
-  </div>
+  </div> #}
 </div>
 {% endblock %}

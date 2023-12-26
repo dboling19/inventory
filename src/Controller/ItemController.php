@@ -18,9 +18,9 @@ use App\Repository\WarehouseRepository;
 use App\Service\TransactionService;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Form\ItemType;
+use App\Serializer\Normalizer\Normalizer;
 use Datetime;
 use Datetimezone;
-
 
 class ItemController extends AbstractController
 {
@@ -34,6 +34,7 @@ class ItemController extends AbstractController
     private WarehouseRepository $whs_repo,
     private TransactionService $trans_service,
     private PaginatorInterface $paginator,
+    private Normalizer $normalizer,
   ) { }
 
   /**
@@ -57,25 +58,26 @@ class ItemController extends AbstractController
       'item_unit' => 'Item Unit',
       'item_notes' => 'Item Notes',
       'item_exp_date' => 'Item Exp. Date',
-      'item_total_qty' => 'Item Total Qty.',
+      'item_qty' => 'Item Total Qty.',
     ];
     // to autofill form fields, or leave them null.
-    $items = $this->item_repo->findBy([], ['item_code' => 'asc'], 20, 0);
+    $result = $this->item_repo->findAll();
+    $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $request->query->getInt('limit', 100));
     $normalized_items = [];
-    foreach ($items as $item)
+    foreach ($result->getItems() as $item)
     {
       $normalized_items[] = [
         'item_code' => $item->getItemCode(),
         'item_desc' => $item->getItemDesc(),
         'item_notes' => $item->getItemNotes(),
         'item_exp_date' => $item->getItemExpDate(),
-        'item_total_qty' => $item->getItemQty(),
+        'item_qty' => $item->getItemQty(),
         'item_unit' => $item->getItemUnit()->getUnitCode(),
       ];
     }
-    // $items = $this->paginator->paginate($items, $request->query->getInt('page', 1), 100);
+    $result->setItems($normalized_items);
     return $this->render('item/list_items.html.twig', [
-      'items' => $normalized_items,
+      'items' => $result,
       'items_thead' => $items_thead,
       'form' => $item_form,
     ]);

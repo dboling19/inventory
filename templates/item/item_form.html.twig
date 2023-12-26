@@ -25,44 +25,4 @@
     </div>
   {{ form_end (form) }}
 </div>
-
-<script>
-const loc_widget = document.getElementById('loc_widget');
-const loc_template = document.getElementById('loc_template');
-var loc_input = [];
-
-const input_fields = ['item_code', 'item_desc', 'item_notes', 'item_exp_date', 'item_unit', 'item_total_qty'];
-// must add all desired fields to above list, and ensure array keys coming from PHP match related IDs.
-input_fields.forEach(id => load_data(id));
-function load_data(id)
-{
-  input = document.getElementById(id);
-  input.value = params[id];
-}
-
-// filling values and input list from loaded entity, if exists
-if (params.item_location) {
-  params.item_location.forEach((value,index) => {
-    const clone = loc_template.content.cloneNode(true);
-    loc_widget.appendChild(clone);
-    loc_widget.children[index].id = 'location_section_0' + (index + 1);
-    loc_section = loc_widget.children[index];
-    whs_name = loc_section.children[0];
-    loc_name = loc_section.children[1];
-    loc_qty = loc_section.children[2];
-    loc_name.value = value.loc_code;
-    whs_name.value = value.whs_code;
-    loc_qty.value = value.item_qty;
-    loc_input[index] = value.loc_code;
-  });
-}
-
-
-new_items_list = [];
-item_form = document.getElementById('item_form');
-function new_line()
-{
-  item_form.reset()
-}
-</script>
 {% endblock %}
