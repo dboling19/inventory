@@ -23,6 +23,17 @@ class ItemRepository extends ServiceEntityRepository
     parent::__construct($registry, Item::class);
   }
 
+  public function findByLoc(string $loc_code)
+  {
+    return $this->createQueryBuilder('i')
+      ->join('i.item_loc', 'item_loc')
+      ->join('item_loc.location', 'loc')
+      ->setParameters(['loc_code' => $loc_code])
+      ->andWhere('loc.loc_code like :loc_code')
+      ->getQuery()
+    ;
+  }
+
   /**
    * @author Daniel Boling
    * @return Item[] Returns an array of Item objects

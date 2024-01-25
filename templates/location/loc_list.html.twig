@@ -3,32 +3,17 @@
 {% block content %}
 <div class="db-wrapper">
   <div class="db-resize-horizontal db-quarter">
-    <table>
-      <tr>
-        <th>{{ knp_pagination_sortable(result, 'Loc Code', 'loc_code') }}</th>
-        <th>{{ knp_pagination_sortable(result, 'Loc Name', 'loc_desc') }}</th>
-        <th>Entries</th>
-        <th>Total Items</th>
-      </tr>
-      {% for row in result %}
-        <tr>
-          <td><a href="{{ path('loc_list', {loc_code: row.locCode }) }}">{{ row.locCode }}</a></td>
-          <td>{{ row.locDesc }}</td>
-          <td>{{ row.itemLoc|length }}</td>
-          <td>{{row.itemQty }}
-        </tr>
-      {% endfor %}
-    </table>
-    {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
+    <div {{ stimulus_controller('table_widget', {'thead': loc_thead, 'tdata': locations.items}) }}></div>
+    {{ knp_pagination_render(locations, 'pagination/dboling_pagination.html.twig') }}
   </div>
-  <div class="db-wrapper db-column">
+  <div class="db-wrapper db-column db-panel">
     {{ include('location/loc_form.html.twig') }}
     <div class="db-tab">
       <button class="db-tablinks db-button" onclick="open_tab(event, 'items')">Items</button>
       <button class="db-tablinks db-button" onclick="open_tab(event, 'vendor_details')">Log</button>
     </div>
     <div id="items" class="db-tabcontent db-resize-horizontal db-half">
-      {{ include('location/item_table.html.twig') }}
+      {{ render(controller('App\\Controller\\LocationController::loc_items_list', {loc_code: form.vars.value.locCode ?? '', item_page: app.request.get('item_page') ?? 1})) }}
     </div>
     <div id="vendor_details" class="db-tabcontent db-quarter">
       {# {{ include('vendor/vendor_details.html.twig') }} #}

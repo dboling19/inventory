@@ -1,88 +1,42 @@
 {% block form %}
-<div class="db-quarter">
-  <form class="db-wrapper db-fill db-column db-border" id="po_form" method="get">
-    <div class="db-form-section">
-      <label for="po_num">
-        PO Num
-        <input type="text" class="db-input db-filter" list="po_datalist" id="po_num" name="po_num" value="{{ params.po_num }}" autocomplete="off">
-        <datalist id="po_datalist">
-          {% for po in po_result %}
-            <option value="{{ po.poNum }}">{{ po.poNum }}</option>
-          {% endfor %}
-        </datalist>
-      </label>
-    </div>
-    <div class="db-form-section">
-      <label for="po_vendor">
-        Vendor
-        <input type="text" class="db-input db-filter" list="vendor_datalist" id="po_vendor" name="po_vendor" value="{{ params.po_vendor }}" required autocomplete="off">
-        <datalist id="vendor_datalist">
-          {% for vendor in vendors %}
-            <option value="{{ vendor.vendorCode }}">{{ vendor.vendorCode ~ ' | ' ~ vendor.vendorDesc }}</option>
-          {% endfor %}
-        </datalist>
-      </label>
-    </div>
-    <div class="db-form-section">
-      <label for="po_terms">
-        Terms
-        <input type="text" class="db-input" list="terms_datalist" id="po_terms" name="po_terms" value="{{ params.po_terms }}" required autocomplete="off">
-        <datalist id="terms_datalist">
-          {% for term in terms %}
-            <option value="{{ term.termsCode }}">{{ term.termsCode }}</option>
-          {% endfor %}
-        </datalist>
-      </label>
-    </div>
-    <div class="db-form-section">
-      <label for="po_total_cost">
-        Total Cost
-        <input type="text" class="db-input" id="po_total_cost" name="po_total_cost" value="{{ params.po_total_cost }}" disabled autocomplete="off">
-      </label>
-    </div>
-    <div class="db-form-section">
-      <label for="date">PO Date</label>
-      <div class="db-wrapper">
-        <input type="date" class="db-input" id="po_date" name="po_date" value="{{ params.po_date|format_datetime('short', 'none') }}" required autocomplete="off">
+<div class="db-twothird">
+  {{ form_start(form, {'attr': {'class':'db-wrapper db-fill db-column db-border'}}) }}
+    {{ form_errors(form, {'class':'db-error'}) }}
+    <span class="db-column db-half">
+      <div class="db-form-section">
+        {{ form_row(form.po_num, {'attr': {'class':'db-input db-filter'}}) }}
       </div>
-    </div>
-  </form>
+      <div class="db-form-section">
+        {{ form_row(form.po_total_cost, {'attr': {'class':'db-input'}}) }}
+      </div>
+      <div class="db-form-section">
+        {{ form_row(form.po_date, {'attr': {'class':'db-input'}}) }}
+        {# <button type="button" class="db-button db-red" onclick="window.location.href='{{ path('item_clear_exp_date', {item_code: item.itemCode}) }}';">Clear Exp Date</button> #}
+      </div>
+      <div class="db-form-section">
+        {{ form_row(form.po_ship_code, {'attr': {'class':'db-input'}}) }}
+      </div>
+      <div class="db-form-section">
+        {{ form_row(form.po_freight, {'attr': {'class':'db-input'}}) }}
+      </div>
+    </span>
+    <span class="db-column db-half">
+      <div class="db-form-section">
+        {{ form_row(form.po_vendor, {'attr': {'class':'db-input'}}) }}
+      </div>
+      <div class="db-form-section">
+        {{ form_row(form.po_terms, {'attr': {'class':'db-input'}}) }}
+      </div>
+      <div class="db-form-section">
+        {{ form_row(form.po_status, {'attr': {'class':'db-input'}}) }}
+      </div>
+      <div class="db-form-section">
+        {{ form_row(form.po_received, {'attr': {'class':'db-input'}}) }}
+      </div>
+      <div class="db-form-section">
+        {{ form_row(form.po_paid, {'attr': {'class':'db-input'}}) }}
+      </div>
+    </span>
+  {{ form_end(form) }}
 </div>
-
-
-<script>
-const params = {{ params|json_encode()|raw }};
-const loc_widget = document.getElementById('loc_widget');
-const loc_template = document.getElementById('loc_template');
-var loc_input = [];
-for (let i = 0; i < 5; i++)
-{
-  const clone = loc_template.content.cloneNode(true);
-  loc_widget.appendChild(clone);
-  loc_widget.children[i].id = 'location_section_0' + (i + 1);
-  loc_widget.children[i].addEventListener('change', update_loc_values);
-}
-
-// filling values and input list from loaded entity, if exists
-if (params.item_location) {
-  params.item_location.forEach((value,index) => {
-    loc_section = loc_widget.children[index];
-    loc_section.value = value;
-    loc_input[index] = value;
-  });
-}
-
-function update_loc_values()
-{
-  var loc_input = [];
-  [].forEach.call(location_widget.children, (child, index) => {
-    if (![null, ''].includes(child.value))
-    {
-      loc_input.push(child.value);
-    }
-  });
-  document.getElementById('item_loc_value').value = loc_input;
-}
-
-</script>
 {% endblock %}

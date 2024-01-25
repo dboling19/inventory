@@ -44,7 +44,7 @@ class PurchaseOrderFixtures extends Fixture implements DependentFixtureInterface
     foreach ($item_categories as $key=>$item_category)
     {
       $po = new PurchaseOrder;
-      $po->setPoOrderDate($this->random_date($min,$max));
+      $po->setPoDate($this->random_date($min,$max));
       $po->setPoVendor($this->vendor_repo->find('AMA123'));
       $po_total_cost = 0;
 

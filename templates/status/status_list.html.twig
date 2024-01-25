@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+{% block title %}Status List{% endblock %}
+{% block content %}
+<div class="db-wrapper">
+  <div class="db-resize-horizontal db-quarter">
+    <div {{ stimulus_controller('table_widget', {'thead': status_thead, 'tdata': result.items}) }}></div>
+    {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
+  </div>
+  {{ include('status/status_form.html.twig') }}
+</div>
+{% endblock %}

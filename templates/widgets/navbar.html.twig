@@ -1,9 +1,11 @@
 {% block navbar %}
 <nav class="db-bar db-fixed-top" id="navbar">
   <a class="db-button" id="item_list" href="{{ path('item_list') }}">Items</a>
-  <a class="db-button" id="list_locations" href="{{ path('loc_list') }}">Locations</a>
+  <a class="db-button" id="loc_list" href="{{ path('loc_list') }}">Locations</a>
   <a class="db-button" id="po_list" href="{{ path('po_list') }}">Purchase Orders</a>
-  {# <a class="db-button" id="list_transactions" href="{{ path('list_transactions') }}">Transactions</a> #}
+  <a class="db-button" id="vendor_list" href="{{ path('vendor_list') }}">Vendors</a>
+  <a class="db-button" id="status_list" href="{{ path('status_list') }}">Status</a>
+
 </nav>
 
 <script>

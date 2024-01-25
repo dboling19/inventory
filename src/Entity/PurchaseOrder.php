@@ -14,21 +14,21 @@ class PurchaseOrder
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $po_num;
+    private ?int $po_num = null;
 
     #[ORM\ManyToOne(targetEntity:Vendor::class)]
     #[ORM\JoinColumn(name:'vendor_code', referencedColumnName:'vendor_code')]
-    private $vendor;
+    private ?Vendor $vendor;
 
     #[ORM\ManyToOne(targetEntity:Terms::class)]
     #[ORM\JoinColumn(nullable:false, name:'terms_code', referencedColumnName:'terms_code')]
     private ?Terms $terms;
 
     #[ORM\Column(type:'string', length:6, nullable:false)]
-    private ?string $po_ship_code;
+    private ?string $po_ship_code = null;
 
     #[ORM\Column(type: 'string', length:1, nullable:false)]
-    private ?string $po_status;
+    private ?string $po_status = null;
 
     #[ORM\Column(type: types::DECIMAL, precision:9, scale:2, nullable:false)]
     private ?string $po_freight = '0';
@@ -40,7 +40,7 @@ class PurchaseOrder
     private ?int $po_paid = 0;
 
     #[ORM\Column(type: 'datetime')]
-    private ?\Datetime $po_order_date;
+    private ?\Datetime $po_date = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $po_total_cost = '0';
@@ -57,6 +57,13 @@ class PurchaseOrder
     public function getPoNum(): ?int
     {
         return $this->po_num;
+    }
+
+    public function setPoNum(int $po_num): static
+    {
+        $this->po_num = $po_num;
+
+        return $this;
     }
 
     public function getPoTotalCost(): ?string
@@ -143,14 +150,14 @@ class PurchaseOrder
         return $this;
     }
 
-    public function getPoOrderDate(): ?\DateTimeInterface
+    public function getPoDate(): ?\DateTimeInterface
     {
-        return $this->po_order_date;
+        return $this->po_date;
     }
 
-    public function setPoOrderDate(\DateTimeInterface $po_order_date): static
+    public function setPoDate(?\DateTimeInterface $po_date): static
     {
-        $this->po_order_date = $po_order_date;
+        $this->po_date = $po_date;
 
         return $this;
     }

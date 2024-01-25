@@ -1,0 +1,25 @@
+{% block form %}
+<div class="db-panel db-wrapper db-third">
+  {{ form_start(form, {'attr': {'class': 'db-wrapper db-fill db-column db-border'} }) }}
+    {{ form_errors (form, {'class':'db-error'}) }}
+    <div class="db-form-section">
+      {{ form_row (form.vendor_code, {'attr': {'class':'db-input db-filter'}}) }}
+    </div>
+    <div class="db-form-section">
+      {{ form_row (form.vendor_desc, {'attr': {'class':'db-input'}}) }}
+    </div>
+    <div class="db-form-section">
+      {{ form_row (form.vendor_notes, {'attr': {'class':'db-input'}}) }}
+    </div>
+    <div class="db-form-section">
+      {{ form_row (form.vendor_addr, {'attr': {'class':'db-input'}}) }}
+    </div>
+    <div class="db-form-section">
+      {{ form_row (form.vendor_email, {'attr': {'class':'db-input'}}) }}
+    </div>
+    <div class="db-form-section">
+      {{ form_row (form.vendor_phone, {'attr': {'class':'db-input'}}) }}
+    </div>
+  {{ form_end (form) }}
+</div>
+{% endblock %}

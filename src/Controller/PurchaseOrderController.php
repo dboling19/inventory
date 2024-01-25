@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\PurchaseOrder;
 use App\Entity\PurchaseOrderLine;
+use App\Form\PurchaseOrderType;
 use App\Repository\LocationRepository;
 use App\Repository\PurchaseOrderRepository;
 use App\Repository\PurchaseOrderLineRepository;
@@ -28,147 +29,144 @@ class PurchaseOrderController extends AbstractController
     private PaginatorInterface $paginator,
   ) {}
 
-  #[Route('/puchase_order/list', name: 'po_list')]
+  #[Route('/po/list', name: 'po_list')]
   public function po_list(Request $request): Response
   {
-    $purchase_orders_limit_cookie = $request->cookies->get('purchase_orders_limit') ?? 100;
-    $entity_type = 'po';
-    $params = [
-      'limit' => $purchase_orders_limit_cookie,
-      'po_num' => '',
-      'po_vendor' => '',
-      'po_terms' => '',
-      'po_total_cost' => '',
-      'po_date' => null,
-      'vendor_code' => '',
-      'vendor_desc' => '',
-      'vendor_notes' => '',
-      'vendor_addr' => '',
-      'vendor_email' => '',
-    ];
-    if ($purchase_orders_limit_cookie !== $params['limit'])
-    // if form submitted limit != cookie limit then update the cookie
+    if (isset($request->query->all()['po_num']))
     {
-      $cookie = new Cookie('items_limit', $params['limit']);
-      $response = new Response();
-      $response->headers->setCookie($cookie);
-      $response->send();
-      $purchase_orders_limit_cookie = $params['limit'];
+      $po = $this->po_repo->find($request->query->all()['po_num']);
+    } else {
+      $po = new PurchaseOrder;
     }
-    $po_num = $request->query->get('po_num');
-
+    $po_form = $this->createForm(PurchaseOrderType::class, $po);
+    $po_thead = [
+      'po_num' => 'PO',
+      'po_vendor' => 'Vendor',
+      'po_terms' => 'Terms',
+      'po_total_cost' => 'PO Total Cost',
+      'po_date' => 'PO Date',
+    ];
+    // to autofill form fields, or leave them null.
     $po_result = $this->po_repo->findAll();
     $po_result = $this->paginator->paginate($po_result, $request->query->getInt('po_page', 1), 100);
-    $po_line_result = $this->po_line_repo->findBy(['po' => $po_num]);
-    $po_line_result = $this->paginator->paginate($po_line_result, $request->query->getInt('po_line_page', 1), 100);
-
-    if (!$request->query->get('po_num'))
+    $normalized_pos = [];
+    foreach ($po_result->getItems() as $item)
     {
-      return $this->render('purchase_order/po_list.html.twig', [
-        'po_result' => $po_result,
-        'po_line_result' => $po_line_result,
-        'params' => $params,
-        'vendors' => $this->vendor_repo->findAll(),
-        'terms' => $this->terms_repo->findAll(),
-        'entity_type' => $entity_type,
-      ]);    
+      $normalized_pos[] = [
+        'po_num' => $item->getPoNum(),
+        'po_vendor' => $item->getPoVendor()->getVendorCode() ?? '',
+        'po_terms' => $item->getPoTerms()->getTermsCode() ?? '',
+        'po_total_cost' => $item->getPoTotalCost(),
+        'po_date' => $item->getPoDate()->format('d-m-Y'),
+      ];
     }
-
-    $po = $this->po_repo->find($po_num);
-    $po_line_result = $this->po_line_repo->findBy(['po' => $po_num]);
-    $po_line_result = $this->paginator->paginate($po_line_result, $request->query->getInt('po_line_page', 1), 100);
-    $vendor = $po->getPoVendor();
-    $params = array_merge($params, [
-      'limit' => $purchase_orders_limit_cookie,
-      'po_num' => $po->getPoNum(),
-      'po_vendor' => $po->getPoVendor()->getVendorCode(),
-      'po_terms' => $po->getPoTerms()->getTermsCode(),
-      'po_total_cost' => $po->getPoTotalCost(),
-      'po_date' => $po->getPoOrderDate(),
-      'vendor_code' => $vendor->getVendorCode(),
-      'vendor_desc' => $vendor->getVendorDesc(),
-      'vendor_notes' => $vendor->getVendorNotes(),
-      'vendor_addr' => $vendor->getVendorAddr(),
-      'vendor_email' => $vendor->getVendorEmail(),
-    ]);
-
+    $po_result->setItems($normalized_pos);
     return $this->render('purchase_order/po_list.html.twig', [
+      'po_thead' => $po_thead,
       'po_result' => $po_result,
-      'po_line_result' => $po_line_result,
-      'params' => $params,
-      'vendors' => $this->vendor_repo->findAll(),
-      'terms' => $this->terms_repo->findAll(),
-      'entity_type' => $entity_type,
+      'form' => $po_form,
     ]);
   }
 
 
-  #[Route('/purchase_order/search/', 'po_search')]
+  /**
+   * Mainly a placeholder for the search functionality.
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/po/search/', name:'po_search')]
   public function po_search(Request $request): Response
   {
-    if (!$request->query->get('po_num'))
-    {
-      return $this->redirectToRoute('po_list');
-    }
+    $po_form = $this->createForm(PurchaseOrderType::class);
+    $po_form->handleRequest($request);
+    $po = $po_form->getData();
+    if (!$po->getPoNum()) { return $this->redirectToRoute('po_list'); }
 
-    $po_num = $request->query->get('po_num');
-
-    return $this->redirectToRoute('po_list', ['po_num' => $po_num]);
-  }
-
-  
-  #[Route('/purchase_order/details/', name:'po_details')]
-  public function po_details(Request $request): Response
-  {
-    $entity_type = 'po';
-
-    $params = [
-      'po_num' => '',
-      'po_vendor' => '',
-      'po_line_num' => '',
-      'po_total_cost' => '',
-    ];
-
-    $result = $this->po_line_repo->findBy(['po' => 'po_num']);
-    $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), 100);
-
-
-    return $this->render('purchase_order/po_details.html.twig', [
-      'result' => $result,
-      'params' => $params,
-      'pos' => $this->po_repo->findAll(),
-      'entity_type' => $entity_type,
+    return $this->redirectToRoute('po_list', [
+      'po_num' => $po->getPoNum(),
     ]);
   }
+  
 
-
-  #[Route('/purchase_order/new/', name:'po_new')]
-  public function new_po(Request $request): Response
+  /**
+   * Handle po form submission.
+   * Redirect to creation or modification fuctions
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/po/save/', name:'po_save')]
+  public function po_save(Request $request): Response
   {
-    if (!$request->query->get('po_num'))
+    $po_form = $this->createForm(PurchaseOrderType::class);
+    $po_form->handleRequest($request);
+    $po = $po_form->getData();
+    if (!$po_form->isValid())
     {
-      $po_num = '';
-      $po = new PurchaseOrder;
-    } else {
-      $po_num = $request->query->get('po_num');
-      $po = $this->po_repo->find($po_num);
+      $this->addFlash('error', 'Error: Invalid Submission - Purchase Order not updated');
+      return $this->redirectToRoute('po_search', ['po_num' => $po->getPoNum()]);
     }
-
-    return $this->redirectToRoute('po_search', ['po_num' => $po_num]);
+    if ($this->po_repo->find($po->getPoNum())) {
+      return $this->redirectToRoute('po_modify', ['po' => $po], 307);
+    } else {
+      return $this->redirectToRoute('po_create', ['po' => $po], 307);
+    }
   }
 
 
-  #[Route('/purchase_order/delete/', 'po_delete')]
-  public function po_delete(): Response
+  /**
+   * Handle po modification
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/po/modify/', name:'po_modify')]
+  public function po_modify(Request $request): Response
   {
+    $po_form = $this->createForm(PurchaseOrderType::class);
+    $po_form->handleRequest($request);
+    $po = $po_form->getData();
+    $this->em->merge($po);
+    $this->em->flush();
+    $this->addFlash('success', 'Purchase Order Updated');
+    return $this->redirectToRoute('po_list', ['po_num' => $po->getPoNum()]);
+  }
+
+
+  /**
+   * Handle po creation
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/po/create/', name:'po_create')]
+  public function po_create(Request $request): Response
+  {
+    $po_form = $this->createForm(PurchaseOrderType::class);
+    $po_form->handleRequest($request);
+    $po = $po_form->getData();
+    $this->em->persist($po);
+    $this->em->flush();
+    $this->addFlash('success', 'Purchase Order Created');
+    return $this->redirectToRoute('po_list', ['po_num' => $po->getPoNum()]);
+  }
+
+
+  /**
+   * Delete PO only if quantity = 0
+   * 
+   * @author Daniel Boling
+   */
+  #[Route('/po/delete/', name:'po_delete')]
+  public function po_delete(Request $request)
+  {
+    $po_form = $this->createForm(PurchaseOrderType::class);
+    $po_form->handleRequest($request);
+    $po = $po_form->getData();
+    $po = $this->po_repo->find($po->getPoNum());
+
+    $this->em->remove($po);
+    $this->em->flush();
+    $this->addFlash('success', 'Removed Purchse Order Entry');
     return $this->redirectToRoute('po_list');
   }
 
-
-  #[Route('/purchase_order/modify/', 'po_modify')]
-  public function po_modify(Request $requst): Response
-  {
-    return $this->redirectToRoute('po_list');
-  }
 
 }

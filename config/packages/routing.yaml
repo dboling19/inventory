@@ -10,3 +10,6 @@ when@prod:
     framework:
         router:
             strict_requirements: null
+
+fos_js_routing:
+    routes_to_expose: ['.*_list']

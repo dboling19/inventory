@@ -14,13 +14,13 @@ class Location implements JsonSerializable
 {
   #[ORM\Id]
   #[ORM\Column(type:'string', length:8, nullable:false)]
-  private string $loc_code;
+  private ?string $loc_code = null;
 
   #[ORM\Column(type:'string', length:255, nullable:false)]
-  private string $loc_desc;
+  private ?string $loc_desc = null;
 
   #[ORM\Column(type:Types::TEXT, nullable:true)]
-  private ?string $loc_notes;
+  private ?string $loc_notes = null;
 
   #[ORM\OneToMany(targetEntity:ItemLocation::class, mappedBy:'location', orphanRemoval:true, cascade:['persist'])]
   #[ORM\InverseJoinColumn(name:'item_code', referencedColumnName:'item_code')]

@@ -1,0 +1,6 @@
+workers:
+  sass:
+    cmd: ['symfony', 'console', 'sass:build', '--watch']
+
+  npm_encore_watch:
+    cmd: ['npx', 'encore', 'dev', '--watch']

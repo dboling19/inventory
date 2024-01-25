@@ -1,15 +1,15 @@
 {% block form %}
-<div class="db-wrapper db-third">
+<div class="db-panel db-wrapper db-third">
   {{ form_start(form, {'attr': {'class': 'db-wrapper db-fill db-column db-border'} }) }}
     {{ form_errors (form, {'class':'db-error'}) }}
     <div class="db-form-section">
-      {{ form_row (form.loc_code, {'attr': {'class':'db-input db-filter'}}) }}
+      {{ form_row (form.status_code, {'attr': {'class':'db-input db-filter'}}) }}
     </div>
     <div class="db-form-section">
-      {{ form_row (form.loc_desc, {'attr': {'class':'db-input'}}) }}
+      {{ form_row (form.status_desc, {'attr': {'class':'db-input'}}) }}
     </div>
     <div class="db-form-section">
-      {{ form_row (form.loc_notes, {'attr': {'class':'db-input'}}) }}
+      {{ form_row (form.status_notes, {'attr': {'class':'db-input'}}) }}
     </div>
   {{ form_end (form) }}
 </div>

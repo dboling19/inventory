@@ -52,7 +52,7 @@ class ItemController extends AbstractController
       $item = new Item;
     }
     $item_form = $this->createForm(ItemType::class, $item);
-    $items_thead = [
+    $item_thead = [
       'item_code' => 'Item Code',
       'item_desc' => 'Item Desc',
       'item_unit' => 'Item Unit',
@@ -62,7 +62,7 @@ class ItemController extends AbstractController
     ];
     // to autofill form fields, or leave them null.
     $result = $this->item_repo->findAll();
-    $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), $request->query->getInt('limit', 100));
+    $result = $this->paginator->paginate($result, $request->query->getInt('page', 1), 100);
     $normalized_items = [];
     foreach ($result->getItems() as $item)
     {
@@ -78,7 +78,7 @@ class ItemController extends AbstractController
     $result->setItems($normalized_items);
     return $this->render('item/list_items.html.twig', [
       'items' => $result,
-      'items_thead' => $items_thead,
+      'item_thead' => $item_thead,
       'form' => $item_form,
     ]);
   }
@@ -99,7 +99,7 @@ class ItemController extends AbstractController
 
     return $this->redirectToRoute('item_list', [
       'item_code' => $item->getItemCode(),
-    ]); 
+    ]);
   }
 
   
@@ -112,7 +112,6 @@ class ItemController extends AbstractController
   #[Route('/item/save/', name:'item_save')]
   public function item_save(Request $request): Response
   {
-    // dd($request);
     $item_form = $this->createForm(ItemType::class);
     $item_form->handleRequest($request);
     $item = $item_form->getData();
@@ -160,7 +159,7 @@ class ItemController extends AbstractController
     $item = $item_form->getData();
     $this->em->persist($item);
     $this->em->flush();
-    $this->addFlash('success', 'Item Updated');
+    $this->addFlash('success', 'Item Created');
     return $this->redirectToRoute('item_list', ['item_code' => $item->getItemCode()]);
   }
 

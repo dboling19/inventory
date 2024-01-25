@@ -14,26 +14,30 @@
     {% block javascripts %}
       {{ importmap('app') }}
       <script src="https://kit.fontawesome.com/88e8e8d392.js" crossorigin="anonymous"></script>
+      {# <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script> #}
+      {# <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script> #}
       {{ encore_entry_script_tags('app') }}
     {% endblock %}
     <title>{% block title %}{% endblock %}</title>
+    <noscript>Please enable Javascript for this application.  Most elements require JS to run correctly.</noscript>
   </head>
+  <header>
+    {{ include('widgets/navbar.html.twig') }}
+    {{ include('widgets/toolbar.html.twig') }}
+  </header>
   <body>
     {% block body %}
-      <header>
-        {{ include('widgets/navbar.html.twig') }}
-        {{ include('widgets/toolbar.html.twig') }}
-      </header>
-      <noscript>Please enable Javascript for this application.  Most elements require JS to run correctly.</noscript>
+      {% block route_picker %}{% endblock %}
+      {{ render(controller('App\\Controller\\RouterController::route_list')) }}
       {% block content %}{% endblock %}
       {% for label, messages in app.flashes %}
         {% for message in messages %}
           <span class="db-flash-message db-notif db-panel" role="alert">{{ message }}</span>
         {% endfor %}
       {% endfor %}
-      <footer class="db-footer">
-        {% block footer %}{% endblock %}
-      </footer>
     {% endblock %}
   </body>
+  <footer class="db-footer">
+    {% block footer %}{% endblock %}
+  </footer>
 </html>

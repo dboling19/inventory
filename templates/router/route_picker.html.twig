@@ -1,0 +1,67 @@
+<div class="db-background"></div>
+<div class="db-form-popup db-middle db-panel db-card db-resize-horizontal" style="height:550px;width:800px;">
+  <div class="db-overflow" style="height:90%;">
+    <table id="route_table">
+      <thead>
+        <tr>
+          <td>Name</td>
+          <td>Notes</td>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in routes %}
+          <tr id="{{ row.route }}" onclick="select(this)">
+            <td>{{ row.name }}</td>
+            <td>{{ row.notes }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="db-container db-right">
+    <a class="db-button" onclick="reroute()">Select</a>
+    <a class="db-button">Close</a>
+  </div>
+</div>
+
+<script>
+  var table_body = document.getElementById('route_table').getElementsByTagName('tbody')[0];
+  
+  let rows = 100 - table_body.children.length;
+  expand_table(table_body, rows);
+  
+  function expand_table(table, rows)
+  {
+    for (let i = 0; i < rows; i++)
+    {
+      var row = document.createElement('tr');
+      var column1 = document.createElement('td');
+      column1.innerHTML = '&nbsp;';
+      var column2 = document.createElement('td');
+      column2.innerHTML = '&nbsp;';
+      row.append(column1, column2);
+      table.appendChild(row);
+    }
+  }
+
+  function select(e)
+  {
+    var elements = document.querySelectorAll('.selected');
+    [].forEach.call(elements, function(el) {
+      el.classList.remove('selected');
+    });
+    e.classList.add('selected');
+  }
+
+  function reroute()
+  {
+    var element = document.querySelectorAll('.selected')[0].id;
+    route = Routing.generate(element);
+    window.location.href = route;
+  }
+
+  function toggle_picker()
+  {
+    console.log('Toggle');
+  }
+</script>

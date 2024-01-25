@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+{% block title %}Vendor{% endblock %}
+{% block content %}
+<div class="db-wrapper">
+  <div class="db-resize-horizontal db-quarter">
+    <div {{ stimulus_controller('table_widget', {'thead': vendor_thead, 'tdata': result.items}) }}></div>
+    {{ knp_pagination_render(result, 'pagination/dboling_pagination.html.twig') }}
+  </div>
+  {{ include('vendor/vendor_form.html.twig') }}
+</div>
+{% endblock %}

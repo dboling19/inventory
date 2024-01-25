@@ -24,17 +24,19 @@ export default class extends Controller {
   }
 
   createTBody() {
+    var rows = []; 
     if (typeof this.tdataValue != "undefined" && this.tdataValue.length > 0) {
-      var rows = []; 
       this.tdataValue.forEach(row => {
         var cols = [];
         Object.keys(this.theadValue).map((element) => {
-          cols += `<td key=${element}>${row[element]}</td>`;
+          var value = row[element] ?? '';
+          cols += `<td key=${element}>${value}</td>`;
         });
         rows += `<tr>${cols}</tr>`;
       });
-      return rows;
     }
+    rows += this.expandTable(100);
+    return rows;
   }
 
   sortDirection(value, direction) {
@@ -44,7 +46,24 @@ export default class extends Controller {
     } else {
       direction = 'asc';
     }
-
     return direction;
+  }
+  
+  expandTable(row_count)
+  {
+    var row_count = row_count - Object.keys(this.tdataValue).length + 1;
+    var rows = [];
+    var cols = [];
+    var value = '&nbsp;';
+    for (let i = 0; i < Object.entries(this.theadValue).length; i++)
+    {
+      cols += `<td>${value}</td>`;
+    }
+
+    for (let i = 0; i < row_count; i++)
+    {
+      rows += `<tr>${cols}</tr>`;
+    }
+    return rows;
   }
 }
